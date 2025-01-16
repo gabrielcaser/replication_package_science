@@ -2,6 +2,7 @@
 
 # Replication steps
 
+- Download this folder clicking on the green button "<Code>"
 - Open code/00_main_code
 - Run command line "renv::restore()" and follow the instructions
 - Run all the script
