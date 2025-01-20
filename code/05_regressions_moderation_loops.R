@@ -7,14 +7,14 @@ library(readxl)
 stem_definitions <- c("strict", "broad") # STEM definitions
 non_stem_colleges <- c("all", "college_mayors_only") # College education conditions
 cohort_filters <- c("2016_", "") # Cohort filters
-windows <- c(0.05, 0.10, 1.00) # Margins of victory
+windows <- c(0.10, 0.05, 1.00) # Margins of victory
 deaths_and_hosp_options <- c("yes", "no") # Log-transform options for outcomes
 outcomes <- c("Y_deaths_sivep", "Y_hosp", "total_nfi") # Outcomes to be analyzed
-personal_characteristics_controls <- c("yes", "no")
+personal_characteristics_controls <- c("no", "yes")
 
 # Loop through parameter combinations -------------------------------------
 results_list <- list() # To store results from each iteration
-
+debug(
 # Create variables for each combination of parameters
 for (stem_definition in stem_definitions) {
   for (non_stem_college in non_stem_colleges) {
@@ -73,7 +73,7 @@ for (stem_definition in stem_definitions) {
               
               # Run regression ------------------------------------------
               results <- plm(
-                get(outcome) ~ X + T + T_X + inter_tenure_stem + tenure +
+                get(outcome) ~ X + T + T_X + inter_tenure_stem +
                   inter_receita_stem + receita_2015 + covsZ,
                 data = pdata,
                 index = c("sigla_uf", "coorte"),
@@ -99,6 +99,7 @@ for (stem_definition in stem_definitions) {
     }
   }
 }
+)
 
 # Extract relevant variables and create a table ---------------------------
 results_table <- data.frame()

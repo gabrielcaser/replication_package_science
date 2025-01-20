@@ -26,14 +26,14 @@ df$tenure <- df$tenure / 12
 df_subset <- subset(df, X >= -1 * janela & X <= janela)
 
 df_subset$inter_receita_stem <- df_subset$receita_2015 * (as.double(df_subset$stem_background) - 1)
-#df_subset$log_tenure         <- log(df_subset$tenure + 1)
+df_subset$log_tenure         <- log(df_subset$tenure + 1)
 df_subset$inter_tenure_stem  <- df_subset$tenure  * (as.double(df_subset$stem_background) - 1)
 df_subset$inter_ideo_stem    <- df_subset$ideology_party * (as.double(df_subset$stem_background) - 1)
 df_subset$inter_X_stem       <- df_subset$X * (as.double(df_subset$stem_background) - 1)
 df_subset$zero               <- 0
 
 # FE
-pdata <- pdata.frame(df_subset, c("sigla_uf"))
+pdata <- pdata.frame(df_subset, c("coorte","sigla_uf"))
 
 # Controles
 
@@ -140,26 +140,27 @@ out8 <- plm(
   model = "within"
 )
 out9 <- plm(
-  total_nfi ~ X + T + T_X + receita_2015 + covsZ  + inter_receita_stem + inter_ tenure_stem,
+  total_nfi ~ X + T + T_X + receita_2015 + covsZ  + inter_receita_stem + inter_tenure_stem,
   data = pdata,
   index = c("sigla_uf","coorte"),
   model = "within"
 )
 
-moderation_revenue <- stargazer::stargazer(
+moderation_both <- stargazer::stargazer(
   out7,
   out8,
   out9,
   type = "text",
-  #covariate.labels = c(
-  #  "STEM Background",
-  #  "2015 Revenue",
-  #  "Revenue Modereration Effect",
-  #  "Woman"
-  #),
-  dep.var.labels = c("Hospitalizations", "Deaths", "NFI"),
-  title = "Moderating effects of cities’ development on the impact of STEM background",
+  covariate.labels = c(
+    "STEM Education",
+    "2015 City's Revenue Mod. Eff.",
+    "STEM Work Tenure Mod. Eff."
+  ),
+  dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
+  title = "Moderating effects of cities’ development and STEM work tenure on the impact of STEM Education",
   out = paste(output_dir, "/tables/moderation_revenue.tex", sep = ""),
- # omit = c("X", "T_X", "covsZ2", "covsZ3", "covsZ4"),
+  omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "receita_2015"),
   notes = NULL
 )
+
+writeLines(moderation_both, con = "outputs/tables/moderation_both.md")
