@@ -26,21 +26,24 @@ df$tenure <- df$tenure / 12
 df_subset <- subset(df, X >= -1 * janela & X <= janela)
 
 df_subset$inter_receita_stem <- df_subset$receita_2015 * (as.double(df_subset$stem_background) - 1)
-df_subset$log_tenure         <- log(df_subset$tenure + 1)
+#df_subset$log_tenure         <- log(df_subset$tenure + 1)
 df_subset$inter_tenure_stem  <- df_subset$tenure  * (as.double(df_subset$stem_background) - 1)
 df_subset$inter_ideo_stem    <- df_subset$ideology_party * (as.double(df_subset$stem_background) - 1)
 df_subset$inter_X_stem       <- df_subset$X * (as.double(df_subset$stem_background) - 1)
-
+df_subset$zero               <- 0
 
 # FE
-pdata <- pdata.frame(df_subset, c("sigla_uf","coorte"))
+pdata <- pdata.frame(df_subset, c("sigla_uf"))
 
 # Controles
 
 covsZ = cbind(pdata$mulher,
               pdata$ideology_party,
               pdata$instrucao,
-              pdata$reeleito)
+              pdata$reeleito,
+              pdata$idade)
+
+#covsZ <- cbind(pdata$zero)
 
 # Final table
 out1 <- plm(
@@ -119,3 +122,44 @@ moderation_revenue <- stargazer::stargazer(
 )
 
 writeLines(moderation_revenue, con = "outputs/tables/moderation_revenue.md")
+
+
+# Testing
+
+
+out7 <- plm(
+  Y_hosp ~ X + T + T_X + receita_2015 +  covsZ + inter_receita_stem + inter_tenure_stem ,
+  data = pdata,
+  index = c("sigla_uf","coorte"),
+  model = "within"
+)
+out8 <- plm(
+  Y_deaths_sivep ~ X + T + T_X + receita_2015 + covsZ + inter_receita_stem + inter_tenure_stem,
+  data = pdata,
+  index = c("sigla_uf","coorte"),
+  model = "within"
+)
+out9 <- plm(
+  total_nfi ~ X + T + T_X + receita_2015 + covsZ  + inter_receita_stem + inter_ tenure_stem,
+  data = pdata,
+  index = c("sigla_uf","coorte"),
+  model = "within"
+)
+
+moderation_revenue <- stargazer::stargazer(
+  out7,
+  out8,
+  out9,
+  type = "text",
+  #covariate.labels = c(
+  #  "STEM Background",
+  #  "2015 Revenue",
+  #  "Revenue Modereration Effect",
+  #  "Woman"
+  #),
+  dep.var.labels = c("Hospitalizations", "Deaths", "NFI"),
+  title = "Moderating effects of cities’ development on the impact of STEM background",
+  out = paste(output_dir, "/tables/moderation_revenue.tex", sep = ""),
+ # omit = c("X", "T_X", "covsZ2", "covsZ3", "covsZ4"),
+  notes = NULL
+)
