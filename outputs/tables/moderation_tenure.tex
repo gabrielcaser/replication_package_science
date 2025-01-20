@@ -1,6 +1,6 @@
 
 % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-% Date and time: sáb., ene. 18, 2025 - 07:31:31
+% Date and time: lun., ene. 20, 2025 - 12:06:39
 \begin{table}[!htbp] \centering 
   \caption{Moderating effects of scientific intensity on the impact of STEM background} 
   \label{} 
@@ -12,23 +12,23 @@
 \\[-1.8ex] & Hospitalizations & Deaths & NFI \\ 
 \\[-1.8ex] & (1) & (2) & (3)\\ 
 \hline \\[-1.8ex] 
- STEM Background & $-$97.587 & $-$627.518$^{**}$ & $-$1.360 \\ 
-  & (71.101) & (232.181) & (2.314) \\ 
+ STEM Background & $-$33.680 & 2.962 & $-$0.273 \\ 
+  & (35.582) & (108.998) & (0.435) \\ 
   & & & \\ 
- Tenure Moderation Effect & 9.083$^{*}$ & 38.181$^{**}$ & 0.103 \\ 
-  & (5.059) & (16.521) & (0.256) \\ 
+ Tenure Moderation Effect & $-$1.917 & $-$12.784 & 0.098$^{***}$ \\ 
+  & (2.957) & (9.058) & (0.035) \\ 
   & & & \\ 
- Woman & 15.190 & $-$24.924 & $-$0.703 \\ 
-  & (45.866) & (149.776) & (4.694) \\ 
+ Woman & 103.572$^{**}$ & 3.990 & 0.767 \\ 
+  & (43.762) & (134.055) & (0.574) \\ 
   & & & \\ 
- covsZ5 & $-$1.276 & $-$5.119 & 0.052 \\ 
-  & (1.237) & (4.038) & (0.127) \\ 
+ covsZ5 & 0.468 & 1.374 & 0.022$^{**}$ \\ 
+  & (0.775) & (2.374) & (0.010) \\ 
   & & & \\ 
 \hline \\[-1.8ex] 
-Observations & 41 & 41 & 27 \\ 
-R$^{2}$ & 0.363 & 0.624 & 0.861 \\ 
-Adjusted R$^{2}$ & $-$0.960 & $-$0.158 & $-$0.802 \\ 
-F Statistic & 0.823 (df = 9; 13) & 2.393$^{*}$ (df = 9; 13) & 1.381 (df = 9; 2) \\ 
+Observations & 117 & 117 & 77 \\ 
+R$^{2}$ & 0.122 & 0.050 & 0.270 \\ 
+Adjusted R$^{2}$ & $-$0.213 & $-$0.312 & $-$0.132 \\ 
+F Statistic & 1.297 (df = 9; 84) & 0.489 (df = 9; 84) & 2.017$^{*}$ (df = 9; 49) \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{3}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 

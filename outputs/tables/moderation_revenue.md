@@ -1,6 +1,6 @@
 
 % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-% Date and time: sáb., ene. 18, 2025 - 07:31:32
+% Date and time: lun., ene. 20, 2025 - 12:06:40
 \begin{table}[!htbp] \centering 
   \caption{Moderating effects of cities’ development on the impact of STEM background} 
   \label{} 
@@ -12,26 +12,26 @@
 \\[-1.8ex] & Hospitalizations & Deaths & NFI \\ 
 \\[-1.8ex] & (1) & (2) & (3)\\ 
 \hline \\[-1.8ex] 
- STEM Background & $-$15.701 & 63.963 & 1.743 \\ 
-  & (45.015) & (155.938) & (0.975) \\ 
+ STEM Background & $-$78.807$^{**}$ & $-$126.348 & 0.178 \\ 
+  & (35.263) & (109.773) & (0.422) \\ 
   & & & \\ 
- 2015 Revenue & 0.254 & 7.271$^{**}$ & 0.010 \\ 
-  & (0.870) & (3.013) & (0.017) \\ 
+ 2015 Revenue & 0.331 & 2.633$^{***}$ & 0.002 \\ 
+  & (0.309) & (0.962) & (0.003) \\ 
   & & & \\ 
- Revenue Modereration Effect & $-$0.101 & $-$8.344$^{**}$ & $-$0.015 \\ 
-  & (0.887) & (3.074) & (0.017) \\ 
+ Revenue Modereration Effect & 1.155 & $-$0.159 & 0.002 \\ 
+  & (0.765) & (2.382) & (0.008) \\ 
   & & & \\ 
- Woman & $-$18.513 & $-$125.954 & 0.182 \\ 
-  & (38.991) & (135.070) & (0.643) \\ 
+ Woman & 69.535$^{*}$ & 24.017 & 0.855 \\ 
+  & (38.830) & (120.880) & (0.537) \\ 
   & & & \\ 
- covsZ5 & $-$0.558 & 1.651 & 0.038$^{*}$ \\ 
-  & (0.828) & (2.867) & (0.019) \\ 
+ covsZ5 & $-$0.242 & 1.236 & 0.022$^{**}$ \\ 
+  & (0.742) & (2.308) & (0.009) \\ 
   & & & \\ 
 \hline \\[-1.8ex] 
-Observations & 41 & 41 & 27 \\ 
-R$^{2}$ & 0.208 & 0.514 & 0.659 \\ 
-Adjusted R$^{2}$ & $-$0.667 & $-$0.022 & $-$0.107 \\ 
-F Statistic & 0.499 (df = 10; 19) & 2.013$^{*}$ (df = 10; 19) & 1.548 (df = 10; 8) \\ 
+Observations & 117 & 117 & 77 \\ 
+R$^{2}$ & 0.143 & 0.145 & 0.157 \\ 
+Adjusted R$^{2}$ & 0.053 & 0.055 & 0.015 \\ 
+F Statistic & 1.751$^{*}$ (df = 10; 105) & 1.782$^{*}$ (df = 10; 105) & 1.215 (df = 10; 65) \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{3}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
