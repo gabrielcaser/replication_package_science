@@ -152,7 +152,8 @@ baseline_table_2
 
 # estimates
 
-covsZ = cbind(state.d, year.d) 
+covsZ = cbind(state.d,
+              year.d) 
 
 r2 = rdrobust(df$Y_hosp,  df$X, p = poli, kernel = k, bwselect = "mserd", covs = covsZ)
 r3 = rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covsZ)
@@ -166,17 +167,7 @@ covsZ <- cbind(
   df$mulher,
   df$ideology_party,
   df$instrucao,
-  df$reeleito,
-  df$renda_pc, 
-  log(df$populacao),
-  df$idhm, 
-  df$densidade, 
-  df$per_populacao_homens,
-  df$pct_desp_recp_saude_mun,
-  df$tx_med_ch, 
-  df$cob_esf, 
-  df$tx_leito_sus, 
-  df$ideology_municipality
+  df$reeleito
 )
 
 r4 = rdrobust(df$Y_hosp,  df$X, p = poli, kernel = k,  covs = covsZ)
@@ -185,7 +176,8 @@ r5 = rdrobust(df$Y_deaths_sivep, df$X, kernel = k, p = poli, covs = covsZ)
 summary(r4)
 summary(r5)
 
-covsZ = cbind(state.d, year.d) 
+covsZ = cbind(state.d,
+              year.d) 
 
 r6 = rdrobust(df$Y_hosp, df$X, p = poli, kernel = k,  h = janela,  bwselect = "mserd",  covs = covsZ)
 r7 = rdrobust(df$Y_deaths_sivep,  df$X, p = poli, kernel = k, h = janela,   bwselect = "mserd",   covs = covsZ)

@@ -3,9 +3,12 @@
 .RData
 .Ruserdata
 .qmd
-.Rproj.user
-
-
-/**/tables_and_figures_files
 .Rprofile
 tables_and_figures.qmd
+tables_and_figures.tex
+/**/tables_and_figures_files
+
+
+tables_and_figures.tex
+tables_and_figures.tex
+/.Rproj.user

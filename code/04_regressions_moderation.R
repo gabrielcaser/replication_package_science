@@ -73,16 +73,16 @@ moderation_tenure <- stargazer::stargazer(
   out2,
   out1,
   out3,
-  type = "text",
+  type = "latex",
   covariate.labels = c("STEM Background", "Tenure Moderation Effect"),
   dep.var.labels = c("Hospitalizations", "Deaths", "NFI"),
-  out = paste(output_dir, "/tables/moderation_tenure.tex", sep = ""),
+  out = paste(output_dir, "/tables/moderation_tenure.md", sep = ""),
   title = "Moderating effects of scientific intensity on the impact of STEM background",
-  #omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5"),
+  omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5"),
   notes = NULL
 )
 
-writeLines(moderation_tenure, con = "outputs/tables/moderation_tenure.md")
+writeLines(moderation_tenure, con = "outputs/tables/moderation_tenure.tex")
 
 out4 <- plm(
   Y_hosp ~ X + T + T_X + receita_2015 + inter_receita_stem + covsZ ,
@@ -107,19 +107,19 @@ moderation_revenue <- stargazer::stargazer(
   out5,
   out4,
   out6,
-  type = "text",
+  type = "latex",
   covariate.labels = c(
     "STEM Background",
     "Revenue Modereration Effect"
   ),
   dep.var.labels = c("Hospitalizations", "Deaths", "NFI"),
   title = "Moderating effects of cities’ development on the impact of STEM background",
-  out = paste(output_dir, "/tables/moderation_revenue.tex", sep = ""),
+  out = paste(output_dir, "/tables/moderation_revenue.md", sep = ""),
   omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "receita_2015"),
   notes = NULL
 )
 
-writeLines(moderation_revenue, con = "outputs/tables/moderation_revenue.md")
+writeLines(moderation_revenue, con = "outputs/tables/moderation_revenue.tex")
 
 
 # Testing
@@ -148,7 +148,7 @@ moderation_both <- stargazer::stargazer(
   out7,
   out8,
   out9,
-  type = "text",
+  type = "latex",
   covariate.labels = c(
     "STEM Education",
     "2015 City's Revenue Mod. Eff.",
@@ -156,9 +156,9 @@ moderation_both <- stargazer::stargazer(
   ),
   dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
   title = "Moderating effects of cities’ development and STEM work tenure on the impact of STEM Education",
-  out = paste(output_dir, "/tables/moderation_revenue.tex", sep = ""),
+  out = paste(output_dir, "/tables/moderation_revenue.md", sep = ""),
   omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "receita_2015"),
   notes = NULL
 )
 
-writeLines(moderation_both, con = "outputs/tables/moderation_both.md")
+writeLines(moderation_both, con = "outputs/tables/moderation_both.tex")
