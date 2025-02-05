@@ -41,7 +41,7 @@ tenure_data_dir                = "C:/Users/wb633398/OneDrive/Gabriel/Insper/Tese
 
 
 # Parameters --------------------------------------------------------------
-stem_definition        = "broad"                # "broad" (Machado) or "strict" (Machine Learning selection based on online profiles)
+stem_definition        = "strict"                # "broad" (Machado) or "strict" (Machine Learning selection based on online profiles)
 non_stem_college       = "college_mayors_only"  # "college_mayors_only" OR "all"
 cohort_filter          = ""                     # "2016_" or ""
 poli                   = 1                      # Functional form (1 or 2)
@@ -55,8 +55,8 @@ data   = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem_definitio
 #covariates = # definir
 # Running scripts ---------------------------------------------------------
 
-#source("code/01_create_dataset.R")
+source("code/01_create_dataset.R")
 #source("code/02_sum_stats.R")
-#source("code/03_regressions_main.R")
+source("code/03_regressions_main.R")
 source("code/04_regressions_moderation.R")
 #source("code/05_regressions_moderation_loops.R")
