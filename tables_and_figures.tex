@@ -591,9 +591,9 @@ Density
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-RD estimator & -3.19 & -0.22 & 0.00 & 0.90 & 0.42 \\
-& {[}3.05{]} & {[}0.23{]} & {[}0.01{]} & {[}45.06{]} & {[}0.36{]} \\
-& 0.30 & 0.35 & 0.82 & 0.98 & 0.24 \\
+RD estimator & -2.92 & -0.20 & 0.00 & 3.91 & 0.37 \\
+& {[}2.75{]} & {[}0.20{]} & {[}0.01{]} & {[}35.91{]} & {[}0.31{]} \\
+& 0.29 & 0.30 & 0.88 & 0.91 & 0.23 \\
 Eff.N.obs. & 366 & 406 & 352 & 388 & 555 \\
 Bandwidth & 13.16 & 14.68 & 12.6 & 14.29 & 22.47 \\
 \end{longtable}
@@ -652,9 +652,9 @@ Mun. ideology index
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-RD estimator & 1.29 & -0.03 & 2.31 & -44.30 & 0.00 \\
-& {[}0.88{]} & {[}0.11{]} & {[}4.00{]} & {[}31.54{]} & {[}0.02{]} \\
-& 0.14 & 0.75 & 0.56 & 0.16 & 0.85 \\
+RD estimator & 1.13 & -0.02 & 1.68 & -41.67 & 0.00 \\
+& {[}0.76{]} & {[}0.09{]} & {[}3.47{]} & {[}27.65{]} & {[}0.02{]} \\
+& 0.14 & 0.81 & 0.63 & 0.13 & 0.98 \\
 Eff.N.obs. & 484 & 337 & 410 & 386 & 375 \\
 Bandwidth & 17.95 & 11.96 & 14.89 & 14.16 & 13.63 \\
 \end{longtable}
@@ -750,18 +750,18 @@ estimates}\tabularnewline
 \endlastfoot
 \multicolumn{5}{@{}>{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.7083} + 8\tabcolsep}@{}}{%
 Panel A: Deaths} \\
-RD estimator & -0.21 & -0.23 & -0.40 & -0.36 \\
-& {[}0.25{]} & {[}0.25{]} & {[}0.20{]} & {[}0.20{]} \\
-& 0.40 & 0.35 & 0.05** & 0.08* \\
-Eff.N.obs. & 412 & 412 & 475 & 481 \\
-Bandwidth & 15 & 15 & 17.56 & 17.81 \\
+RD estimator & -0.29 & -0.35 & -0.35 & -0.37 \\
+& {[}0.23{]} & {[}0.23{]} & {[}0.18{]} & {[}0.18{]} \\
+& 0.21 & 0.13 & 0.05** & 0.03** \\
+Eff.N.obs. & 288 & 288 & 475 & 474 \\
+Bandwidth & 10 & 10 & 17.56 & 17.52 \\
 \multicolumn{5}{@{}>{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.7083} + 8\tabcolsep}@{}}{%
 Panel B: Hospitalizations} \\
-RD estimator & -0.07 & -0.10 & -0.08 & -0.12 \\
-& {[}0.18{]} & {[}0.18{]} & {[}0.14{]} & {[}0.13{]} \\
-& 0.71 & 0.59 & 0.58 & 0.35 \\
-Eff.N.obs. & 412 & 412 & 444 & 468 \\
-Bandwidth & 15 & 15 & 16.26 & 17.27 \\
+RD estimator & -0.02 & -0.07 & -0.10 & -0.14 \\
+& {[}0.17{]} & {[}0.17{]} & {[}0.12{]} & {[}0.12{]} \\
+& 0.92 & 0.66 & 0.40 & 0.23 \\
+Eff.N.obs. & 288 & 288 & 444 & 462 \\
+Bandwidth & 10 & 10 & 16.26 & 17 \\
 \end{longtable}
 
 \emph{Notes}: This table reports the RD estimated impact of mayors with
@@ -772,7 +772,7 @@ selected years (2016, 2020) whose mayor was elected in the first round
 and among the top two most voted was a STEM candidate and a Non-STEM
 one. All specifications use state fixed-effects, uniform kernel.
 Estimations (3) and (4) use optimal bandwidths calculated following
-Calonico et al.~(2014), while estimations (1) and (2) use a 0.15\% vote
+Calonico et al.~(2014), while estimations (1) and (2) use a 0.1\% vote
 margin difference between the two most voted candidates, in order to
 best understand the inclusion of covariates. Estimations (2) and (4)
 control for mayors' personal characteristics. We report
@@ -782,11 +782,12 @@ robust-bias-corrected p-values, coefficients and standard errors.
 estimates}\label{stem-candidates-personal-characteristics-rd-estimates}
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1467}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1600}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1200}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.3333}}@{}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1705}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1364}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1023}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1364}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2841}}@{}}
 \caption{STEM candidates' personal characteristics --- RD
 estimates}\tabularnewline
 \toprule\noalign{}
@@ -797,6 +798,8 @@ Women
 Incumbent
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Education
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Mayors' party ideology
 \end{minipage} \\
@@ -811,17 +814,19 @@ Incumbent
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Age
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Education
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Mayors' party ideology
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-RD estimator & -0.21 & 0.11 & -0.76 & 0.14 \\
-& {[}0.06{]} & {[}0.09{]} & {[}2.06{]} & {[}0.07{]} \\
-& \textless0.01*** & 0.23 & 0.71 & 0.05* \\
-Eff.N.obs. & 438 & 335 & 476 & 345 \\
-Bandwidth & 15.99 & 11.88 & 17.66 & 12.24 \\
+RD estimator & -0.17 & 0.12 & -0.50 & 0.95 & 0.11 \\
+& {[}0.06{]} & {[}0.08{]} & {[}1.82{]} & {[}0.25{]} & {[}0.07{]} \\
+& \textless0.01*** & 0.11 & 0.78 & \textless0.01*** & 0.10 \\
+Eff.N.obs. & 438 & 335 & 476 & 402 & 345 \\
+Bandwidth & 15.99 & 11.88 & 17.66 & 14.58 & 12.24 \\
 \end{longtable}
 
 \emph{Notes}: This table reports our RD estimates of the association
@@ -852,7 +857,7 @@ Interventions in 2020}\tabularnewline
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Total NFI
+Total NPI
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Masks
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
@@ -869,7 +874,7 @@ Sani barriers
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Total NFI
+Total NPI
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Masks
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
@@ -885,12 +890,12 @@ Sani barriers
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Robust & 0.74 & 0.22 & -0.21 & 0.31 & 0.60 & -0.01 \\
-& {[}0.34{]} & {[}0.10{]} & {[}0.20{]} & {[}0.17{]} & {[}0.28{]} &
-{[}0.27{]} \\
-& 0.03** & 0.02** & 0.29 & 0.07* & 0.04** & 0.97 \\
-Eff.N.obs. & 70 & 50 & 52 & 71 & 69 & 42 \\
-Bandwidth & 7.24 & 5.01 & 5.15 & 7.12 & 7.06 & 4.31 \\
+Robust & 0.80 & 0.10 & 0.21 & 0.21 & 0.41 & -0.22 \\
+& {[}0.26{]} & {[}0.07{]} & {[}0.14{]} & {[}0.11{]} & {[}0.17{]} &
+{[}0.17{]} \\
+& \textless0.01*** & 0.14 & 0.14 & 0.05** & 0.02** & 0.18 \\
+Eff.N.obs. & 88 & 108 & 91 & 75 & 91 & 93 \\
+Bandwidth & 9.23 & 10.84 & 9.52 & 7.73 & 9.72 & 9.63 \\
 \end{longtable}
 
 \emph{Notes}: This figure reports the RD estimated impact of mayors with
@@ -916,13 +921,14 @@ bandwidths}\label{impact-of-stem-mayor-on-epidemiological-outcomes-using-differe
 \includegraphics{outputs/figures/robust_outcomes.png} \emph{Notes}: This
 figure reports the RD estimated impact of mayors with scientific
 background on deaths and hospitalizations by COVID-19 per hundred
-thousand inhabitants in the form of log(outcome + 1). Municipalities
-chosen were those that held ordinary elections in selected years (2016,
-2020) whose mayor was elected in the first round and among the top two
-most voted was a STEM candidate and a Non-STEM one. In the horizontal
-axis, we test different winning margins (bandwidth) between the elected
-mayor and the second most voted. These results represent the impact of
-our main estimation (2) that uses first-degree polynomial, state
+thousand inhabitants in the form of log(outcome + 1). Red dot represents
+optimal MSERD bandwidth, Calonico et al.~(2014). Municipalities chosen
+were those that held ordinary elections in selected years (2016, 2020)
+whose mayor was elected in the first round and among the top two most
+voted was a STEM candidate and a Non-STEM one. In the horizontal axis,
+we test different winning margins (bandwidth) between the elected mayor
+and the second most voted. These results represent the impact of our
+main estimation (2) that uses first-degree polynomial, state
 fixed-effects, uniform kernel, and control for mayors' personal
 characteristics.
 
@@ -942,7 +948,8 @@ using different bandwidths}
 \end{figure}%
 
 \emph{Notes}: This figure reports the RD estimated impact of mayors with
-scientific background on non-pharmaceutical interventions.
+scientific background on non-pharmaceutical interventions. Red dots
+represent optimal MSERD bandwidth, Calonico et al.~(2014).
 Municipalities chosen were those that held ordinary elections in
 selected years (2016, 2020) whose mayor was elected in the first round
 and among the top two most voted was a STEM candidate and a Non-STEM
@@ -957,8 +964,8 @@ STEM
 background}\label{moderating-effects-of-scientific-intensity-on-the-impact-of-stem-background}
 
 \% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy
-Institute. E-mail: marek.hlavac at gmail.com \% Date and time: mié.,
-feb. 12, 2025 - 17:41:03
+Institute. E-mail: marek.hlavac at gmail.com \% Date and time: jue.,
+feb. 13, 2025 - 16:39:15
 
 \begin{table}[!htbp] \centering 
   \caption{Moderating effects of scientific intensity on the impact of STEM background} 
@@ -971,17 +978,17 @@ feb. 12, 2025 - 17:41:03
 \\[-1.8ex] & Hospitalizations & Deaths & NFI \\ 
 \\[-1.8ex] & (1) & (2) & (3)\\ 
 \hline \\[-1.8ex] 
- STEM Background & $-$0.386$^{*}$ & $-$0.159 & $-$0.117 \\ 
-  & (0.221) & (0.160) & (0.211) \\ 
+ STEM Background & $-$0.388 & $-$0.158 & $-$0.173 \\ 
+  & (0.312) & (0.215) & (0.256) \\ 
   & & & \\ 
- Tenure Moderation Effect & 0.011 & 0.013 & 0.034$^{*}$ \\ 
-  & (0.021) & (0.015) & (0.020) \\ 
+ Tenure Moderation Effect & 0.010 & 0.021 & 0.052$^{**}$ \\ 
+  & (0.028) & (0.019) & (0.023) \\ 
   & & & \\ 
 \hline \\[-1.8ex] 
-Observations & 412 & 412 & 295 \\ 
-R$^{2}$ & 0.019 & 0.034 & 0.031 \\ 
-Adjusted R$^{2}$ & $-$0.067 & $-$0.051 & $-$0.079 \\ 
-F Statistic & 0.803 (df = 9; 378) & 1.466 (df = 9; 378) & 0.929 (df = 9; 264) \\ 
+Observations & 288 & 288 & 199 \\ 
+R$^{2}$ & 0.023 & 0.054 & 0.063 \\ 
+Adjusted R$^{2}$ & $-$0.109 & $-$0.073 & $-$0.111 \\ 
+F Statistic & 0.591 (df = 10; 253) & 1.439 (df = 10; 253) & 1.128 (df = 10; 167) \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{3}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
@@ -993,7 +1000,7 @@ scientific background on COVID-19 deaths and hospitalizations per
 hundred thousand inhabitants in the form of log(outcome + 1).
 Municipalities chosen were those that held ordinary elections in
 selected years (2016, 2020) whose mayor was elected in the first round,
-winning by a maximum difference of 15\%, and among the top two most
+winning by a maximum difference of 10\%, and among the top two most
 voted was a STEM candidate and a Non-STEM one. The analysis incorporates
 moderation effects of scientific intensity, measured by work tenure. The
 model controls for mayors' personal characteristics, and includes state
@@ -1004,8 +1011,8 @@ STEM
 background}\label{moderating-effects-of-citys-development-on-the-impact-of-stem-background}
 
 \% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy
-Institute. E-mail: marek.hlavac at gmail.com \% Date and time: mié.,
-feb. 12, 2025 - 17:41:03
+Institute. E-mail: marek.hlavac at gmail.com \% Date and time: jue.,
+feb. 13, 2025 - 16:39:17
 
 \begin{table}[!htbp] \centering 
   \caption{Moderating effects of cities’ development on the impact of STEM background} 
@@ -1015,20 +1022,20 @@ feb. 12, 2025 - 17:41:03
 \hline \\[-1.8ex] 
  & \multicolumn{3}{c}{\textit{Dependent variable:}} \\ 
 \cline{2-4} 
-\\[-1.8ex] & Hospitalizations & Deaths & NFI \\ 
+\\[-1.8ex] & Hospitalizations & Deaths & NPI \\ 
 \\[-1.8ex] & (1) & (2) & (3)\\ 
 \hline \\[-1.8ex] 
- STEM Background & $-$0.481$^{**}$ & $-$0.219 & 0.058 \\ 
-  & (0.216) & (0.173) & (0.201) \\ 
+ STEM Background & $-$0.477 & $-$0.190 & $-$0.033 \\ 
+  & (0.307) & (0.235) & (0.248) \\ 
   & & & \\ 
- Revenue Modereration Effect & 0.011 & 0.006 & 0.006 \\ 
-  & (0.007) & (0.005) & (0.006) \\ 
+ Revenue Modereration Effect & 0.002 & $-$0.005 & 0.016 \\ 
+  & (0.012) & (0.009) & (0.010) \\ 
   & & & \\ 
 \hline \\[-1.8ex] 
-Observations & 412 & 412 & 295 \\ 
-R$^{2}$ & 0.059 & 0.095 & 0.031 \\ 
-Adjusted R$^{2}$ & 0.033 & 0.070 & $-$0.007 \\ 
-F Statistic & 2.495$^{***}$ (df = 10; 400) & 4.206$^{***}$ (df = 10; 400) & 0.904 (df = 10; 283) \\ 
+Observations & 288 & 288 & 199 \\ 
+R$^{2}$ & 0.067 & 0.104 & 0.038 \\ 
+Adjusted R$^{2}$ & 0.026 & 0.065 & $-$0.024 \\ 
+F Statistic & 1.789$^{*}$ (df = 11; 275) & 2.915$^{***}$ (df = 11; 275) & 0.676 (df = 11; 186) \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{3}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
@@ -1040,7 +1047,7 @@ scientific background on COVID-19 deaths and hospitalizations per
 hundred thousand inhabitants in the form of log(outcome + 1).
 Municipalities chosen were those that held ordinary elections in
 selected years (2016, 2020) whose mayor was elected in the first round,
-winning by a maximum difference of 15\%, and among the top two most
+winning by a maximum difference of 10\%, and among the top two most
 voted was a STEM candidate and a Non-STEM one. The analysis incorporates
 cities' level of development, indicated by revenue in 2015. The model
 controls for mayors' personal characteristics, and includes state

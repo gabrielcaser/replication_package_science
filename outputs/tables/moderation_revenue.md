@@ -1,6 +1,6 @@
 
 % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-% Date and time: mié., feb. 12, 2025 - 17:41:04
+% Date and time: jue., feb. 13, 2025 - 16:39:18
 \begin{table}[!htbp] \centering 
   \caption{Moderating effects of cities’ development and STEM work tenure on the impact of STEM Education} 
   \label{} 
@@ -12,20 +12,23 @@
 \\[-1.8ex] & Hospitalizations & Deaths & NPI \\ 
 \\[-1.8ex] & (1) & (2) & (3)\\ 
 \hline \\[-1.8ex] 
- STEM Education & $-$0.295 & $-$0.519$^{**}$ & 0.003 \\ 
-  & (0.179) & (0.225) & (0.207) \\ 
+ STEM Education & $-$0.280 & $-$0.508 & $-$0.158 \\ 
+  & (0.245) & (0.320) & (0.253) \\ 
   & & & \\ 
- 2015 City's Revenue Mod. Eff. & 0.005 & 0.011 & 0.006 \\ 
-  & (0.005) & (0.007) & (0.006) \\ 
+ 2015 City's Revenue Mod. Eff. & 0.0001 & 0.0005 & $-$0.001 \\ 
+  & (0.0003) & (0.0005) & (0.0004) \\ 
   & & & \\ 
- STEM Work Tenure Mod. Eff. & 0.025 & 0.013 & 0.020 \\ 
-  & (0.016) & (0.021) & (0.019) \\ 
+ STEM Work Tenure Mod. Eff. & $-$0.006 & 0.002 & 0.014 \\ 
+  & (0.009) & (0.012) & (0.010) \\ 
+  & & & \\ 
+ inter\_tenure\_stem & 0.027 & 0.009 & 0.045$^{**}$ \\ 
+  & (0.021) & (0.027) & (0.022) \\ 
   & & & \\ 
 \hline \\[-1.8ex] 
-Observations & 412 & 412 & 295 \\ 
-R$^{2}$ & 0.101 & 0.060 & 0.035 \\ 
-Adjusted R$^{2}$ & 0.073 & 0.031 & $-$0.006 \\ 
-F Statistic & 4.055$^{***}$ (df = 11; 399) & 2.300$^{***}$ (df = 11; 399) & 0.929 (df = 11; 282) \\ 
+Observations & 288 & 288 & 199 \\ 
+R$^{2}$ & 0.110 & 0.067 & 0.061 \\ 
+Adjusted R$^{2}$ & 0.068 & 0.023 & $-$0.005 \\ 
+F Statistic & 2.825$^{***}$ (df = 12; 274) & 1.644$^{*}$ (df = 12; 274) & 1.000 (df = 12; 185) \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{3}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 

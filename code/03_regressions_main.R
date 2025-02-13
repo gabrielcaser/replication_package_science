@@ -11,12 +11,12 @@ df <- readRDS(paste(data_dir, "/final/", data, sep = ""))
 
 tidy.rdrobust <- function(model, ...) {
   ret <- data.frame(
-    term = row.names(model$coef),
-    estimate = model$coef[3, 1],
-    std.error = model$se[3, 1],
-    p.value = model$pv[3, 1],
-    conf.low = model$ci[3,1],
-    conf.high = model$ci[3,2])
+    term      = row.names(model$coef),
+    estimate  = model[["coef"]][1],
+    std.error = model[["se"]][1],
+    p.value   = model[["pv"]][1],
+    conf.low  = model[["ci"]][1,1],
+    conf.high = model[["ci"]][1,2])
   
   row.names(ret) <- NULL
   ret
@@ -36,14 +36,14 @@ glance.rdrobust <- function(model, ...) {
 ## table of robustness
 
 
-robust_check <- function(outcome, poli, covs, k, x_value) {
+robust_check <- function(outcome, poli, covariadas, k, x_value) {
   
   df_robs <- data.frame()
   
   
   for (i in seq(0.03, 0.24, by = 0.01)) {
     
-    prov = rdrobust(y = outcome, x_value, p = poli, level = 90, kernel = k, h = i, covs = covs) #rodando rdd
+    prov = rdrobust(y = outcome, x_value, p = poli, level = 95, kernel = k, h = i, covs = covariadas) #rodando rdd
 
     df_robs = rbind(df_robs, c(i, prov[["coef"]][1], prov[["coef"]][3], prov[["ci"]][3,1], prov[["ci"]][3,2], prov[["ci"]][1,1], prov[["ci"]][1,2], prov[["z"]][3], prov[["N_h"]][1] + prov[["N_h"]][2])) #salvando colunas
     
@@ -167,7 +167,9 @@ covsZ <- cbind(
   df$mulher,
   df$ideology_party,
   df$instrucao,
-  df$reeleito
+  df$reeleito,
+  df$idade,
+  df$idade * df$idade
 )
 
 r4 = rdrobust(df$Y_hosp,  df$X, p = poli, kernel = k,  covs = covsZ)
@@ -188,11 +190,13 @@ covsZ <- cbind(
   df$mulher,
   df$ideology_party,
   df$instrucao,
-  df$reeleito
+  df$reeleito,
+  df$idade,
+  df$idade * df$idade
 )
 
-r8 = rdrobust(df$Y_hosp ,  df$X, p = poli, kernel = k, h = janela,   bwselect = "mserd",  covs = covsZ)
-r9 = rdrobust(df$Y_deaths_sivep,  df$X, kernel = k, h = janela,   bwselect = "mserd", p = poli,   covs = covsZ)
+r8 = rdrobust(df$Y_hosp ,  df$X, p = poli, kernel = k, h = janela,  covs = covsZ)
+r9 = rdrobust(df$Y_deaths_sivep,  df$X, kernel = k, h = janela, p = poli,   covs = covsZ)
 
 
 
@@ -215,7 +219,7 @@ modelsummary(
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2,
   # decimal places
-  #output = paste(output_dir, "/bigsample_estimates.tex", sep = ""),
+  #output = "tinytable",
   output = "outputs/tables/estimates.md",
   title = "Impact of STEM Leadership on Epidemiological Outcomes — RD estimates",
   coef_omit = "Corrected|Conventional"#,
@@ -232,7 +236,7 @@ poli = 1
 mulher <- rdrobust(df$mulher,  df$X, p = poli, kernel = k,   covs = covsZ)
 reeleito <- rdrobust(df$reeleito,  df$X, p = poli, kernel = k,   covs = covsZ)
 idade <- rdrobust(df$idade,  df$X, p = poli, kernel = k,  covs = covsZ)
-#ens.sup <- rdrobust(df$instrucao,  df$X, p = poli, kernel = k,  covs = covsZ)
+ens.sup <- rdrobust(df$instrucao,  df$X, p = poli, kernel = k,  covs = covsZ)
 ideology <- rdrobust(df$ideology_party,  df$X, p = poli, kernel = k,  covs = covsZ)
 
 
@@ -241,7 +245,7 @@ models <- list(
   "Women" = mulher,
   "Incumbent" = reeleito,
   "Age" = idade,
-  #"Education" = ens.sup,
+  "Education" = ens.sup,
   "Mayors' party ideology" = ideology)
 
 
@@ -252,13 +256,13 @@ teste_chr <- modelsummary(models,
              coef_rename = c("Robust" = "RD estimator"),
              stars = c('*'=.1, '**'=.05, '***'=.01),
              fmt = 2, # decimal places
-             #output = "Dados/output/221103_bigsample_personal_charac.tex",
+             #output = "tinytable",
              output = "outputs/tables/personal_char.md",
              title = "STEM candidates' personal characteristics — RD estimates",
              coef_omit = "Corrected|Conventional")#,
             # align = paste(rep("c", length(models) + 1), collapse = ""))
 
-#teste_chr
+teste_chr
 #gt::gtsave(teste_chr, filename =  "outputs/tables/personal_char.tex")
 
 
@@ -283,22 +287,14 @@ df2 <- df[df$coorte == 2016, ]
 state.f2 = factor(df2$sigla_uf)
 state.d2 = model.matrix(~state.f2+0)
 
-
-covsZ = cbind(state.d2)
-
-r1 = rdrobust(df2$total_nfi,  df2$X, p = poli, kernel = k,   covs = covsZ)
-r2 = rdrobust(df2$mascaras, df2$X,   p = poli, kernel = k,   covs = covsZ)
-r3 = rdrobust(df2$restricao_atv_nao_essenciais, df2$X,   p = poli, kernel = k,   covs = covsZ)
-r4 = rdrobust(df2$restricao_circulacao, df2$X,   p = poli, kernel = k,   covs = covsZ)
-r5 = rdrobust(df2$restricao_transporte_publico, df2$X,   p = poli, kernel = k,   covs = covsZ)
-r6 = rdrobust(df2$barreiras_sanitarias, df2$X,   p = poli, kernel = k,   covs = covsZ)
-
 covsZ <- cbind(
   state.d2,
   df2$mulher,
   df2$ideology_party,
   df2$instrucao,
-  df2$reeleito
+  df2$reeleito,
+  df2$idade,
+  df2$idade * df2$idade
 )
 
 r12 = rdrobust(df2$total_nfi, df2$X, p = poli, kernel = k,   covs = covsZ)
@@ -315,7 +311,7 @@ models <- list(#"Total NFI" = r1,
                #"Restrictions circu." = r4,
                #"Restrictions transp." = r5,
                #"Sani barriers" = r6,
-               "Total NFI" = r12,
+               "Total NPI" = r12,
                "Masks" = r22,
                "Restrictions atv." = r32,
                "Restrictions circu." = r42,
@@ -330,6 +326,7 @@ mr3 <- modelsummary(
   statistic = c("[{std.error}]", "{p.value}{stars}"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2, # decimal places
+  #output = "tinytable",
   output = "outputs/tables/mechanism.md", # Output as gt table
   title = "Impact of STEM Candidate Elected in 2016 on Non-Pharmaceutical Interventions in 2020",
   coef_omit = "Bias-Corrected|Conventional",
@@ -360,14 +357,18 @@ CovsZ <- cbind(
   df$mulher,
   df$ideology_party,
   df$instrucao,
-  df$reeleito
+  df$reeleito,
+  df$idade,
+  df$idade * df$idade
 ) # mechanisms
 CovsZ_mechanism <- cbind(
   state.d2,
   df2$mulher,
   df2$ideology_party,
   df2$instrucao,
-  df2$reeleito
+  df2$reeleito,
+  df2$idade,
+  df2$idade * df2$idade
 )
 
   
@@ -387,10 +388,19 @@ theme_clean <- theme(
   axis.line = element_line(color = "black")
 )
 
-plot_hosp_robs <-  ggplot(df_robs_hosp, aes(x = bw, y = coef_robs)) +
+# Função para adicionar ponto vermelho no valor de bw mais próximo de bw_optimal
+add_optimal_point <- function(plot, df, bw_optimal) {
+  df$distance <- abs(df$bw - bw_optimal)
+  optimal_point <- df[which.min(df$distance), ]
+  
+  plot +
+    geom_point(data = optimal_point, aes(x = bw, y = coef_conv), color = "red", size = 2) 
+}
+
+# Gráficos de hospitalizações e mortes
+plot_hosp_robs <- ggplot(df_robs_hosp, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
   xlim(0.00, 0.24) +
-  #ylim(-750, 200) +
   ylab("") +
   xlab("bandwidth") +
   theme(axis.title = element_text(size = 12),
@@ -398,12 +408,13 @@ plot_hosp_robs <-  ggplot(df_robs_hosp, aes(x = bw, y = coef_robs)) +
   ggtitle("(b) COVID-19 hospitalizations") +
   theme(plot.title = element_text(hjust = 0.5)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  geom_ribbon(aes(ymin = ci_lower_rob, ymax = ci_higher_rob), alpha = 0.2) + theme_clean
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
 
-plot_hosp_robs 
+bw_optimal_hosp <- r4$bws[[1]]
+plot_hosp_robs <- add_optimal_point(plot_hosp_robs, df_robs_hosp, bw_optimal_hosp)
 
-
-plot_deaths_robs <-  ggplot(df_robs_deaths, aes(x = bw, y = coef_robs)) +
+plot_deaths_robs <- ggplot(df_robs_deaths, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
   xlim(0.00, 0.24) +
   ylab("") +
@@ -413,106 +424,136 @@ plot_deaths_robs <-  ggplot(df_robs_deaths, aes(x = bw, y = coef_robs)) +
   ggtitle("(a) COVID-19 deaths") +
   theme(plot.title = element_text(hjust = 0.5)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  geom_ribbon(aes(ymin = ci_lower_rob, ymax = ci_higher_rob), alpha = 0.2) + theme_clean
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
 
-plot_deaths_robs
+bw_optimal_deaths <- r5$bws[[1]]
+plot_deaths_robs <- add_optimal_point(plot_deaths_robs, df_robs_deaths, bw_optimal_deaths)
 
-
-plot_deaths_robs / plot_hosp_robs
-
+# Combinar gráficos de hospitalizações e mortes
 graficos_juntos <- plot_deaths_robs / plot_hosp_robs
 
 ggsave("outputs/figures/robust_outcomes.png", graficos_juntos,
-       width = 5.50,
-       height = 5.00,
-       units = "in")
+       width = 5.50, height = 5.00, units = "in")
 
-
-plot_nfi_robs <-  ggplot(df_robs_nfi, aes(x = bw, y = coef_robs)) +
+# Gráficos de NPIs
+plot_nfi_robs <- ggplot(df_robs_nfi, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
   xlim(0.02, 0.24) +
- # ylim(-5,10) +
   ylab("") +
   xlab("bandwidth") +
   theme(axis.title = element_text(size = 10)) +
   ggtitle("(a) Total number of NPIs") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  geom_ribbon(aes(ymin = ci_lower_rob, ymax = ci_higher_rob), alpha = 0.2) + theme_clean
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
 
-plot_nfi_robs
+bw_optimal_nfi <- r12$bws[[1]]
+plot_nfi_robs <- add_optimal_point(plot_nfi_robs, df_robs_nfi, bw_optimal_nfi)
 
-
-
-plot_nfi_masks <-  ggplot(df_robs_masks, aes(x = bw, y = coef_robs)) +
+plot_nfi_masks <- ggplot(df_robs_masks, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
   xlim(0.02, 0.24) +
-  # ylim(-5,10) +
   ylab("") +
   xlab("bandwidth") +
   theme(axis.title = element_text(size = 10)) +
   ggtitle("(b) Face covering restrictions") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  geom_ribbon(aes(ymin = ci_lower_rob, ymax = ci_higher_rob), alpha = 0.2) + theme_clean
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
 
-plot_nfi_masks
+bw_optimal_masks <- r22$bws[[1]]
+plot_nfi_masks <- add_optimal_point(plot_nfi_masks, df_robs_masks, bw_optimal_masks)
 
-
-plot_nfi_trans <-  ggplot(df_robs_trans_pub, aes(x = bw, y = coef_robs)) +
+plot_nfi_trans <- ggplot(df_robs_trans_pub, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
   xlim(0.02, 0.24) +
-  # ylim(-5,10) +
   ylab("") +
   xlab("bandwidth") +
   theme(axis.title = element_text(size = 10)) +
   ggtitle("(c) Transportation restrictions") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  geom_ribbon(aes(ymin = ci_lower_rob, ymax = ci_higher_rob), alpha = 0.2) + theme_clean
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
 
-plot_nfi_trans
+bw_optimal_trans <- r32$bws[[1]]
+plot_nfi_trans <- add_optimal_point(plot_nfi_trans, df_robs_trans_pub, bw_optimal_trans)
 
-
-plot_nfi_sani <-  ggplot(df_robs_sani, aes(x = bw, y = coef_robs)) +
+plot_nfi_sani <- ggplot(df_robs_sani, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
   xlim(0.02, 0.24) +
-  # ylim(-5,10) +
   ylab("") +
   xlab("bandwidth") +
   theme(axis.title = element_text(size = 10)) +
   ggtitle("(d) Cordon sanitaire restrictions") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  geom_ribbon(aes(ymin = ci_lower_rob, ymax = ci_higher_rob), alpha = 0.2) + theme_clean
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
 
-plot_nfi_atv <-  ggplot(df_robs_atv, aes(x = bw, y = coef_robs)) +
+bw_optimal_sani <- r42$bws[[1]]
+plot_nfi_sani <- add_optimal_point(plot_nfi_sani, df_robs_sani, bw_optimal_sani)
+
+plot_nfi_atv <- ggplot(df_robs_atv, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
   xlim(0.02, 0.24) +
-  # ylim(-5,10) +
   ylab("") +
   xlab("bandwidth") +
   theme(axis.title = element_text(size = 10)) +
   ggtitle("(e) Non-essential activ. restrictions") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  geom_ribbon(aes(ymin = ci_lower_rob, ymax = ci_higher_rob), alpha = 0.2) + theme_clean
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
 
-plot_nfi_circu <-  ggplot(df_robs_circu, aes(x = bw, y = coef_robs)) +
+bw_optimal_atv <- r52$bws[[1]]
+plot_nfi_atv <- add_optimal_point(plot_nfi_atv, df_robs_atv, bw_optimal_atv)
+
+plot_nfi_circu <- ggplot(df_robs_circu, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
   xlim(0.02, 0.24) +
-  # ylim(-5,10) +
   ylab("") +
   xlab("bandwidth") +
   theme(axis.title = element_text(size = 10)) +
   ggtitle("(f) Public gathering restrictions") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  geom_ribbon(aes(ymin = ci_lower_rob, ymax = ci_higher_rob), alpha = 0.2) + theme_clean
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
 
+bw_optimal_circu <- r62$bws[[1]]
+plot_nfi_circu <- add_optimal_point(plot_nfi_circu, df_robs_circu, bw_optimal_circu)
 
-
-
-graf <- (plot_nfi_robs + plot_nfi_masks) / ( plot_nfi_sani + plot_nfi_trans) / (plot_nfi_atv + plot_nfi_circu)
-
-graf
+# Combinar gráficos de NPIs
+graf <- (plot_nfi_robs + plot_nfi_masks) / (plot_nfi_sani + plot_nfi_trans) / (plot_nfi_atv + plot_nfi_circu)
 
 ggsave("outputs/figures/npi_rob.png", graf,
-       width = 10.00,
-       height = 8.00,
-       units = "in")
+       width = 10.00, height = 8.00, units = "in")
 
+
+# Placebo test
+placebo           <- robust_check(df$renda_pc, 1, CovsZ, k, df$X)
+placebo_2016      <- robust_check(df2$renda_pc, 1, CovsZ_mechanism, k, df2$X)
+
+plot_placebo <- ggplot(placebo, aes(x = bw, y = coef_conv)) +
+  geom_point(na.rm = TRUE) +
+  xlim(0.02, 0.24) +
+  ylab("") +
+  xlab("bandwidth") +
+  theme(axis.title = element_text(size = 10)) +
+  ggtitle("Placebo - Impact on Per capta Revenue") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
+
+plot_placebo
+
+plot_placebo_2016 <- ggplot(placebo_2016, aes(x = bw, y = coef_conv)) +
+  geom_point(na.rm = TRUE) +
+  xlim(0.02, 0.24) +
+  ylab("") +
+  xlab("bandwidth") +
+  theme(axis.title = element_text(size = 10)) +
+  ggtitle("Placebo - Impact on Per capta Revenue") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
+
+plot_placebo_2016
