@@ -41,7 +41,8 @@ covsZ = cbind(pdata$mulher,
               pdata$ideology_party,
               pdata$instrucao,
               pdata$reeleito,
-              pdata$idade)
+              pdata$idade,
+              pdata$idade * pdata$idade)
 
 #covsZ <- cbind(pdata$zero)
 
@@ -74,11 +75,12 @@ moderation_tenure <- stargazer::stargazer(
   out1,
   out3,
   type = "latex",
+  #type = "text",
   covariate.labels = c("STEM Background", "Tenure Moderation Effect"),
-  dep.var.labels = c("Hospitalizations", "Deaths", "NFI"),
+  dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
   out = paste(output_dir, "/tables/moderation_tenure.md", sep = ""),
   title = "Moderating effects of scientific intensity on the impact of STEM background",
-  omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5"),
+  omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "covsZ6"),
   notes = NULL
 )
 
@@ -108,14 +110,15 @@ moderation_revenue <- stargazer::stargazer(
   out4,
   out6,
   type = "latex",
+  #type = "text",
   covariate.labels = c(
     "STEM Background",
     "Revenue Modereration Effect"
   ),
-  dep.var.labels = c("Hospitalizations", "Deaths", "NFI"),
+  dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
   title = "Moderating effects of cities’ development on the impact of STEM background",
   out = paste(output_dir, "/tables/moderation_revenue.md", sep = ""),
-  omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "receita_2015"),
+  omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "covsZ6", "receita_2015"),
   notes = NULL
 )
 
