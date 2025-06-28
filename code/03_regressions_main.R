@@ -112,12 +112,13 @@ models_1 <- list(
 
 # Models for Panel 2 (Health and Ideology)
 models_2 <- list(
-  "% Health municipal spending" = pct_desp_recp_saude_mun,
-  "Doctors per 1k pop." = tx_med_ch,
-  "Community health agents program" = cob_esf,
-  "Hosp. beds per 100k pop." = tx_leito_sus,
-  "Mun. ideology index" = ideology_municipality
+  "% Health spending" = pct_desp_recp_saude_mun,
+  "Doctors" = tx_med_ch,
+  "CHA program" = cob_esf,
+  "Hosp. beds" = tx_leito_sus,
+  "Mun. ideology" = ideology_municipality
 )
+
 
 # Create the first table (Demography)
 baseline_table_1 <- modelsummary(
@@ -127,10 +128,10 @@ baseline_table_1 <- modelsummary(
   coef_rename = c("Robust" = "RD estimator"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2,
-  output = "outputs/tables/baseline_table_panel1.md",
+  #output = "latex",
+  output = "outputs/tables/baseline_table_panel1.tex",
   title = "Baseline Characteristics - RD Estimates (Demography)",
-  coef_omit = "Corrected|Conventional"#,
-  #align = paste(rep("c", length(models_1) + 1), collapse = "")
+  coef_omit = "Corrected|Conventional"
 )
 
 # Create the second table (Health and Ideology)
@@ -141,7 +142,7 @@ baseline_table_2 <- modelsummary(
   coef_rename = c("Robust" = "RD estimator"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2,
-  output = "outputs/tables/baseline_table_panel2.md",
+  output = "outputs/tables/baseline_table_panel2.tex",
   title = "Baseline Characteristics - RD Estimates (Health and Ideology)",
   coef_omit = "Corrected|Conventional"#,
   #align = paste(rep("c", length(models_2) + 1), collapse = "")
@@ -220,7 +221,7 @@ modelsummary(
   fmt = 2,
   # decimal places
   #output = "tinytable",
-  output = "outputs/tables/estimates.md",
+  output = "outputs/tables/estimates.tex",
   title = "Impact of STEM Leadership on Epidemiological Outcomes — RD estimates",
   coef_omit = "Corrected|Conventional"#,
   #align = paste(rep("c", length(models) + 1), collapse = "")
@@ -257,7 +258,7 @@ teste_chr <- modelsummary(models,
              stars = c('*'=.1, '**'=.05, '***'=.01),
              fmt = 2, # decimal places
              #output = "tinytable",
-             output = "outputs/tables/personal_char.md",
+             output = "outputs/tables/personal_char.tex",
              title = "STEM candidates' personal characteristics — RD estimates",
              coef_omit = "Corrected|Conventional")#,
             # align = paste(rep("c", length(models) + 1), collapse = ""))
@@ -327,7 +328,7 @@ mr3 <- modelsummary(
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2, # decimal places
   #output = "tinytable",
-  output = "outputs/tables/mechanism.md", # Output as gt table
+  output = "outputs/tables/mechanism.tex", # Output as gt table
   title = "Impact of STEM Candidate Elected in 2016 on Non-Pharmaceutical Interventions in 2020",
   coef_omit = "Bias-Corrected|Conventional",
   align = paste(rep("r", length(models) + 1), collapse = "") # Create alignment string
@@ -342,7 +343,7 @@ mr3 <- modelsummary(
 #markdown_output <- gt::as_raw_html(mr3)
 #
 ## Save Markdown content to a file
-#writeLines(markdown_output, con = "outputs/tables/mechanism.md")
+#writeLines(markdown_output, con = "outputs/tables/mechanism.tex")
 
 
 

@@ -1,31 +1,40 @@
 \begin{table}
-\fontsize{12.0pt}{14.4pt}\selectfont
-\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccc}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Impact of STEM Leadership on Epidemiological Outcomes — RD estimates},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]},
+cell{2}{1}={c=5}{},cell{8}{1}={c=5}{},
+column{2,3,4,5}={}{halign=c,},
+cell{1}{1}={}{halign=l,},
+cell{2}{1}={}{halign=l,},
+cell{8}{1}={}{halign=l,},
+cell{3}{1}={}{halign=l, preto={\hspace{1em}},},
+cell{4}{1}={}{halign=l, preto={\hspace{1em}},},
+cell{5}{1}={}{halign=l, preto={\hspace{1em}},},
+cell{6}{1}={}{halign=l, preto={\hspace{1em}},},
+cell{7}{1}={}{halign=l, preto={\hspace{1em}},},
+cell{9}{1}={}{halign=l, preto={\hspace{1em}},},
+cell{10}{1}={}{halign=l, preto={\hspace{1em}},},
+cell{11}{1}={}{halign=l, preto={\hspace{1em}},},
+cell{12}{1}={}{halign=l, preto={\hspace{1em}},},
+cell{13}{1}={}{halign=l, preto={\hspace{1em}},},
+}                     %% tabularray inner close
 \toprule
-  & (1) & (2) & (3) & (4) \\ 
-\midrule\addlinespace[2.5pt]
-\multicolumn{5}{l}{Panel A: Deaths} \\[2.5pt] 
-\midrule\addlinespace[2.5pt]
-RD estimator & -7.20 & -5.80 & -12.54 & -4.13 \\ 
- & [15.05] & [14.90] & [23.21] & [23.51] \\ 
- & 0.40 & 0.50 & 0.54 & 0.78 \\ 
-Eff.number.obs. & 465 & 465 & 195 & 192 \\ 
-Bandwidth & 500 & 500 & 14.06 & 13.66 \\ 
-State.FE & PREENCHER & PREENCHER & PREENCHER & PREENCHER \\ 
-Election.FE & PREENCHER & PREENCHER & PREENCHER & PREENCHER \\ 
-Gender & PREENCHER & PREENCHER & PREENCHER & PREENCHER \\ 
-\midrule\addlinespace[2.5pt]
-\multicolumn{5}{l}{Panel B: Hospitalizations} \\[2.5pt] 
-\midrule\addlinespace[2.5pt]
-RD estimator & -3.14 & -1.58 & -41.17 & -38.31 \\ 
- & [45.84] & [45.74] & [89.55] & [89.94] \\ 
- & 0.88 & 0.83 & 0.47 & 0.50 \\ 
-Eff.number.obs. & 465 & 465 & 171 & 174 \\ 
-Bandwidth & 500 & 500 & 11.85 & 11.87 \\ 
-State.FE & PREENCHER & PREENCHER & PREENCHER & PREENCHER \\ 
-Election.FE & PREENCHER & PREENCHER & PREENCHER & PREENCHER \\ 
-Gender & PREENCHER & PREENCHER & PREENCHER & PREENCHER \\ 
+& (1) & (2) & (3) & (4) \\ \midrule %% TinyTableHeader
+Panel A: Deaths &&&& \\
+RD estimator & -0.32  & -0.43  & -0.35  & -0.37  \\
+& [0.24] & [0.24] & [0.18] & [0.18] \\
+& 0.18   & 0.07*  & 0.05** & 0.03** \\
+Eff.N.obs.   & 260    & 260    & 475    & 474    \\
+Bandwidth    & 9      & 9      & 17.56  & 17.52  \\
+Panel B: Hospitalizations &&&& \\
+RD estimator & -0.11  & -0.20  & -0.10  & -0.14  \\
+& [0.15] & [0.15] & [0.12] & [0.12] \\
+& 0.45   & 0.18   & 0.40   & 0.23   \\
+Eff.N.obs.   & 260    & 260    & 444    & 462    \\
+Bandwidth    & 9      & 9      & 16.26  & 17     \\
 \bottomrule
-\end{tabular*}
+\end{talltblr}
 \end{table}
-

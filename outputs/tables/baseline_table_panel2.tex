@@ -5,24 +5,17 @@ caption={Baseline Characteristics - RD Estimates (Health and Ideology)},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
 colspec={Q[]Q[]Q[]Q[]Q[]Q[]},
-column{1}={halign=l,},
-column{2}={halign=c,},
-column{3}={halign=c,},
-column{4}={halign=c,},
-column{5}={halign=c,},
-column{6}={halign=c,},
-hline{5}={1,2,3,4,5,6}{solid, 0.05em, black},
+column{2,3,4,5,6}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{5}={1,2,3,4,5,6}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
 & \% Health municipal spending & Doctors per 1k pop. & Community health agents program & Hosp. beds per 100k pop. & Mun. ideology index \\ \midrule %% TinyTableHeader
-RD estimator    & \num{2.64}   & \num{0.06}   & \num{-2.41}  & \num{-68.59}  & \num{0.02}   \\
-& [\num{1.27}] & [\num{0.13}] & [\num{7.01}] & [\num{44.76}] & [\num{0.03}] \\
-& \num{0.04}** & \num{0.60}   & \num{0.75}   & \num{0.17}    & \num{0.35}   \\
-Eff.number.obs. & 263           & 189           & 283           & 213            & 216           \\
-Bandwidth       & 19.15         & 13.47         & 22.13         & 14.97          & 15.13         \\
-State.FE        & PREENCHER     & PREENCHER     & PREENCHER     & PREENCHER      & PREENCHER     \\
-Election.FE     & PREENCHER     & PREENCHER     & PREENCHER     & PREENCHER      & PREENCHER     \\
-Gender          & PREENCHER     & PREENCHER     & PREENCHER     & PREENCHER      & PREENCHER     \\
+RD estimator & \num{1.13}   & \num{-0.02}  & \num{1.68}   & \num{-41.67}  & \num{0.00}   \\
+& [\num{0.76}] & [\num{0.09}] & [\num{3.47}] & [\num{27.65}] & [\num{0.02}] \\
+& \num{0.14}   & \num{0.81}   & \num{0.63}   & \num{0.13}    & \num{0.98}   \\
+Eff.N.obs.   & 484           & 337           & 410           & 386            & 375           \\
+Bandwidth    & 17.95         & 11.96         & 14.89         & 14.16          & 13.63         \\
 \bottomrule
 \end{talltblr}
 \end{table}
