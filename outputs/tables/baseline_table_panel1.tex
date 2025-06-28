@@ -5,24 +5,17 @@ caption={Baseline Characteristics - RD Estimates (Demography)},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
 colspec={Q[]Q[]Q[]Q[]Q[]Q[]},
-column{1}={halign=l,},
-column{2}={halign=c,},
-column{3}={halign=c,},
-column{4}={halign=c,},
-column{5}={halign=c,},
-column{6}={halign=c,},
-hline{5}={1,2,3,4,5,6}{solid, 0.05em, black},
+column{2,3,4,5,6}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{5}={1,2,3,4,5,6}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
 & PC income & Log Population & HDI & Density & \% Masc. Pop \\ \midrule %% TinyTableHeader
-RD estimator    & \num{0.15}   & \num{-0.03}  & \num{0.00}   & \num{20.96}   & \num{0.30}   \\
-& [\num{4.58}] & [\num{0.34}] & [\num{0.01}] & [\num{56.27}] & [\num{0.47}] \\
-& \num{0.94}   & \num{0.79}   & \num{0.66}   & \num{0.47}    & \num{0.50}   \\
-Eff.number.obs. & 265           & 259           & 265           & 241            & 248           \\
-Bandwidth       & 19.46         & 18.66         & 19.58         & 17.24          & 17.78         \\
-State.FE        & PREENCHER     & PREENCHER     & PREENCHER     & PREENCHER      & PREENCHER     \\
-Election.FE     & PREENCHER     & PREENCHER     & PREENCHER     & PREENCHER      & PREENCHER     \\
-Gender          & PREENCHER     & PREENCHER     & PREENCHER     & PREENCHER      & PREENCHER     \\
+RD estimator & \num{-2.92}  & \num{-0.20}  & \num{0.00}   & \num{3.91}    & \num{0.37}   \\
+& [\num{2.75}] & [\num{0.20}] & [\num{0.01}] & [\num{35.91}] & [\num{0.31}] \\
+& \num{0.29}   & \num{0.30}   & \num{0.88}   & \num{0.91}    & \num{0.23}   \\
+Eff.N.obs.   & 366           & 406           & 352           & 388            & 555           \\
+Bandwidth    & 13.16         & 14.68         & 12.6          & 14.29          & 22.47         \\
 \bottomrule
 \end{talltblr}
 \end{table}

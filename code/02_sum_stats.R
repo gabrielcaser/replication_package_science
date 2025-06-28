@@ -100,7 +100,7 @@ datasummary(
   fmt = 2,
   align = "lrrrrr",
   title = "Summary Statistics",
-  output = paste0(output_dir, "/tables/table_sum_stats.md")
+  output = paste0(output_dir, "/tables/table_sum_stats.tex")
 )
 
 
@@ -115,7 +115,7 @@ datasummary_balance(
   fmt = 2,
   align = "lrrrrrr",
   title = "Summary Statistics by Group",
-  output = paste0(output_dir, "/tables/table_sum_stats_groups.md")
+  output = paste0(output_dir, "/tables/table_sum_stats_groups.tex")
 )
 
 ## Figures for STEM candidates ---------------------------------------------------------

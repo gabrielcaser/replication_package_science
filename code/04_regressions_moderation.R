@@ -78,7 +78,7 @@ moderation_tenure <- stargazer::stargazer(
   #type = "text",
   covariate.labels = c("STEM Background", "Tenure Moderation Effect"),
   dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
-  out = paste(output_dir, "/tables/moderation_tenure.md", sep = ""),
+  out = paste(output_dir, "/tables/moderation_tenure.tex", sep = ""),
   title = "Moderating effects of scientific intensity on the impact of STEM background",
   omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "covsZ6"),
   notes = NULL
@@ -117,7 +117,7 @@ moderation_revenue <- stargazer::stargazer(
   ),
   dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
   title = "Moderating effects of cities’ development on the impact of STEM background",
-  out = paste(output_dir, "/tables/moderation_revenue.md", sep = ""),
+  out = paste(output_dir, "/tables/moderation_revenue.tex", sep = ""),
   omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "covsZ6", "receita_2015"),
   notes = NULL
 )
@@ -159,7 +159,7 @@ moderation_both <- stargazer::stargazer(
   ),
   dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
   title = "Moderating effects of cities’ development and STEM work tenure on the impact of STEM Education",
-  out = paste(output_dir, "/tables/moderation_revenue.md", sep = ""),
+  out = paste(output_dir, "/tables/moderation_revenue.tex", sep = ""),
   omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "receita_2015"),
   notes = NULL
 )

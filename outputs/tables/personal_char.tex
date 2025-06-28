@@ -1,18 +1,21 @@
 \begin{table}
-\fontsize{12.0pt}{14.4pt}\selectfont
-\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccc}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={STEM candidates' personal characteristics — RD estimates},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{5}={1,2,3,4,5,6}{solid, black, 0.05em},
+}                     %% tabularray inner close
 \toprule
-  & Women & Incumbent & Age & Mayors' party ideology \\ 
-\midrule\addlinespace[2.5pt]
-RD estimator & -0.16 & 0.11 & 1.18 & 0.14 \\ 
- & [0.09] & [0.11] & [3.67] & [0.10] \\ 
-{} & {0.04**} & {0.37} & {0.73} & {0.12} \\ 
-Eff.number.obs. & 271 & 267 & 194 & 193 \\ 
-Bandwidth & 20.77 & 19.86 & 14.02 & 13.76 \\ 
-State.FE & PREENCHER & PREENCHER & PREENCHER & PREENCHER \\ 
-Election.FE & PREENCHER & PREENCHER & PREENCHER & PREENCHER \\ 
-Gender & PREENCHER & PREENCHER & PREENCHER & PREENCHER \\ 
+& Women & Incumbent & Age & Education & Mayors' party ideology \\ \midrule %% TinyTableHeader
+RD estimator & \num{-0.17}    & \num{0.12}   & \num{-0.50}  & \num{0.95}     & \num{0.11}   \\
+& [\num{0.06}]   & [\num{0.08}] & [\num{1.82}] & [\num{0.25}]   & [\num{0.07}] \\
+& \num{<0.01}*** & \num{0.11}   & \num{0.78}   & \num{<0.01}*** & \num{0.10}   \\
+Eff.N.obs.   & 438             & 335           & 476           & 402             & 345           \\
+Bandwidth    & 15.99           & 11.88         & 17.66         & 14.58           & 12.24         \\
 \bottomrule
-\end{tabular*}
+\end{talltblr}
 \end{table}
-
