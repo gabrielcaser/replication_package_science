@@ -159,7 +159,7 @@ moderation_both <- stargazer::stargazer(
   ),
   dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
   title = "Moderating effects of cities’ development and STEM work tenure on the impact of STEM Education",
-  out = paste(output_dir, "/tables/moderation_revenue.tex", sep = ""),
+  out = paste(output_dir, "/tables/moderation_both.tex", sep = ""),
   omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "receita_2015"),
   notes = NULL
 )
