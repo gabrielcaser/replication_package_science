@@ -23,7 +23,8 @@ rm(data_revenue)
 
 df$tenure <- df$tenure / 12
 
-df_subset <- subset(df, X >= -1 * janela & X <= janela)
+#df_subset <- subset(df, X >= -1 * janela & X <= janela)
+df_subset <- df
 
 df_subset$inter_receita_stem <- df_subset$receita_2015 * (as.double(df_subset$stem_background) - 1)
 df_subset$log_tenure         <- log(df_subset$tenure + 1)
@@ -32,7 +33,42 @@ df_subset$inter_ideo_stem    <- df_subset$ideology_party * (as.double(df_subset$
 df_subset$inter_X_stem       <- df_subset$X * (as.double(df_subset$stem_background) - 1)
 df_subset$zero               <- 0
 
+# Applying Callonico package for heterogeneous analysis
+library("rdhte")
+
+state.f = factor(df$sigla_uf)
+
+state.d = model.matrix(~state.f+0)
+
+
+year.f = factor(df$coorte)
+
+if (cohort_filter == "") {
+  year.d = model.matrix(~year.f+0)
+}
+if (cohort_filter == "2016_") {
+  year.d = 1
+}
+
+covsZ <- cbind(
+  year.d,
+  df_subset$mulher
+)
+
+he_1 <- rdhte(y        = df_subset$Y_deaths_sivep,
+              x        = df_subset$X,
+              covs.hte = df_subset$receita_2015,
+              covs.eff = covsZ,
+              kernel   = k,
+              p        = poli,
+              bwselect = "mserd"
+)
+
+summary(he_1)
+
 # FE
+
+
 pdata <- pdata.frame(df_subset, c("coorte","sigla_uf"))
 
 # Controles
@@ -74,7 +110,7 @@ moderation_tenure <- stargazer::stargazer(
   out2,
   out1,
   out3,
-  type = "latex",
+  type = "text",
   #type = "text",
   covariate.labels = c("STEM Background", "Tenure Moderation Effect"),
   dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
@@ -109,7 +145,7 @@ moderation_revenue <- stargazer::stargazer(
   out5,
   out4,
   out6,
-  type = "latex",
+  type = "text",
   #type = "text",
   covariate.labels = c(
     "STEM Background",
@@ -151,7 +187,7 @@ moderation_both <- stargazer::stargazer(
   out7,
   out8,
   out9,
-  type = "latex",
+  type = "text",
   covariate.labels = c(
     "STEM Education",
     "2015 City's Revenue Mod. Eff.",
