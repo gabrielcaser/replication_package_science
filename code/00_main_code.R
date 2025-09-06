@@ -28,7 +28,7 @@ library('patchwork')    # to create figures with plots together
 library('knitr')        # render presentations
 library('forcats')      # better figures
 library('plm')          # regressions with fixed effects
-
+library('rdhte')
 # Setting -----------------------------------------------------------------
 
 output_dir                     = paste0(getwd(),"/outputs")
@@ -42,12 +42,12 @@ tenure_data_dir                = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/En
 
 # Parameters --------------------------------------------------------------
 stem_definition        = "broad"                # "broad" (Machado) or "strict" (Machine Learning selection based on online profiles)
-non_stem_college       = "all"  # "college_mayors_only" OR "all"
+non_stem_college       = "all"                  # "college_mayors_only" OR "all"
 cohort_filter          = ""                     # "2016_" "2020_" or ""
 poli                   = 1                      # Functional form (1 or 2)
 janela                 = 0.09                   # Defining margin of victory for robustness tests (0.05, 0.10 or 1.00)
 k                      = "uniform"              # Kernel triangular or uniform  
-deaths_and_hosp_in_log = "yes"                   # yes or no
+deaths_and_hosp_in_log = "yes"                  # yes or no
 
 # Defining dataset
 data   = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem_definition, "_definition.Rds") 
@@ -57,9 +57,9 @@ data   = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem_definitio
 
 # Running scripts ---------------------------------------------------------
 
-source("code/01_create_dataset.R")
-source("code/02_sum_stats.R")
-source("code/03_regressions_main.R")
-source("code/04_regressions_moderation.R")
+#source("code/01_create_dataset.R")
+#source("code/02_sum_stats.R")
+#source("code/03_regressions_main.R")
+#source("code/04_regressions_moderation.R")
 #source("code/05_regressions_moderation_loops.R")
-source("code/06_parameters_latexR.R")
+#source("code/06_parameters_latexR.R")
