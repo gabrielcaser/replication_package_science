@@ -1,5 +1,5 @@
 # This program run moderation analysis
-
+set.seed(1234)
 
 # Oppening ----------------------------------------------------------------
 
@@ -36,12 +36,12 @@ df_subset$zero               <- 0
 # Applying Callonico package for heterogeneous analysis
 library("rdhte")
 
-state.f = factor(df$sigla_uf)
+state.f = factor(df_subset$sigla_uf)
 
 state.d = model.matrix(~state.f+0)
 
 
-year.f = factor(df$coorte)
+year.f = factor(df_subset$coorte)
 
 if (cohort_filter == "") {
   year.d = model.matrix(~year.f+0)
@@ -51,11 +51,41 @@ if (cohort_filter == "2016_") {
 }
 
 covsZ <- cbind(
-  year.d,
-  df_subset$mulher
+  as.factor(df_subset$coorte),
+  as.factor(df_subset$sigla_uf),
+  df_subset$mulher,
+  df_subset$ideology_party,
+  df_subset$instrucao,
+  df_subset$reeleito,
+  df_subset$idade,
+  df_subset$idade * df_subset$idade
 )
 
+# Trocando 0 em log_tenure por numero aleatorio entre 0 e 1
+#df_subset$log_tenure[df_subset$log_tenure == 0] <- runif(sum(df_subset$log_tenure == 0), 0, 0.3)
+
+
+
 he_1 <- rdhte(y        = df_subset$Y_deaths_sivep,
+              x        = df_subset$X,
+              covs.hte = df_subset$receita_2015,
+              covs.eff = covsZ,
+              kernel   = k,
+              bwselect = "mserd"
+)
+summary(he_1)
+
+he_2 <- rdhte(y        = df_subset$Y_hosp,
+              x        = df_subset$X,
+              covs.hte = df_subset$receita_2015,
+              covs.eff = covsZ,
+              kernel   = k,
+              p        = poli,
+              bwselect = "mserd"
+)
+summary(he_2)
+
+he_3 <- rdhte(y        = df_subset$total_nfi,
               x        = df_subset$X,
               covs.hte = df_subset$receita_2015,
               covs.eff = covsZ,
@@ -64,7 +94,20 @@ he_1 <- rdhte(y        = df_subset$Y_deaths_sivep,
               bwselect = "mserd"
 )
 
-summary(he_1)
+summary(he_3)
+
+# Testing tenure
+
+
+he_4 <- rdhte(y        = df_subset$Y_deaths_sivep,
+              x        = df_subset$X,
+              covs.hte = df_subset$coorte,
+              covs.eff = covsZ,
+              kernel   = k,
+              bwselect = "mserd"
+)
+
+summary(he_4)
 
 # FE
 
