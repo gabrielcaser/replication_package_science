@@ -28,7 +28,7 @@ library('patchwork')    # to create figures with plots together
 library('knitr')        # render presentations
 library('forcats')      # better figures
 library('plm')          # regressions with fixed effects
-library('rdhte')
+library('rdhte')        # heterogeneous treatment effects in rdd
 # Setting -----------------------------------------------------------------
 
 output_dir                     = paste0(getwd(),"/outputs")
