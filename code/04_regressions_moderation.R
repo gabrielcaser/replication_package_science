@@ -71,7 +71,8 @@ he_1 <- rdhte(y        = df_subset$Y_deaths_sivep,
               covs.hte = df_subset$receita_2015,
               covs.eff = covsZ,
               kernel   = k,
-              bwselect = "mserd"
+              bwselect = "mserd",
+              p        = poli
 )
 summary(he_1)
 
@@ -92,6 +93,7 @@ he_3 <- rdhte(y        = df_subset$total_nfi,
               kernel   = k,
               p        = poli,
               bwselect = "mserd"
+             
 )
 
 summary(he_3)
@@ -108,6 +110,17 @@ he_4 <- rdhte(y        = df_subset$Y_deaths_sivep,
 )
 
 summary(he_4)
+
+he_5 <- rdhte(y        = df_subset$Y_hosp,
+              x        = df_subset$X,
+              covs.hte = df_subset$coorte,
+              covs.eff = covsZ,
+              kernel   = k,
+              bwselect = "mserd",
+              poli = 1
+)
+
+summary(he_5)
 
 # FE
 
