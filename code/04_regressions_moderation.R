@@ -116,8 +116,7 @@ he_5 <- rdhte(y        = df_subset$Y_hosp,
               covs.hte = df_subset$coorte,
               covs.eff = covsZ,
               kernel   = k,
-              bwselect = "mserd",
-              poli = 1
+              bwselect = "mserd"
 )
 
 summary(he_5)
