@@ -84,8 +84,13 @@ dat <- dat %>%
     stem_background
   )
 
-
-
+# Creating McCrary test figure
+mctest  <- rddensity::rddensity(X = df$X, c = 0)
+mc_plot <- rddensity::rdplotdensity(mctest, df$X)
+png(file.path(output_dir, "figures", "mccrary_density_rddensity.png"),
+    width = 1600, height = 1200, res = 200)
+rddensity::rdplotdensity(mctest, df$X)
+dev.off()
 
 ## creating table without groups
 
