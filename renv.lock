@@ -1554,7 +1554,7 @@
     },
     "rdrobust": {
       "Package": "rdrobust",
-      "Version": "3.0.0",
+      "Version": "2.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1562,7 +1562,7 @@
         "R",
         "ggplot2"
       ],
-      "Hash": "9fecfa1744c5fb7157b12df303bdb7da"
+      "Hash": "82801136cab4549d1ea55bb38f33aadf"
     },
     "reactR": {
       "Package": "reactR",

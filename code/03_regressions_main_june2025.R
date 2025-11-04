@@ -152,15 +152,14 @@ baseline_table_1
 baseline_table_2
 
 # estimates
-# Carregar dados de 2016 e criar dummies
-df_2016 <- readRDS(paste(data_dir, "/final/", data_2016, sep = ""))
-state.f_2016 = factor(df_2016$sigla_uf)
-state.d_2016 = model.matrix(~state.f_2016+0)
-year.d_2016 = 1
 
-# Painel A (dados originais)
-covsZ = cbind(state.d, year.d)
+covsZ = cbind(state.d,
+              year.d) 
+
+r2 = rdrobust(df$Y_hosp,  df$X, p = poli, kernel = k, bwselect = "mserd", covs = covsZ)
 r3 = rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covsZ)
+
+summary(r2)
 summary(r3)
 
 covsZ <- cbind(
@@ -173,11 +172,18 @@ covsZ <- cbind(
   df$idade,
   df$idade * df$idade
 )
+
+r4 = rdrobust(df$Y_hosp,  df$X, p = poli, kernel = k,  covs = covsZ)
 r5 = rdrobust(df$Y_deaths_sivep, df$X, kernel = k, p = poli, covs = covsZ)
+
+summary(r4)
 summary(r5)
 
-covsZ = cbind(state.d, year.d) 
-r7 = rdrobust(df$Y_deaths_sivep,  df$X, p = poli, kernel = k, h = janela, bwselect = "mserd", covs = covsZ)
+covsZ = cbind(state.d,
+              year.d) 
+
+r6 = rdrobust(df$Y_hosp, df$X, p = poli, kernel = k,  h = janela,  bwselect = "mserd",  covs = covsZ)
+r7 = rdrobust(df$Y_deaths_sivep,  df$X, p = poli, kernel = k, h = janela,   bwselect = "mserd",   covs = covsZ)
 
 covsZ <- cbind(
   state.d,
@@ -189,45 +195,21 @@ covsZ <- cbind(
   df$idade,
   df$idade * df$idade
 )
-r9 = rdrobust(df$Y_deaths_sivep, df$X, kernel = k, h = janela, p = poli, covs = covsZ)
 
-# Painel B (dados 2016)
-covsZ_2016 = cbind(state.d_2016, year.d_2016)
-r3_2016 = rdrobust(df_2016$Y_deaths_sivep, df_2016$X, p = poli, kernel = k, bwselect = "mserd", covs = covsZ_2016)
-summary(r3_2016)
+r8 = rdrobust(df$Y_hosp ,  df$X, p = poli, kernel = k, h = janela,  covs = covsZ)
+r9 = rdrobust(df$Y_deaths_sivep,  df$X, kernel = k, h = janela, p = poli,   covs = covsZ)
 
-covsZ_2016_full <- cbind(
-  state.d_2016,
-  year.d_2016,
-  df_2016$mulher,
-  df_2016$ideology_party,
-  df_2016$instrucao,
-  df_2016$reeleito,
-  df_2016$idade,
-  df_2016$idade * df_2016$idade
-)
-r5_2016 = rdrobust(df_2016$Y_deaths_sivep, df_2016$X, kernel = k, p = poli, covs = covsZ_2016_full)
-summary(r5_2016)
 
-covsZ_2016 = cbind(state.d_2016, year.d_2016)
-r7_2016 = rdrobust(df_2016$Y_deaths_sivep,  df_2016$X, p = poli, kernel = k, h = janela, bwselect = "mserd", covs = covsZ_2016)
 
-covsZ_2016_full <- cbind(
-  state.d_2016,
-  year.d_2016,
-  df_2016$mulher,
-  df_2016$ideology_party,
-  df_2016$instrucao,
-  df_2016$reeleito,
-  df_2016$idade,
-  df_2016$idade * df_2016$idade
-)
-r9_2016 = rdrobust(df_2016$Y_deaths_sivep, df_2016$X, kernel = k, h = janela, p = poli, covs = covsZ_2016_full)
-
-models <- list(
-  "Panel A: Deaths" = list(r3, r5, r7, r9),
-  "Panel B: Deaths (only 2016 cohort)" = list(r3_2016, r5_2016, r7_2016, r9_2016)
-)
+models <- list("Panel A: Deaths" = list(r7,
+                                        r9,
+                                        r3,
+                                        r5),
+               "Panel B: Hospitalizations" = list(r6,
+                                                  r8,
+                                                  r2,
+                                                  r4)
+               )
 
 modelsummary(
   models,
@@ -237,12 +219,14 @@ modelsummary(
   coef_rename = c("Robust" = "RD estimator"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2,
-  output = "tinytable",
-  # output = "outputs/tables/estimates.tex",
+  # decimal places
+  #output = "tinytable",
+  output = "outputs/tables/estimates.tex",
   title = "Impact of STEM Leadership on Epidemiological Outcomes — RD estimates",
-  coef_omit = "Corrected|Conventional"
+  coef_omit = "Corrected|Conventional"#,
   #align = paste(rep("c", length(models) + 1), collapse = "")
 )
+
 
 
 # Personal charact
