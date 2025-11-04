@@ -153,10 +153,9 @@ baseline_table_2
 
 # estimates
 
-covsZ = cbind(state.d,
-              year.d) 
+covsZ = cbind()
 
-r2 = rdrobust(df$Y_hosp,  df$X, p = poli, kernel = k, bwselect = "mserd", covs = covsZ)
+r2 = rdrobust(df$Y_hosp,         df$X, p = poli, kernel = k, bwselect = "mserd", covs = covsZ)
 r3 = rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covsZ)
 
 summary(r2)
@@ -173,17 +172,16 @@ covsZ <- cbind(
   df$idade * df$idade
 )
 
-r4 = rdrobust(df$Y_hosp,  df$X, p = poli, kernel = k,  covs = covsZ)
+r4 = rdrobust(df$Y_hosp,         df$X, kernel = k, p = poli, covs = covsZ)
 r5 = rdrobust(df$Y_deaths_sivep, df$X, kernel = k, p = poli, covs = covsZ)
 
 summary(r4)
 summary(r5)
 
-covsZ = cbind(state.d,
-              year.d) 
+covsZ = cbind() 
 
-r6 = rdrobust(df$Y_hosp, df$X, p = poli, kernel = k,  h = janela,  bwselect = "mserd",  covs = covsZ)
-r7 = rdrobust(df$Y_deaths_sivep,  df$X, p = poli, kernel = k, h = janela,   bwselect = "mserd",   covs = covsZ)
+r6 = rdrobust(df$Y_hosp,          df$X, p = poli, kernel = k, h = janela, bwselect = "mserd", covs = covsZ)
+r7 = rdrobust(df$Y_deaths_sivep,  df$X, p = poli, kernel = k, h = janela, bwselect = "mserd", covs = covsZ)
 
 covsZ <- cbind(
   state.d,
@@ -196,8 +194,8 @@ covsZ <- cbind(
   df$idade * df$idade
 )
 
-r8 = rdrobust(df$Y_hosp ,  df$X, p = poli, kernel = k, h = janela,  covs = covsZ)
-r9 = rdrobust(df$Y_deaths_sivep,  df$X, kernel = k, h = janela, p = poli,   covs = covsZ)
+r8 = rdrobust(df$Y_hosp ,        df$X, kernel = k, h = janela, p = poli, covs = covsZ)
+r9 = rdrobust(df$Y_deaths_sivep, df$X, kernel = k, h = janela, p = poli, covs = covsZ)
 
 
 
@@ -220,8 +218,8 @@ modelsummary(
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2,
   # decimal places
-  #output = "tinytable",
-  output = "outputs/tables/estimates.tex",
+  output = "tinytable",
+ # output = "outputs/tables/estimates.tex",
   title = "Impact of STEM Leadership on Epidemiological Outcomes — RD estimates",
   coef_omit = "Corrected|Conventional"#,
   #align = paste(rep("c", length(models) + 1), collapse = "")
