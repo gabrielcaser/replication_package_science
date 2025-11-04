@@ -275,10 +275,10 @@ for (definition in c("strict", "broad")) {
   }
   
   if (deaths_and_hosp_in_log == "yes") {
-    #df$Y_hosp         <- winsorize(df$Y_hosp)
-    #df$Y_deaths_sivep <- winsorize(df$Y_deaths_sivep)
-    df$Y_hosp         = log(df$Y_hosp + (df$Y_hosp^2 + 1)^0.5)
-    df$Y_deaths_sivep = log(df$Y_deaths_sivep + (df$Y_deaths_sivep^2 + 1)^0.5)
+    df$Y_hosp         <- winsorize(df$Y_hosp)
+    df$Y_deaths_sivep <- winsorize(df$Y_deaths_sivep)
+    #df$Y_hosp         = log(df$Y_hosp + (df$Y_hosp^2 + 1)^0.5)
+    #df$Y_deaths_sivep = log(df$Y_deaths_sivep + (df$Y_deaths_sivep^2 + 1)^0.5)
   }
   
   # Cleaning the data -------------------------------------------------------
@@ -366,7 +366,7 @@ for (definition in c("strict", "broad")) {
   
   saveRDS(df, file = paste0("data/final/rdd_data_all_", definition, "_definition.rds", sep = ""))
   saveRDS(df_2016, file = paste0("data/final/rdd_data_all_2016_", definition, "_definition.rds", sep = ""))
-  saveRDS(df_2016, file = paste0("data/final/rdd_data_all_2020_", definition, "_definition.rds", sep = ""))
+  saveRDS(df_2020, file = paste0("data/final/rdd_data_all_2020_", definition, "_definition.rds", sep = ""))
   saveRDS(df_college_mayors_only, file = paste0("data/final/rdd_data_college_mayors_only_", definition, "_definition.rds", sep = ""))
   saveRDS(df_college_mayors_only_2016, file = paste0("data/final/rdd_data_college_mayors_only_2016_", definition, "_definition.rds", sep = ""))
   #write.csv(df_college_mayors_only_2016, file = paste0("data/final/rdd_data_college_mayors_only_2016_", definition, "_definition.csv"), row.names = FALSE, na = ".")

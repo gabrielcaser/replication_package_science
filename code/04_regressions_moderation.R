@@ -121,6 +121,36 @@ he_5 <- rdhte(y        = df_subset$Y_hosp,
 
 summary(he_5)
 
+# Testing cohort
+he_6 <- rdhte(y        = df_subset$total_nfi,
+              x        = df_subset$X,
+              covs.hte = df_subset$coorte,
+              covs.eff = covsZ,
+              kernel   = k,
+              bwselect = "mserd"
+)
+summary(he_6)
+
+he_7 <- rdhte(y        = df_subset$Y_deaths_sivep,
+              x        = df_subset$X,
+              covs.hte = df_subset$coorte,
+              covs.eff = covsZ,
+              kernel   = k,
+              bwselect = "mserd"
+)
+
+summary(he_7)
+
+he_8 <- rdhte(y        = df_subset$Y_hosp,
+              x        = df_subset$X,
+              covs.hte = df_subset$coorte,
+              covs.eff = covsZ,
+              kernel   = k,
+              bwselect = "mserd"
+)
+
+summary(he_8)
+
 # FE
 
 
