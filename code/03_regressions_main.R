@@ -43,7 +43,7 @@ robust_check <- function(outcome, poli, covariadas, k, x_value) {
   
   for (i in seq(0.03, 0.24, by = 0.01)) {
     
-    prov = rdrobust(y = outcome, x_value, p = poli, level = 95, kernel = k, h = i, covs = covariadas) #rodando rdd
+    prov = rdrobust(y = outcome, x_value, p = poli, level = 90, kernel = k, h = i, covs = covariadas) #rodando rdd
 
     df_robs = rbind(df_robs, c(i, prov[["coef"]][1], prov[["coef"]][3], prov[["ci"]][3,1], prov[["ci"]][3,2], prov[["ci"]][1,1], prov[["ci"]][1,2], prov[["z"]][3], prov[["N_h"]][1] + prov[["N_h"]][2])) #salvando colunas
     
@@ -128,8 +128,8 @@ baseline_table_1 <- modelsummary(
   coef_rename = c("Robust" = "RD estimator"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2,
-  #output = "latex",
-  output = "outputs/tables/baseline_table_panel1.tex",
+  output = "outputs/tables/baseline_table_panel1.png",
+  #output = "outputs/tables/baseline_table_panel1.tex",
   title = "Baseline Characteristics - RD Estimates (Demography)",
   coef_omit = "Corrected|Conventional"
 )
@@ -142,7 +142,8 @@ baseline_table_2 <- modelsummary(
   coef_rename = c("Robust" = "RD estimator"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2,
-  output = "outputs/tables/baseline_table_panel2.tex",
+  output = "outputs/tables/baseline_table_panel2.png",
+  #output = "outputs/tables/baseline_table_panel2.tex",
   title = "Baseline Characteristics - RD Estimates (Health and Ideology)",
   coef_omit = "Corrected|Conventional"#,
   #align = paste(rep("c", length(models_2) + 1), collapse = "")
@@ -152,81 +153,52 @@ baseline_table_1
 baseline_table_2
 
 # estimates
-# Carregar dados de 2016 e criar dummies
+
+# Função para rodar modelos rdrobust com diferentes especificações
+run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, prefix = "") {
+  covs_base <- cbind(state.d, year.d)
+  covs_full <- cbind(
+    state.d,
+    year.d,
+    df$mulher,
+    df$ideology_party,
+    df$instrucao,
+    df$reeleito,
+    df$idade,
+    df$idade * df$idade
+  )
+  models <- list(
+    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_base),
+    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full),
+    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela),
+    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.02),
+    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.04)
+  )
+  return(models)
+}
+
+# Painel A (dados originais)
+models_panelA <- run_rdrobust_models(df, state.d, year.d, poli, k, janela)
+
+# Painel B (dados apenas de 2020)
+df_2020 <- df[df$coorte == 2020, ]
+state.f_2020 = factor(df_2020$sigla_uf)
+state.d_2020 = model.matrix(~state.f_2020+0)
+year.d_2020 = 1
+models_panelB <- run_rdrobust_models(df_2020, state.d_2020, year.d_2020, poli, k, janela)
+
+# Painel C (dados 2016)
 df_2016 <- readRDS(paste(data_dir, "/final/", data_2016, sep = ""))
 state.f_2016 = factor(df_2016$sigla_uf)
 state.d_2016 = model.matrix(~state.f_2016+0)
 year.d_2016 = 1
+models_panelC <- run_rdrobust_models(df_2016, state.d_2016, year.d_2016, poli, k, janela)
 
-# Painel A (dados originais)
-covsZ = cbind(state.d, year.d)
-r3 = rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covsZ)
-summary(r3)
-
-covsZ <- cbind(
-  state.d,
-  year.d,
-  df$mulher,
-  df$ideology_party,
-  df$instrucao,
-  df$reeleito,
-  df$idade,
-  df$idade * df$idade
-)
-r5 = rdrobust(df$Y_deaths_sivep, df$X, kernel = k, p = poli, covs = covsZ)
-summary(r5)
-
-covsZ = cbind(state.d, year.d) 
-r7 = rdrobust(df$Y_deaths_sivep,  df$X, p = poli, kernel = k, h = janela, bwselect = "mserd", covs = covsZ)
-
-covsZ <- cbind(
-  state.d,
-  year.d,
-  df$mulher,
-  df$ideology_party,
-  df$instrucao,
-  df$reeleito,
-  df$idade,
-  df$idade * df$idade
-)
-r9 = rdrobust(df$Y_deaths_sivep, df$X, kernel = k, h = janela, p = poli, covs = covsZ)
-
-# Painel B (dados 2016)
-covsZ_2016 = cbind(state.d_2016, year.d_2016)
-r3_2016 = rdrobust(df_2016$Y_deaths_sivep, df_2016$X, p = poli, kernel = k, bwselect = "mserd", covs = covsZ_2016)
-summary(r3_2016)
-
-covsZ_2016_full <- cbind(
-  state.d_2016,
-  year.d_2016,
-  df_2016$mulher,
-  df_2016$ideology_party,
-  df_2016$instrucao,
-  df_2016$reeleito,
-  df_2016$idade,
-  df_2016$idade * df_2016$idade
-)
-r5_2016 = rdrobust(df_2016$Y_deaths_sivep, df_2016$X, kernel = k, p = poli, covs = covsZ_2016_full)
-summary(r5_2016)
-
-covsZ_2016 = cbind(state.d_2016, year.d_2016)
-r7_2016 = rdrobust(df_2016$Y_deaths_sivep,  df_2016$X, p = poli, kernel = k, h = janela, bwselect = "mserd", covs = covsZ_2016)
-
-covsZ_2016_full <- cbind(
-  state.d_2016,
-  year.d_2016,
-  df_2016$mulher,
-  df_2016$ideology_party,
-  df_2016$instrucao,
-  df_2016$reeleito,
-  df_2016$idade,
-  df_2016$idade * df_2016$idade
-)
-r9_2016 = rdrobust(df_2016$Y_deaths_sivep, df_2016$X, kernel = k, h = janela, p = poli, covs = covsZ_2016_full)
-
+# Juntar todos os painéis em uma lista
 models <- list(
-  "Panel A: Deaths" = list(r3, r5, r7, r9),
-  "Panel B: Deaths (only 2016 cohort)" = list(r3_2016, r5_2016, r7_2016, r9_2016)
+  "Panel A: Deaths" = models_panelA,
+  "Panel B: Deaths (only 2020 cohort)" = models_panelB,
+  "Panel C: Deaths (only 2016 cohort)" = models_panelC
 )
 
 modelsummary(
@@ -237,11 +209,11 @@ modelsummary(
   coef_rename = c("Robust" = "RD estimator"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2,
-  output = "tinytable",
+  output = "outputs/tables/estimates.png",
   # output = "outputs/tables/estimates.tex",
   title = "Impact of STEM Leadership on Epidemiological Outcomes — RD estimates",
-  coef_omit = "Corrected|Conventional"
-  #align = paste(rep("c", length(models) + 1), collapse = "")
+  coef_omit = "Corrected|Conventional",
+  coef_map = NULL
 )
 
 
@@ -273,8 +245,8 @@ teste_chr <- modelsummary(models,
              coef_rename = c("Robust" = "RD estimator"),
              stars = c('*'=.1, '**'=.05, '***'=.01),
              fmt = 2, # decimal places
-             #output = "tinytable",
-             output = "outputs/tables/personal_char.tex",
+             output = "outputs/tables/personal_char.png",
+             #output = "outputs/tables/personal_char.tex",
              title = "STEM candidates' personal characteristics — RD estimates",
              coef_omit = "Corrected|Conventional")#,
             # align = paste(rep("c", length(models) + 1), collapse = ""))
@@ -343,8 +315,8 @@ mr3 <- modelsummary(
   statistic = c("[{std.error}]", "{p.value}{stars}"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2, # decimal places
-  #output = "tinytable",
-  output = "outputs/tables/mechanism.tex", # Output as gt table
+  output = "outputs/tables/mechanism.png",
+  #output = "outputs/tables/mechanism.tex", 
   title = "Impact of STEM Candidate Elected in 2016 on Non-Pharmaceutical Interventions in 2020",
   coef_omit = "Bias-Corrected|Conventional",
   align = paste(rep("r", length(models) + 1), collapse = "") # Create alignment string
