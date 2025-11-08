@@ -1,16 +1,6 @@
 # Program - This program merges all data to create the rdd dataset 
 
 
-
-# Directories
-
-#work_dir                   = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/6_create_rdd_dataset"
-#output_dir                 = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/6_create_rdd_dataset/output"
-#baseline_data_dir          = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/5_create_baseline_data/output/data"
-#covid_data_dir             = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/4_create_covid_data/output/data"
-#mayors_data_dir            = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/3_create_education_data/output/data"
-
-
 # Loop to run code with different definitions of "stem_background"
 for (definition in c("strict", "broad")) {
   
@@ -137,7 +127,7 @@ for (definition in c("strict", "broad")) {
   
   # Covid Data --------------------------------------------------------------
   
-  df_covid <- readRDS(paste0(covid_data_dir, "/covid_data.Rds"))
+  df_covid <- readRDS(paste0(data_dir, "/intermediary/covid_data.Rds"))
   
   df_covid <- df_covid %>% 
     dplyr::ungroup()

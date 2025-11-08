@@ -53,11 +53,8 @@ deaths_and_hosp_in_log = "no"                  # yes or no
 data   = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem_definition, "_definition.Rds") 
 data_2016 = paste0("rdd_data_", non_stem_college, "_", "2016_", stem_definition, "_definition.Rds")
 
-#covariates = # definir
-
-
 # Running scripts ---------------------------------------------------------
-
+source("code/creates_covid_data.R")
 source("code/01_create_dataset.R")
 #source("code/02_sum_stats.R")
 source("code/03_regressions_main.R")

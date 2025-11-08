@@ -1,21 +1,3 @@
-# Program - This program creates a dataset with SRAG(Covid) outcomes
-
-# Initial commands
-
-rm(list = ls(all.names = TRUE)) # clear objects
-gc() # free up memory
-
-# Libs --------------------------------------------------------------------
-
-library(tidyverse)
-library(skimr)
-
-# Directories
-
-work_dir                   = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/4_create_covid_data"
-output_dir                 = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/4_create_covid_data/output"
-
-set.seed(1234) # making it reproducible
 
 
 ### 2020 ------------------------------------------------------------------
@@ -27,7 +9,7 @@ formato_data <- "%d/%m/%Y" # defining date type
 
 # defining data types
 
-sivep_2020 <- read_csv2(paste0(work_dir, '/input/220613_srag_base_oficial_2020.csv'), col_types = cols(
+sivep_2020 <- read_csv2(paste0(data_dir, '/raw/220613_srag_base_oficial_2020.csv'), col_types = cols(
   DT_NOTIFIC = col_date(format = formato_data),
   SEM_NOT = col_double(),
   DT_SIN_PRI = col_date(format = formato_data),
@@ -189,7 +171,7 @@ head(sivep_2020)
 ### 2021 --------------------------------------------------------------------
 ### source: https://opendatasus.saude.gov.br/dataset/srag-2021-e-2022
 
-sivep_2021 <- read_csv2(paste0(work_dir, '/input/230831_srag_base_oficial_2021.csv'), col_types = cols(
+sivep_2021 <- read_csv2(paste0(data_dir, '/raw/230831_srag_base_oficial_2021.csv'), col_types = cols(
   DT_NOTIFIC = col_date(format = formato_data),
   SEM_NOT = col_double(),
   DT_SIN_PRI = col_date(format = formato_data),
@@ -688,7 +670,7 @@ length(unique(sivep_full$CO_MUN_RES))
 df_covid <- sivep_full %>%
   filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & (EVOLUCAO == "Óbito" | HOSPITAL == "Sim")) %>% 
   reframe(CLASSI_FIN, id_municipio = as.character(CO_MUN_RES), DT_SIN_PRI, EVOLUCAO, HOSPITAL)
-saveRDS(df_covid, paste0(output_dir, "/data/covid_day_data.rds"))
+saveRDS(df_covid, paste0(data_dir, "/intermediary/covid_day_data.rds"))
 
 ### Creating Outcome Variables ----------------------------------------------
 
@@ -730,7 +712,7 @@ sivep <- sivep %>% # creating delta outcomes
 
 # Merging with population data
 
-df_population <- read.csv2(paste0(work_dir, "/input/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
+df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
 
 ## merging year of population with coorte
 df_population <- df_population %>%
@@ -757,5 +739,5 @@ sivep <- sivep %>%
 
 rm(sivep_full)
 
-saveRDS(sivep, paste0(output_dir, "/data/covid_data.rds"))
+saveRDS(sivep, paste0(data_dir, "/intermediary/covid_data.rds"))
 
