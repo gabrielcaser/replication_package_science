@@ -1,5 +1,3 @@
-
-
 ### 2020 ------------------------------------------------------------------
 ### source: https://opendatasus.saude.gov.br/dataset/srag-2020
 ### cleaning based on: Escola de Dados -> https://escoladedados.org/coda2021/
@@ -676,7 +674,7 @@ saveRDS(df_covid, paste0(data_dir, "/intermediary/covid_day_data.rds"))
 
 
 sivep_2020 <- sivep_full %>%
-  filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & DT_SIN_PRI >= "2020-02-01" & DT_SIN_PRI <= "2020-12-30") %>%
+  filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & DT_SIN_PRI >= "2020-05-01" & DT_SIN_PRI <= "2020-12-31") %>%
   group_by(CO_MUN_RES) %>%
   summarise(deaths = sum(EVOLUCAO == "Óbito", na.rm = TRUE),
             hosp = sum(HOSPITAL == "Sim", na.rm = TRUE),

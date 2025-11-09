@@ -15,3 +15,5 @@ tables_and_figures.tex
 /.Rproj.user
 *.pper
 /.Rproj.user
+data/raw/220613_srag_base_oficial_2020.csv
+data/raw/230831_srag_base_oficial_2021.csv
