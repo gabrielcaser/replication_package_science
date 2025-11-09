@@ -45,7 +45,7 @@ stem_definition        = "broad"                # "broad" (Machado) or "strict" 
 non_stem_college       = "all"                  # "college_mayors_only" OR "all"
 cohort_filter          = ""                     # "2016_" "2020_" or ""
 poli                   = 1                      # Functional form (1 or 2)
-janela                 = 0.15                   # Defining margin of victory for robustness tests (0.05, 0.10 or 1.00)
+janela                 = 0.08                   # Defining margin of victory for robustness tests (0.05, 0.10 or 1.00)
 k                      = "uniform"              # Kernel triangular or uniform  
 deaths_and_hosp_in_log = "no"                  # yes or no
 
@@ -54,10 +54,10 @@ data   = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem_definitio
 data_2016 = paste0("rdd_data_", non_stem_college, "_", "2016_", stem_definition, "_definition.Rds")
 
 # Running scripts ---------------------------------------------------------
-source("code/creates_covid_data.R")
+source("code/creates_covid_data.R") # Covid data not on Github due to size limitations
 source("code/01_create_dataset.R")
 #source("code/02_sum_stats.R")
-#source("code/03_regressions_main.R")
+source("code/03_regressions_main.R")
 #source("code/04_regressions_moderation.R")
 #source("code/05_regressions_moderation_loops.R")
 #source("code/06_parameters_latexR.R")
