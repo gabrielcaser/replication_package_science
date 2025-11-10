@@ -81,7 +81,75 @@ if (cohort_filter == "2016_") {
 # Main Results -------------------------------------------------------------
 
 
-# baseline
+# estimates
+
+# Função para rodar modelos rdrobust com diferentes especificações
+run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, prefix = "") {
+  covs_base <- cbind(state.d, year.d)
+  covs_full <- cbind(
+    state.d,
+    year.d,
+    df$mulher,
+    df$ideology_party,
+    df$instrucao,
+    df$reeleito,
+    df$idade,
+    df$idade * df$idade
+  )
+  models <- list(
+    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_base),
+    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full),
+    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela),
+    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.02),
+    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.04)
+  )
+  return(models)
+}
+
+# Panel C (both cohorts)
+models_panelC <- run_rdrobust_models(df, state.d, year.d, poli, k, janela)
+
+# Panel B (2020 cohort)
+df_2020 <- df[df$coorte == 2020, ]
+state.f_2020 = factor(df_2020$sigla_uf)
+state.d_2020 = model.matrix(~state.f_2020+0)
+year.d_2020 = 1
+models_panelB <- run_rdrobust_models(df_2020, state.d_2020, year.d_2020, poli, k, janela)
+
+# Panel A (2016 cohort)
+df_2016 <- readRDS(paste(data_dir, "/final/", data_2016, sep = ""))
+state.f_2016 = factor(df_2016$sigla_uf)
+state.d_2016 = model.matrix(~state.f_2016+0)
+year.d_2016 = 1
+models_panelA <- run_rdrobust_models(df_2016, state.d_2016, year.d_2016, poli, k, janela)
+
+# Extract optimal bandwidths for each panel (for reference or reporting)
+optimal_bw_panelA <- models_panelA[[2]]$bws[[1]]
+
+# Creating table
+models <- list(
+  "Panel A: Deaths (only 2016 cohort)" = models_panelA,
+  "Panel B: Deaths (only 2020 cohort)" = models_panelB,
+  "Panel C: Deaths (both cohorts)" = models_panelC
+)
+
+modelsummary(
+  models,
+  shape = "rbind",
+  estimate = "{estimate}",
+  statistic = c("[{std.error}]", "{p.value}{stars}"),
+  coef_rename = c("Robust" = "RD estimator"),
+  stars = c('*' = .1, '**' = .05, '***' = .01),
+  fmt = 2,
+  output = "outputs/tables/estimates.png",
+  # output = "outputs/tables/estimates.tex",
+  title = "Impact of STEM Leadership on Epidemiological Outcomes — RD estimates",
+  coef_omit = "Corrected|Conventional",
+  coef_map = NULL
+)
+
+
+# Baseline table
 
 
 covsZ = cbind(state.d, year.d)
@@ -89,16 +157,23 @@ covsZ = cbind(state.d, year.d)
 
 #taxa_analfabetismo_18_mais <- rdrobust(df$taxa_analfabetismo_18_mais, df$X, p = poli, kernel = k, h = janela, bwselect = "mserd",  covs = covsZ)
 #indice_gini <- rdrobust(df$indice_gini,  df$X, p = poli, kernel = k, h = janela,  covs = covsZ)
-renda_pc                <- rdrobust(df$renda_pc,  df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ)
-populacao               <- rdrobust(log(df$populacao),  df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ)
-idhm                    <- rdrobust(df$idhm,  df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ)
-densidade               <- rdrobust(df$densidade,  df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ)
-per_populacao_homens    <- rdrobust(df$per_populacao_homens,  df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ)
-pct_desp_recp_saude_mun <- rdrobust(df$pct_desp_recp_saude_mun,  df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ)
-tx_med_ch               <- rdrobust(df$tx_med_ch, df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ)
-cob_esf                 <- rdrobust(df$cob_esf,  df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ)
-tx_leito_sus            <- rdrobust(df$tx_leito_sus, df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ)
-ideology_municipality   <- rdrobust(df$ideology_municipality, df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ)
+# Subset only for cohort == 2016
+df_2016_baseline <- df[df$coorte == 2016, ]
+covsZ_2016 <- cbind(
+  model.matrix(~factor(df_2016_baseline$sigla_uf)+0),
+  1 # year.d = 1 for 2016
+)
+
+renda_pc                <- rdrobust(df_2016_baseline$renda_pc,                 df_2016_baseline$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ_2016, h = optimal_bw_panelA)
+populacao               <- rdrobust(log(df_2016_baseline$populacao),           df_2016_baseline$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ_2016, h = optimal_bw_panelA)
+idhm                    <- rdrobust(df_2016_baseline$idhm,                     df_2016_baseline$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ_2016, h = optimal_bw_panelA)
+densidade               <- rdrobust(df_2016_baseline$densidade,                df_2016_baseline$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ_2016, h = optimal_bw_panelA)
+per_populacao_homens    <- rdrobust(df_2016_baseline$per_populacao_homens,     df_2016_baseline$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ_2016, h = optimal_bw_panelA)
+pct_desp_recp_saude_mun <- rdrobust(df_2016_baseline$pct_desp_recp_saude_mun,  df_2016_baseline$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ_2016, h = optimal_bw_panelA)
+tx_med_ch               <- rdrobust(df_2016_baseline$tx_med_ch,                df_2016_baseline$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ_2016, h = optimal_bw_panelA)
+cob_esf                 <- rdrobust(df_2016_baseline$cob_esf,                  df_2016_baseline$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ_2016, h = optimal_bw_panelA)
+tx_leito_sus            <- rdrobust(df_2016_baseline$tx_leito_sus,             df_2016_baseline$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ_2016, h = optimal_bw_panelA)
+ideology_municipality   <- rdrobust(df_2016_baseline$ideology_municipality,    df_2016_baseline$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covsZ_2016, h = optimal_bw_panelA)
 
 
 # Models for Panel 1 (Demography)
@@ -152,70 +227,6 @@ baseline_table_2 <- modelsummary(
 baseline_table_1
 baseline_table_2
 
-# estimates
-
-# Função para rodar modelos rdrobust com diferentes especificações
-run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, prefix = "") {
-  covs_base <- cbind(state.d, year.d)
-  covs_full <- cbind(
-    state.d,
-    year.d,
-    df$mulher,
-    df$ideology_party,
-    df$instrucao,
-    df$reeleito,
-    df$idade,
-    df$idade * df$idade
-  )
-  models <- list(
-    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_base),
-    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full),
-    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela),
-    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.02),
-    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.04)
-  )
-  return(models)
-}
-
-# Painel A (dados originais)
-models_panelA <- run_rdrobust_models(df, state.d, year.d, poli, k, janela)
-
-# Painel B (dados apenas de 2020)
-df_2020 <- df[df$coorte == 2020, ]
-state.f_2020 = factor(df_2020$sigla_uf)
-state.d_2020 = model.matrix(~state.f_2020+0)
-year.d_2020 = 1
-models_panelB <- run_rdrobust_models(df_2020, state.d_2020, year.d_2020, poli, k, janela)
-
-# Painel C (dados 2016)
-df_2016 <- readRDS(paste(data_dir, "/final/", data_2016, sep = ""))
-state.f_2016 = factor(df_2016$sigla_uf)
-state.d_2016 = model.matrix(~state.f_2016+0)
-year.d_2016 = 1
-models_panelC <- run_rdrobust_models(df_2016, state.d_2016, year.d_2016, poli, k, janela)
-
-# Juntar todos os painéis em uma lista
-models <- list(
-  "Panel A: Deaths" = models_panelA,
-  "Panel B: Deaths (only 2020 cohort)" = models_panelB,
-  "Panel C: Deaths (only 2016 cohort)" = models_panelC
-)
-
-modelsummary(
-  models,
-  shape = "rbind",
-  estimate = "{estimate}",
-  statistic = c("[{std.error}]", "{p.value}{stars}"),
-  coef_rename = c("Robust" = "RD estimator"),
-  stars = c('*' = .1, '**' = .05, '***' = .01),
-  fmt = 2,
-  output = "outputs/tables/estimates.png",
-  # output = "outputs/tables/estimates.tex",
-  title = "Impact of STEM Leadership on Epidemiological Outcomes — RD estimates",
-  coef_omit = "Corrected|Conventional",
-  coef_map = NULL
-)
-
 
 # Personal charact
 
@@ -253,21 +264,6 @@ teste_chr <- modelsummary(models,
 
 teste_chr
 #gt::gtsave(teste_chr, filename =  "outputs/tables/personal_char.tex")
-
-
-
-
-### means
-
-df %>%
-  dplyr::filter(X>= -0.10 & X <= 0.10) %>% 
-  dplyr::group_by(stem_background) %>% 
-  dplyr::summarise(mean(Y_deaths_sivep, na.rm = TRUE), mean(Y_hosp, na.rm = TRUE), n())
-
-2.19 / 3.92
-
-53.68 / 144
-
 
 
 # Mechanism  -----------------------
@@ -416,7 +412,7 @@ plot_deaths_robs <- ggplot(df_robs_deaths, aes(x = bw, y = coef_conv)) +
   geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
   theme_clean
 
-bw_optimal_deaths <- r5$bws[[1]]
+bw_optimal_deaths <- optimal_bw_panelA
 plot_deaths_robs <- add_optimal_point(plot_deaths_robs, df_robs_deaths, bw_optimal_deaths)
 
 # Combinar gráficos de hospitalizações e mortes
