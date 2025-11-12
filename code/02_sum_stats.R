@@ -1,11 +1,132 @@
+# Description: This program creates sum stats
 
+# Producing Mean between groups along time
 
-# This program creates sum stats
-
-
-# Oppening ----------------------------------------------------------------
-
+## Opening main dataset
 df <- readRDS(paste(data_dir, "/final/", data, sep = ""))
+
+## Mantaining main vars
+df_aux <- df %>%
+  dplyr::select(
+    id_municipio,
+    stem_background,
+    coorte,
+    X
+  )
+
+## Opening covid day data
+
+df_mean <- readRDS(paste(data_dir, "/intermediary/covid_day_data.rds", sep = ""))
+
+df_mean <- df_mean %>%
+  filter(EVOLUCAO == "Óbito" )
+
+df_mean <- df_mean %>% 
+  mutate(coorte = case_when(as.numeric(format(df_mean$DT_SIN_PRI, "%Y")) == 2020 ~ as.factor(2016),
+                            as.numeric(format(df_mean$DT_SIN_PRI, "%Y")) == 2021 ~ as.factor(2020)),
+         month = as.numeric(format(df_mean$DT_SIN_PRI, "%m")))
+
+df_mean <- df_mean %>%
+reframe(id_municipio,
+deaths = EVOLUCAO,
+date_sintoms = DT_SIN_PRI,
+month,
+coorte,
+srag_class = CLASSI_FIN)
+
+df_mean <- df_mean %>%
+  filter(!is.na(coorte))
+
+df_mean <- merge(df_mean, df_aux, by = c("id_municipio", "coorte"), all.x = TRUE)
+
+#df_mean <- df_mean %>%
+#  filter(!is.na(stem_background))
+
+# Replaceing null stem_backgroun for 0
+df_mean <- df_mean %>%
+  mutate(teste = as.numeric(stem_background))
+
+df_mean <- df_mean %>%
+  mutate(teste = ifelse(teste == 2, 1, 0))
+
+df_mean <- df_mean %>% 
+mutate(teste = ifelse(is.na(teste), 0, teste))
+
+df_mean <- df_mean %>%
+  mutate(stem_background = teste)
+
+# Counting the number of unique id_municipio
+n_distinct(df_mean$id_municipio)
+
+# Aggregating to month level
+df_plot <- df_mean %>%
+  group_by(id_municipio, coorte, month, stem_background) %>%
+  summarise(deaths = n())
+
+# Aggregating to mean and then cumulative deaths
+df_plot <- df_plot %>%
+  group_by(coorte, month, stem_background) %>%
+  summarise(mean_deaths = mean(deaths)) %>%
+  group_by(coorte, stem_background) %>%
+  mutate(cum_deaths = cumsum(mean_deaths))
+  # Plotar mean deaths ao longo do tempo por stem_background para coortes 2016 e 2020
+  plots_list <- list()
+  for (c in c(2016)) {
+    df_plot_coorte <- df_plot %>% filter(coorte == c)
+    # Set month labels
+    month_labels <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+    p <- ggplot(df_plot_coorte, aes(x = month, y = cum_deaths, shape = as.factor(stem_background), group = stem_background)) +
+      geom_line(size = 1) +
+      geom_point(size = 4) +
+      scale_shape_manual(
+        values = c("0" = 17, "1" = 15), 
+        labels = c("Non-STEM", "STEM")
+      ) +
+      scale_x_continuous(
+        breaks = 1:12,
+        labels = month_labels
+      ) +
+      labs(
+        title = "Cumulative Mean Deaths by Covid by Mayors' Background (2020)",
+        x = NULL,
+        y = NULL,
+        shape = "Background"
+      ) +
+      theme_minimal(base_size = 16) +
+      theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
+      )
+    plots_list[[as.character(c)]] <- p
+  }
+
+  plots_list[["2016"]]
+
+  # Saving plot
+  ggsave(
+    filename = paste0(output_dir, "/figures/mean_cumulative_deaths_stem_background_2016.png"),
+    plot = plots_list[["2016"]],
+    height = 5.0,
+    width = 10,
+    dpi = 600
+  )
+
+
+# Merging
+
+
+df_population <- read.csv2(paste0(data_dir, "/input/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
+df_population <- df_population %>%
+  mutate(coorte = recode(ano, '2020' = '2016', '2021' = '2020')) %>% 
+  reframe(coorte = as.factor(coorte), populacao, id_municipio = as.character(id_municipio))
+
+# Merging
+df_mean <- merge(df_mean, df_population, by = c("id_municipio", "coorte"), all.x = TRUE)
+
+df_mean <- merge(df_mean, df[, c("id_municipio", "sigla_uf", "stem_background", "coorte")],
+                 by = c("id_municipio", "sigla_uf", "coorte"), all.x = TRUE)
+
+# Cleaning NPI data
 
 df <- df %>% # Removing NPI data from municipalities in 2020 chort (since this data only regards mayors elected in 2016)
   mutate(
