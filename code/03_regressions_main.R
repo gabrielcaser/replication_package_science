@@ -233,11 +233,11 @@ baseline_table_2
 covsZ = cbind(state.d, year.d)
 poli = 1
 
-mulher <- rdrobust(df$mulher,  df$X, p = poli, kernel = k,   covs = covsZ)
-reeleito <- rdrobust(df$reeleito,  df$X, p = poli, kernel = k,   covs = covsZ)
-idade <- rdrobust(df$idade,  df$X, p = poli, kernel = k,  covs = covsZ)
-ens.sup <- rdrobust(df$instrucao,  df$X, p = poli, kernel = k,  covs = covsZ)
-ideology <- rdrobust(df$ideology_party,  df$X, p = poli, kernel = k,  covs = covsZ)
+mulher   <- rdrobust(df$mulher,         df$X, p = poli, kernel = k,  covs = covsZ)
+reeleito <- rdrobust(df$reeleito,       df$X, p = poli, kernel = k,  covs = covsZ)
+idade    <- rdrobust(df$idade,          df$X, p = poli, kernel = k,  covs = covsZ)
+ens.sup  <- rdrobust(df$instrucao,      df$X, p = poli, kernel = k,  covs = covsZ)
+ideology <- rdrobust(df$ideology_party, df$X, p = poli, kernel = k,  covs = covsZ)
 
 
 
@@ -346,7 +346,7 @@ CovsZ <- cbind(
   df$idade,
   df$idade * df$idade
 ) # mechanisms
-CovsZ_mechanism <- cbind(
+CovsZ_2016 <- cbind(
   state.d2,
   df2$mulher,
   df2$ideology_party,
@@ -357,14 +357,14 @@ CovsZ_mechanism <- cbind(
 )
 
   
-df_robs_hosp      <- robust_check(df$Y_hosp, 1, CovsZ, k, df$X)
-df_robs_deaths    <- robust_check(df$Y_deaths_sivep, 1, CovsZ, k, df$X)
-df_robs_nfi       <- robust_check(df2$total_nfi, 1, CovsZ_mechanism, k, df2$X)
-df_robs_masks     <- robust_check(df2$mascaras, 1, CovsZ_mechanism, k, df2$X)
-df_robs_trans_pub <- robust_check(df2$restricao_transporte_publico, 1, CovsZ_mechanism, k, df2$X)
-df_robs_circu     <- robust_check(df2$restricao_circulacao, 1, CovsZ_mechanism, k, df2$X)
-df_robs_atv       <- robust_check(df2$restricao_atv_nao_essenciais, 1, CovsZ_mechanism, k, df2$X)
-df_robs_sani      <- robust_check(df2$barreiras_sanitarias, 1, CovsZ_mechanism, k, df2$X)
+df_robs_hosp      <- robust_check(df2$Y_hosp,                       1, CovsZ_2016, k, df2$X)
+df_robs_deaths    <- robust_check(df2$Y_deaths_sivep,               1, CovsZ_2016, k, df2$X)
+df_robs_nfi       <- robust_check(df2$total_nfi,                    1, CovsZ_2016, k, df2$X)
+df_robs_masks     <- robust_check(df2$mascaras,                     1, CovsZ_2016, k, df2$X)
+df_robs_trans_pub <- robust_check(df2$restricao_transporte_publico, 1, CovsZ_2016, k, df2$X)
+df_robs_circu     <- robust_check(df2$restricao_circulacao,         1, CovsZ_2016, k, df2$X)
+df_robs_atv       <- robust_check(df2$restricao_atv_nao_essenciais, 1, CovsZ_2016, k, df2$X)
+df_robs_sani      <- robust_check(df2$barreiras_sanitarias,         1, CovsZ_2016, k, df2$X)
 
 theme_clean <- theme(
   panel.grid.major = element_blank(), 
@@ -514,8 +514,8 @@ ggsave("outputs/figures/npi_rob.png", graf,
 
 
 # Placebo test
-placebo           <- robust_check(df$renda_pc, 1, CovsZ, k, df$X)
-placebo_2016      <- robust_check(df2$renda_pc, 1, CovsZ_mechanism, k, df2$X)
+placebo           <- robust_check(df$renda_pc,  1, state.d,  k, df$X)
+placebo_2016      <- robust_check(df2$renda_pc, 1, state.d2, k, df2$X)
 
 plot_placebo <- ggplot(placebo, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
