@@ -1,40 +1,21 @@
 \begin{table}
 \centering
 \begin{talltblr}[         %% tabularray outer open
-caption={Impact of STEM Leadership on Epidemiological Outcomes — RD estimates},
+caption={Impact of STEM Leadership on Deaths — RD estimates},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
-colspec={Q[]Q[]Q[]Q[]Q[]},
-cell{2}{1}={c=5}{},cell{8}{1}={c=5}{},
-column{2,3,4,5}={}{halign=c,},
-cell{1}{1}={}{halign=l,},
-cell{2}{1}={}{halign=l,},
-cell{8}{1}={}{halign=l,},
-cell{3}{1}={}{halign=l, preto={\hspace{1em}},},
-cell{4}{1}={}{halign=l, preto={\hspace{1em}},},
-cell{5}{1}={}{halign=l, preto={\hspace{1em}},},
-cell{6}{1}={}{halign=l, preto={\hspace{1em}},},
-cell{7}{1}={}{halign=l, preto={\hspace{1em}},},
-cell{9}{1}={}{halign=l, preto={\hspace{1em}},},
-cell{10}{1}={}{halign=l, preto={\hspace{1em}},},
-cell{11}{1}={}{halign=l, preto={\hspace{1em}},},
-cell{12}{1}={}{halign=l, preto={\hspace{1em}},},
-cell{13}{1}={}{halign=l, preto={\hspace{1em}},},
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{5}={1,2,3,4,5,6}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
-& (1) & (2) & (3) & (4) \\ \midrule %% TinyTableHeader
-Panel A: Deaths &&&& \\
-RD estimator & -0.32 & -0.43 & -0.19 & -0.37 \\
-& [0.24] & [0.24] & [0.17] & [0.18] \\
-& 0.18 & 0.07* & 0.25 & 0.03** \\
-Eff.N.obs. & 260 & 260 & 537 & 474 \\
-Bandwidth & 9 & 9 & 21.42 & 17.52 \\
-Panel B: Hospitalizations &&&& \\
-RD estimator & -0.11 & -0.20 & -0.09 & -0.14 \\
-& [0.15] & [0.15] & [0.12] & [0.12] \\
-& 0.45 & 0.18 & 0.47 & 0.23 \\
-Eff.N.obs. & 260 & 260 & 428 & 462 \\
-Bandwidth & 9 & 9 & 15.53 & 17 \\
+& (1) & (2) & (3) & (4) & (5) \\ \midrule %% TinyTableHeader
+RD estimator & \num{19.23} & \num{-35.61} & \num{-27.83} & \num{-27.30} & \num{-12.31} \\
+& [\num{21.21}] & [\num{16.58}] & [\num{16.58}] & [\num{15.82}] & [\num{16.66}] \\
+& \num{0.36} & \num{0.03}** & \num{0.09}* & \num{0.08}* & \num{0.46} \\
+Eff.N.obs. & 79 & 109 & 107 & 139 & 167 \\
+Bandwidth & 5.73 & 8.2 & 8 & 10 & 12 \\
 \bottomrule
 \end{talltblr}
 \end{table}
