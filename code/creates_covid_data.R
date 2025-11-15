@@ -674,7 +674,7 @@ saveRDS(df_covid, paste0(data_dir, "/intermediary/covid_day_data.rds"))
 
 
 sivep_2020 <- sivep_full %>%
-  filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & DT_SIN_PRI >= "2020-02-01" & DT_SIN_PRI <= "2021-02-28") %>%
+  filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & DT_SIN_PRI >= start_date_covid_2016 & DT_SIN_PRI <= end_date_covid_2016) %>%
   group_by(CO_MUN_RES) %>%
   summarise(deaths = sum(EVOLUCAO == "Óbito", na.rm = TRUE),
             hosp = sum(HOSPITAL == "Sim", na.rm = TRUE),
@@ -682,7 +682,7 @@ sivep_2020 <- sivep_full %>%
   arrange(desc(deaths)) 
 
 sivep_2021 <- sivep_full %>%
-  filter((CLASSI_FIN == "SRAG COVID-19") & DT_SIN_PRI >= "2021-03-01" & DT_SIN_PRI <= "2021-12-31") %>% 
+  filter((CLASSI_FIN == "SRAG COVID-19") & DT_SIN_PRI > end_date_covid_2016 & DT_SIN_PRI <= end_date_covid_2020) %>% 
   group_by(CO_MUN_RES) %>%
   summarise(deaths = sum(EVOLUCAO == "Óbito", na.rm = TRUE),
             hosp = sum(HOSPITAL == "Sim", na.rm = TRUE),
