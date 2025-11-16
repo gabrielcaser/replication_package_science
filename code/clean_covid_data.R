@@ -233,7 +233,7 @@ formato_data <- "%d/%m/%Y" # defining date type
 
 # defining data types
 
-sivep_2021 <- read_csv2(paste0(data_dir, '/raw/INFLUD21-19-12-2022-edited-names-2.csv'), col_types = cols(
+sivep_2021 <- read_csv2(paste0(data_dir, '/raw/230831_srag_base_oficial_2021.csv'), col_types = cols(
   DT_NOTIFIC = col_date(format = formato_data),
   SEM_NOT = col_double(),
   DT_SIN_PRI = col_date(format = formato_data),
@@ -470,7 +470,6 @@ length(unique(sivep_full$CO_MUN_RES))
 
 
 ### Saving ------------------------------------------------------------------
-
 
 df_covid <- sivep_full %>%
   filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & (EVOLUCAO == "Óbito" | HOSPITAL == "Sim")) %>% 

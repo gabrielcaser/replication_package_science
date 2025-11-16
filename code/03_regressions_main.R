@@ -220,8 +220,8 @@ baseline_table_1 <- modelsummary(
   coef_rename = c("Robust" = "RD estimator"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2,
-  output = "outputs/tables/baseline_table_panel1.png",
-  #output = "outputs/tables/baseline_table_panel1.tex",
+  #output = "outputs/tables/baseline_table_panel1.png",
+  output = "outputs/tables/baseline_table_panel1.tex",
   title = "Baseline Characteristics - RD Estimates (Demography)",
   coef_omit = "Corrected|Conventional"
 )
@@ -234,8 +234,8 @@ baseline_table_2 <- modelsummary(
   coef_rename = c("Robust" = "RD estimator"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2,
-  output = "outputs/tables/baseline_table_panel2.png",
-  #output = "outputs/tables/baseline_table_panel2.tex",
+  #output = "outputs/tables/baseline_table_panel2.png",
+  output = "outputs/tables/baseline_table_panel2.tex",
   title = "Baseline Characteristics - RD Estimates (Health and Ideology)",
   coef_omit = "Corrected|Conventional"#,
   #align = paste(rep("c", length(models_2) + 1), collapse = "")
@@ -268,8 +268,8 @@ teste_chr <- modelsummary(models,
              coef_rename = c("Robust" = "RD estimator"),
              stars = c('*'=.1, '**'=.05, '***'=.01),
              fmt = 2, # decimal places
-             output = "outputs/tables/personal_char.png",
-             #output = "outputs/tables/personal_char.tex",
+             #output = "outputs/tables/personal_char.png",
+             output = "outputs/tables/personal_char.tex",
              title = "STEM candidates' personal characteristics — RD estimates",
              coef_omit = "Corrected|Conventional")#,
             # align = paste(rep("c", length(models) + 1), collapse = ""))
@@ -308,8 +308,8 @@ mr3 <- modelsummary(
   statistic = c("[{std.error}]", "{p.value}{stars}"),
   stars = c('*' = .1, '**' = .05, '***' = .01),
   fmt = 2, # decimal places
-  output = "outputs/tables/mechanism.png",
-  #output = "outputs/tables/mechanism.tex", 
+  #output = "outputs/tables/mechanism.png",
+  output = "outputs/tables/mechanism.tex", 
   title = "Impact of STEM Candidate Elected in 2016 on Non-Pharmaceutical Interventions in 2020",
   coef_omit = "Bias-Corrected|Conventional",
   align = paste(rep("r", length(models) + 1), collapse = "") # Create alignment string
