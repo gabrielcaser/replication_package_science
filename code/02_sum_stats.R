@@ -87,9 +87,9 @@ df_plot <- df_plot %>%
         labels = month_labels
       ) +
       labs(
-        title = "Cumulative Mean Deaths by Covid by Mayors' Background (2020)",
+        #title = "Cumulative Mean Deaths by Covid by Mayors' Background (2020)",
         x = NULL,
-        y = NULL,
+        y = "Deaths",
         shape = "Background"
       ) +
       theme_minimal(base_size = 16) +
@@ -115,16 +115,11 @@ df_plot <- df_plot %>%
 # Merging
 
 
-df_population <- read.csv2(paste0(data_dir, "/input/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
+df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
 df_population <- df_population %>%
   mutate(coorte = recode(ano, '2020' = '2016', '2021' = '2020')) %>% 
   reframe(coorte = as.factor(coorte), populacao, id_municipio = as.character(id_municipio))
 
-# Merging
-df_mean <- merge(df_mean, df_population, by = c("id_municipio", "coorte"), all.x = TRUE)
-
-df_mean <- merge(df_mean, df[, c("id_municipio", "sigla_uf", "stem_background", "coorte")],
-                 by = c("id_municipio", "sigla_uf", "coorte"), all.x = TRUE)
 
 # Cleaning NPI data
 
@@ -140,6 +135,7 @@ df <- df %>% # Removing NPI data from municipalities in 2020 chort (since this d
 
 # Sum stats ---------------------------------------------------------------
 
+df <- df[df$coorte == 2016, ]
 
 
 dat <- df[c(
@@ -470,27 +466,30 @@ amostra <- cbind()
 state.f = factor(df$sigla_uf)
 state.d = model.matrix( ~ state.f + 0) # creating fixed effects
 
-year.f = factor(df$coorte) # creating dummies
-if (cohort_filter == "") {
-  year.d = model.matrix(~year.f+0)
-}
-if (cohort_filter == "2016_") {
-  year.d = 1
-}
+#year.f = factor(df$coorte) # creating dummies
+#if (cohort_filter == "") {
+#  year.d = model.matrix(~year.f+0)
+#}
+#if (cohort_filter == "2016_") {
+#  year.d = 1
+#}
 
-covsZ  = cbind(state.d,
-               year.d,
-               df$mulher,
-               df$ideology_party,
-               df$instrucao,
-               df$reeleito) # Controls
+covsZ  = cbind(
+    state.d,
+    #year.d,
+    df$mulher,
+    df$ideology_party,
+    df$instrucao,
+    df$reeleito,
+    df$idade,
+    df$idade * df$idade) # Controls
 
 r4 = rdrobust(
   df$Y_deaths_sivep,
   df$X,
   p      = poli,
   kernel = k,
-  #h      = janela,
+  h      = 0.082,
   subset = amostra,
   covs   = covsZ
 )
@@ -514,20 +513,22 @@ df_plots <- df[abs(df$X) < r4$bws[1], ]
 state.f = factor(df_plots$sigla_uf)
 state.d = model.matrix( ~ state.f + 0) # creating fixed effects
 
-year.f = factor(df_plots$coorte) # creating dummies
-if (cohort_filter == "") {
-  year.d = model.matrix(~year.f+0)
-}
-if (cohort_filter == "2016_") {
-  year.d = 1
-}
+#year.f = factor(df_plots$coorte) # creating dummies
+#if (cohort_filter == "") {
+#  year.d = model.matrix(~year.f+0)
+#}
+#if (cohort_filter == "2016_") {
+#  year.d = 1
+#}
 
 covsZ  = cbind(state.d,
-               year.d,
+              # year.d,
                df_plots$mulher,
                df_plots$ideology_party,
                df_plots$instrucao,
-               df_plots$reeleito) # Controls
+               df_plots$reeleito,
+               df_plots$idade,
+               df_plots$idade * df_plots$idade) # Controls
 
 #poli = 1
 #covsZ = cbind(state.d, df$mulher)
@@ -568,7 +569,7 @@ death <- rdplot(df_plots$Y_deaths_sivep , df_plots$X,
                 kernel = k,
                 x.label = "STEM candidate's margin of victory",
                 y.label = "",
-                title = "(B) Impact of Treatment on Deaths"#,
+                title = ""#,
                # col.lines = "white"
                )
 
@@ -599,7 +600,7 @@ hosp <- hosp +
 
 hosp
 
-plots <- hosp / death
+plots <- death
 
 plots
 
