@@ -1,9 +1,8 @@
 # When Science Strikes Back - Has a scientific background helped leaders against COVID-19?
 
 # Replication steps
-- You must have installed R (version 4.4.5), Rstudio and RTools (4.5) (https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html)
+- You must have installed R (version 4.4.5), Rstudio or Visual Studio, and RTools (4.5) (https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html)
 - Download this folder clicking on the green button "<>Code" and then Download zip or Clone repository using Github Desktop
-- Open "replication_package_science.Rproj"
 - Open "code/00_main_code.R"
 - Run command line renv::restore()
   - Press "1" to activate the local repository
