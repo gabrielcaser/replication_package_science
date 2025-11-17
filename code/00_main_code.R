@@ -1,13 +1,8 @@
 
 # Description - This code reproduces all tables and figures from the paper
 
-
 renv::restore() # RUN IT FIRST to download the required libraries
-
 ##renv::install("jsonlite", type = "binary") # run that in case you receive any error message during the instalation of the jsonlite package
-
-
-
 
 # Initial Commands --------------------------------------------------------
 
@@ -58,11 +53,9 @@ data   = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem_definitio
 data_2016 = paste0("rdd_data_", non_stem_college, "_", "2016_", stem_definition, "_definition.Rds")
 
 # Running scripts ---------------------------------------------------------
-#source("code/clean_covid_data.R") # Covid data not on Github due to size limitations
-#source("code/creates_covid_data.R")
+#source("code/creates_covid_data.R") # Covid data not on Github due to size limitations. Contact the authors to access it.
 #source("code/01_create_dataset.R")
 source("code/02_sum_stats.R")
 #source("code/03_regressions_main.R")
 #source("code/04_regressions_moderation.R")
-#source("code/05_regressions_moderation_loops.R")
 #source("code/06_parameters_latexR.R")
