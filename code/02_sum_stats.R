@@ -563,12 +563,12 @@ death <- rdplot(df_plots$Y_deaths_sivep , df_plots$X,
                 #y.lim = c(75, 175),
                 #shade = TRUE,
                 #h = r5$bws[1],
-                #scale = 5,
+                scale = 2,
                 #ci = 90,
                 binselect = "esmv",
                 kernel = k,
                 x.label = "STEM candidate's margin of victory",
-                y.label = "",
+                y.label = "Deaths per 100k inhabitants",
                 title = ""#,
                # col.lines = "white"
                )
@@ -581,8 +581,10 @@ death <- death +
     plot.title = element_text(hjust = 0.5),
     axis.title = element_text(size = 10, face = "plain"),
     title = element_text(size = 12),
-    panel.grid = element_blank()
-  )
+    panel.grid = element_blank(),
+    line = element_line(size = 1.5)
+  ) +
+  geom_line(size = 2)
 
 death
 
