@@ -17,3 +17,6 @@ tables_and_figures.tex
 /.Rproj.user
 data/raw/220613_srag_base_oficial_2020.csv
 data/raw/230831_srag_base_oficial_2021.csv
+data/intermediary/sivep_2020.rds
+data/intermediary/sivep_2021.rds
+data/intermediary/sivep_full.rds
