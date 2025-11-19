@@ -39,9 +39,6 @@ df_mean <- df_mean %>%
 
 df_mean <- merge(df_mean, df_aux, by = c("id_municipio", "coorte"), all.x = TRUE)
 
-#df_mean <- df_mean %>%
-#  filter(!is.na(stem_background))
-
 # Replaceing null stem_backgroun for 0
 df_mean <- df_mean %>%
   mutate(teste = as.numeric(stem_background))
@@ -69,7 +66,7 @@ df_plot <- df_plot %>%
   summarise(mean_deaths = mean(deaths)) %>%
   group_by(coorte, stem_background) %>%
   mutate(cum_deaths = cumsum(mean_deaths))
-  # Plotar mean deaths ao longo do tempo por stem_background para coortes 2016 e 2020
+  # Plot mean deaths over time by stem_background for cohorts 2016 and 2020
   plots_list <- list()
   for (c in c(2016)) {
     df_plot_coorte <- df_plot %>% filter(coorte == c)
@@ -87,7 +84,6 @@ df_plot <- df_plot %>%
         labels = month_labels
       ) +
       labs(
-        #title = "Cumulative Mean Deaths by Covid by Mayors' Background (2020)",
         x = NULL,
         y = "Deaths",
         shape = "Background"
@@ -113,8 +109,6 @@ df_plot <- df_plot %>%
 
 
 # Merging
-
-
 df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
 df_population <- df_population %>%
   mutate(coorte = recode(ano, '2020' = '2016', '2021' = '2020')) %>% 
@@ -122,7 +116,6 @@ df_population <- df_population %>%
 
 
 # Cleaning NPI data
-
 df <- df %>% # Removing NPI data from municipalities in 2020 chort (since this data only regards mayors elected in 2016)
   mutate(
     total_nfi = ifelse(coorte == 2020, NA, total_nfi),
@@ -137,10 +130,9 @@ df <- df %>% # Removing NPI data from municipalities in 2020 chort (since this d
 
 df <- df[df$coorte == 2016, ]
 
-
+# keeping only relevant variables
 dat <- df[c(
   "stem_background",
-  # keeping only relevant variables
   "tenure",
   "X",
   "mulher",
@@ -150,8 +142,6 @@ dat <- df[c(
   "ideology_party",
   "populacao",
   "densidade",
-  #"taxa_analfabetismo_18_mais",
-  #"indice_gini",
   "idhm",
   "renda_pc",
   "per_populacao_urbana",
@@ -163,7 +153,6 @@ dat <- df[c(
   "ideology_municipality",
   "Y_deaths_sivep",
   "Y_hosp",
-  #"Y_cases",
   "barreiras_sanitarias",
   "mascaras",
   "restricao_atv_nao_essenciais",
@@ -265,19 +254,18 @@ profi <- profi %>%
 p <- ggplot(profi, aes(y = cbo_agregado_nome_caser.laverde.rothwell, x = percentage)) +
   geom_bar(pattern = "occupation", stat = "identity") +
   geom_text(aes(label = sprintf("%.0f%%", percentage)), 
-            hjust = -0.1, # Posiciona os rótulos fora das barras
-            size = 5) +   # Tamanho do texto
+            hjust = -0.1, 
+            size = 5) +   
   theme_minimal(base_size = 16) +
-  xlab("") +  # Remove o rótulo do eixo X
+  xlab("") +  
   ylab("Occupations") +
   xlim(0, 70) + 
-  #ggtitle("STEM mayors’ most common occupations") +
   scale_fill_discrete(name = "occupation") +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    axis.text.x = element_blank(),  # Remove os valores do eixo X
-    axis.ticks.x = element_blank(),  # Remove as marcas do eixo X
+    axis.text.x = element_blank(),  
+    axis.ticks.x = element_blank(),  
     axis.title = element_blank() 
   )
 
@@ -297,7 +285,6 @@ ggsave(
 
 df_cities <- read.csv("data/raw/cities_and_states.csv")
 df_cities$id_municipio <- as.character(df_cities$id_municipio)
-#df_cities$coorte <- as.factor(2016) 
 
 df_boxplots <- merge(df_cities, df, by = c("id_municipio", "sigla_uf"), all = TRUE) # creating a dataset with all municipalities
 
@@ -305,7 +292,6 @@ df_boxplots <- merge(df_cities, df, by = c("id_municipio", "sigla_uf"), all = TR
 ### ploting
 
 states <- df_boxplots %>%
-  #filter(coorte == 2016) %>% 
   group_by(sigla_uf) %>% 
   dplyr::summarise(perc_stem = sum(stem_background == 1, na.rm = TRUE) / length(id_municipio)) %>% 
   arrange(desc(perc_stem))
@@ -332,8 +318,6 @@ ggsave(
   dpi = 600
 )
 
-
-
 # Creating map  ---------------------------------------------------------
 
 ## states
@@ -342,27 +326,17 @@ ggsave(
 
 dados_mapa <- read_state(year=2015, showProgress = FALSE, simplified = FALSE)
 
-#dados_mapa <- readRDS("Dados/input/220811_geo_dados_estados_2019.rds")
-
-
 sf2 <- states 
-
-
-#sf2 <- sf2 %>% 
- # rename(sigla_uf = state)
 
 dados_mapa <- dados_mapa %>% 
   rename(sigla_uf = abbrev_state)
-
 
 sf2 <- left_join(dados_mapa, sf2, by = c("sigla_uf"))
 dim(df)
 
 sf2$perc_stem = sf2$perc_stem * 100
 
-
 sf2 %>%
-  #filter(sigla_uf != "AC") %>% 
   ggplot() +
   geom_sf(aes(fill = perc_stem), alpha = 0.9, color = NA) +
   labs(#title="Percentage of STEM mayors per state (2016)",
@@ -385,13 +359,9 @@ ggsave(
   width = 10
 )
 
-
-
 ## municipios
 
-mun <- read_municipality(year=2015, showProgress = FALSE, simplified = FALSE)
-
-#mun <- readRDS("Dados/input/220811_geo_dados_municipios_2019.rds")
+mun <- read_municipality(year=2015, showProgress = FALSE, simplified = TRUE, cache = FALSE)
 
 mun <- mun %>% 
   rename(id_municipio = code_muni)
@@ -404,8 +374,6 @@ sf3 <- df %>%
 sf3 <- left_join(mun, sf3, by = c("id_municipio"))
 
 sf3 %>%
-  #filter(code_region == 3) %>%  # para ver o mapa inteiro é só tirar o code_region
-  # filter(sigla_uf != "AC") %>% 
   ggplot() +
   geom_sf(data = subset(dados_mapa)) +
   geom_sf(aes(fill = stem_background), alpha = .7, color = NA) +
@@ -421,7 +389,6 @@ sf3 %>%
         axis.ticks = element_blank(),
         panel.grid = element_blank())
 
-
 ggsave(
   filename = paste0(output_dir, "/figures/mapa_stem_municipios_2016.png"),
   # plot = box2,  # Replace with the actual ggplot object
@@ -430,36 +397,11 @@ ggsave(
   dpi = 600
 )
 
-
-#sf3 %>%
-#  filter(code_state == 35) %>%  # para ver o mapa inteiro é só tirar o code_region
-#  ggplot() +
-#  geom_sf(data = subset(dados_mapa, code_state == 35)) +
-#  geom_sf(aes(fill = stem_background), alpha = .7, color = NA) +
-#  labs(#title="Municipalities where a STEM canditate was among the top 2 voted in SP (2016)",
-#    caption='Source: Author', size = 8) +
-#  scale_fill_manual(values = c("red", "blue"),
-#                    name = "STEM candidate",
-#                    na.value = "grey90",
-#                    labels = c("Lost","Won", "Not in top 2")) +
-#  theme_minimal(base_size = 16) + 
-#  theme(axis.title = element_blank(),
-#        axis.text = element_blank(),
-#        axis.ticks = element_blank(),
-#        panel.grid = element_blank())
-#
-#ggsave(
-#  filename = paste0(output_dir, "/figures/mapa_stem_SP.png"),
-#  # plot = box2,  # Replace with the actual ggplot object
-#  height = 5.5,
-#  width = 7.5
-#)
-
 # Plots - Discontinuity  ----------------------------------------------
 
 ## outcomes
 
-### running regressions 
+### running regressions to get bandwidths
 
 amostra <- cbind()
 
@@ -530,21 +472,9 @@ covsZ  = cbind(state.d,
                df_plots$idade,
                df_plots$idade * df_plots$idade) # Controls
 
-#poli = 1
-#covsZ = cbind(state.d, df$mulher)
-#covsZ = df$tenure
-
-
 hosp <- rdplot(df_plots$Y_hosp, df_plots$X,
                covs = covsZ,
                p = poli,
-               #x.lim = c(r4$bws[1] * -1, r4$bws[1]),
-               #y.lim = c(75, 175),
-               #shade = TRUE,
-               #subset = amostra,
-               #h = r4$bws[1],
-               #scale = 5,
-               #ci = 95,
                binselect = "esmv",
                kernel = k,
                x.label = "STEM candidate's margin of victory",
@@ -559,18 +489,12 @@ hosp <- rdplot(df_plots$Y_hosp, df_plots$X,
 death <- rdplot(df_plots$Y_deaths_sivep , df_plots$X,
                 covs = covsZ,
                 p = poli,
-                #x.lim = c(r5$bws[1] * -1, r5$bws[1]),
-                #y.lim = c(75, 175),
-                #shade = TRUE,
-                #h = r5$bws[1],
                 scale = 2,
-                #ci = 90,
                 binselect = "esmv",
                 kernel = k,
                 x.label = "STEM candidate's margin of victory",
                 y.label = "Deaths per 100k inhabitants",
-                title = ""#,
-               # col.lines = "white"
+                title = ""
                )
 
 death <- death$rdplot
@@ -587,7 +511,6 @@ death <- death +
   geom_line(size = 2)
 
 death
-
 
 hosp <- hosp$rdplot
 
@@ -610,11 +533,3 @@ ggsave(paste0(output_dir, "/figures/bigsample_plots_outcomes.png"), plot = plots
        width = 8.0,
        height = 5,
        units = "in")
-
-
-
-ggplot(df[abs(df$X) <= 0.05, ], aes(x = X, y = Y_deaths_sivep)) +
-  geom_point()
-
-ggplot(df[abs(df$X) <= 0.05, ], aes(x = X, y = Y_hosp)) +
-  geom_point()
