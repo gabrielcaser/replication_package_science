@@ -1,10 +1,10 @@
 # Define the parameter values
 dados_sumstats      <- readRDS(paste(data_dir, "/final/", data, sep = ""))
-nobs_sumstats       <- nrow(dados_sumstats[dados_sumstats$coorte == 2016, ])
-nobs_sumstats_stem  <- nrow(dados_sumstats[dados_sumstats$stem_background == 1 & dados_sumstats$coorte == 2016, ])
-cohorts_used        <- 2016 #unique(dados_sumstats$coorte)
+nobs_sumstats       <- nrow(dados_sumstats)
+nobs_sumstats_stem  <- nrow(dados_sumstats[dados_sumstats$stem_background == 1, ])
+cohorts_used        <- unique(dados_sumstats$coorte)
 college_description <- ifelse(non_stem_college == "yes", " with college degree", "")
-cohort_fe           <- "" #ifelse(cohort_filter == "", "and cohort ", "")
+cohort_fe           <- ifelse(cohort_filter == "", "and cohort ", "")
 log_outcomes        <- ifelse(deaths_and_hosp_in_log == "yes", " in the form of inverse hyperbolic sine","")
 
 # Create a LaTeX file with the parameter values

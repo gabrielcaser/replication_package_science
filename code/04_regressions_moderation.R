@@ -23,8 +23,7 @@ rm(data_revenue)
 
 df$tenure <- df$tenure / 12
 
-#df_subset <- subset(df, X >= -1 * janela & X <= janela)
-df_subset <- df[df$coorte == 2016 & df$X >= -1 * janela & df$X <= janela, ]
+df_subset <- subset(df, df$X >= -1 * 0.082 & df$X <= 0.082)
 
 df_subset$inter_receita_stem <- df_subset$receita_2015 * (as.double(df_subset$stem_background) - 1)
 df_subset$log_tenure         <- log(df_subset$tenure + 1)

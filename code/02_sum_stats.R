@@ -68,7 +68,7 @@ df_plot <- df_plot %>%
   mutate(cum_deaths = cumsum(mean_deaths))
   # Plot mean deaths over time by stem_background for cohorts 2016 and 2020
   plots_list <- list()
-  for (c in c(2016)) {
+  for (c in 2016) {
     df_plot_coorte <- df_plot %>% filter(coorte == c)
     # Set month labels
     month_labels <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
@@ -94,18 +94,17 @@ df_plot <- df_plot %>%
         panel.grid.minor = element_blank()
       )
     plots_list[[as.character(c)]] <- p
-  }
-
-  plots_list[["2016"]]
-
-  # Saving plot
+  
+    # Saving plot
   ggsave(
-    filename = paste0(output_dir, "/figures/mean_cumulative_deaths_stem_background_2016.png"),
-    plot = plots_list[["2016"]],
+    filename = paste0(output_dir, "/figures/mean_cumulative_deaths_stem_background_", c, ".png"),
+    plot = plots_list[[as.character(c)]],
     height = 5.0,
     width = 10,
     dpi = 600
   )
+  
+  }
 
 
 # Merging
@@ -127,8 +126,6 @@ df <- df %>% # Removing NPI data from municipalities in 2020 chort (since this d
   )
 
 # Sum stats ---------------------------------------------------------------
-
-df <- df[df$coorte == 2016, ]
 
 # keeping only relevant variables
 dat <- df[c(
@@ -408,17 +405,17 @@ amostra <- cbind()
 state.f = factor(df$sigla_uf)
 state.d = model.matrix( ~ state.f + 0) # creating fixed effects
 
-#year.f = factor(df$coorte) # creating dummies
-#if (cohort_filter == "") {
-#  year.d = model.matrix(~year.f+0)
-#}
-#if (cohort_filter == "2016_") {
-#  year.d = 1
-#}
+year.f = factor(df$coorte) # creating dummies
+if (cohort_filter == "") {
+  year.d = model.matrix(~year.f+0)
+}
+if (cohort_filter == "2016_") {
+  year.d = 1
+}
 
 covsZ  = cbind(
     state.d,
-    #year.d,
+    year.d,
     df$mulher,
     df$ideology_party,
     df$instrucao,
@@ -455,16 +452,16 @@ df_plots <- df[abs(df$X) < r4$bws[1], ]
 state.f = factor(df_plots$sigla_uf)
 state.d = model.matrix( ~ state.f + 0) # creating fixed effects
 
-#year.f = factor(df_plots$coorte) # creating dummies
-#if (cohort_filter == "") {
-#  year.d = model.matrix(~year.f+0)
-#}
-#if (cohort_filter == "2016_") {
-#  year.d = 1
-#}
+year.f = factor(df_plots$coorte) # creating dummies
+if (cohort_filter == "") {
+  year.d = model.matrix(~year.f+0)
+}
+if (cohort_filter == "2016_") {
+  year.d = 1
+}
 
 covsZ  = cbind(state.d,
-              # year.d,
+               year.d,
                df_plots$mulher,
                df_plots$ideology_party,
                df_plots$instrucao,
