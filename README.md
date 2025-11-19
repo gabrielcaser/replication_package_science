@@ -1,4 +1,4 @@
-# Leading like Scientists: The effect of STEM Background on CEO Performance under Uncertainty
+# Leading like Scientists: The Effect of STEM Background on CEO Performance under Uncertainty
 
 ## Replication Instructions
 
