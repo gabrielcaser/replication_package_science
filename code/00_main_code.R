@@ -1,15 +1,11 @@
-
 # Description - This code reproduces all tables and figures from the paper
-
 renv::restore() # RUN IT FIRST to download the required libraries
 ##renv::install("jsonlite", type = "binary") # run that in case you receive any error message during the instalation of the jsonlite package
 
 # Initial Commands --------------------------------------------------------
-
 rm(list = ls(all.names = TRUE)) # clear objects
 gc() # free up memory
 set.seed(1234)
-
 
 # Libraries ---------------------------------------------------------------
 library("tidyverse")    # to handle data
@@ -24,16 +20,10 @@ library('knitr')        # render presentations
 library('forcats')      # better figures
 library('plm')          # regressions with fixed effects
 library('rdhte')        # heterogeneous treatment effects in rdd
-# Setting -----------------------------------------------------------------
 
+# Setting -----------------------------------------------------------------
 output_dir                     = paste0(getwd(),"/outputs")
 data_dir                       = paste0(getwd(),"/data")
-
-mayors_data_dir                = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/3_create_education_data/output/data"
-baseline_data_dir              = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/5_create_baseline_data/output/data"
-covid_data_dir                 = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/4_create_covid_data/output/data"
-tenure_data_dir                = "C:/Users/gabri/OneDrive/Gabriel/Insper/Tese/Engenheiros/replication_code/rdd_when_science_strikes_back/6_create_rdd_dataset/input"
-
 
 # Parameters --------------------------------------------------------------
 stem_definition        = "broad"                # "broad" (Machado) or "strict" (Machine Learning selection based on online profiles)
