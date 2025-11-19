@@ -6,7 +6,7 @@ for (definition in c("strict", "broad")) {
   
   # Mayors Data ----------------------------------------------------
   
-  df_mayors <- readRDS(paste0(mayors_data_dir, "/candidates_dataset.Rds"))
+  df_mayors <- readRDS(paste0(data_dir, "/intermediary/candidates_dataset.Rds"))
   
   df_mayors$id_municipio <- as.character(df_mayors$id_municipio) # changing data type
   df_mayors$id_municipio <- substr(df_mayors$id_municipio,1,6) # keeping only 6 first digits
@@ -108,22 +108,22 @@ for (definition in c("strict", "broad")) {
   
   # Baseline and NPI Data -----------------------------------------------------------
   
-  df_health <- readRDS(paste0(baseline_data_dir, "/health_data.Rds"))
+  df_health <- readRDS(paste0(data_dir, "/intermediary/health_data.Rds"))
   
-  df_ideology <- readRDS(paste0(baseline_data_dir, "/ideology_data.Rds"))
+  df_ideology <- readRDS(paste0(data_dir, "/intermediary/ideology_data.Rds"))
   
   df_ideology <- df_ideology %>% 
     dplyr::filter(coorte == 2016 | coorte == 2020) # keeping election coorte years
   
-  df_density <- readRDS(paste0(baseline_data_dir, "/density_data.Rds"))
+  df_density <- readRDS(paste0(data_dir, "/intermediary/density_data.Rds"))
   
-  df_political <- readRDS(paste0(baseline_data_dir, "/political_data.Rds"))
+  df_political <- readRDS(paste0(data_dir, "/intermediary/political_data.Rds"))
   
-  df_npi <- readRDS(paste0(baseline_data_dir, "/npi_data.Rds"))
+  df_npi <- readRDS(paste0(data_dir, "/intermediary/npi_data.Rds"))
   
-  df_stem_eleito <- readRDS(paste0(baseline_data_dir, "/stem_classification_eleito.Rds"))
+  df_stem_eleito <- readRDS(paste0(data_dir, "/intermediary/stem_classification_eleito.Rds"))
   
-  df_stem_naoeleito <- readRDS(paste0(baseline_data_dir, "/stem_classification_naoeleito.Rds"))
+  df_stem_naoeleito <- readRDS(paste0(data_dir, "/intermediary/stem_classification_naoeleito.Rds"))
   
   # Covid Data --------------------------------------------------------------
   
@@ -135,7 +135,7 @@ for (definition in c("strict", "broad")) {
   
   # Tenure data -------------------------------------------------------------
   
-  df_tenure <- readRDS(paste0(tenure_data_dir, "/tenure_data.Rds"))
+  df_tenure <- readRDS(paste0(data_dir, "/intermediary/tenure_data.Rds"))
   
   # Merging datasets --------------------------------------------------------
   
