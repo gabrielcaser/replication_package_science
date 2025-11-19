@@ -1,15 +1,53 @@
-# When Science Strikes Back - Has a scientific background helped leaders against COVID-19?
+# Leading like Scientists: The Effect of STEM Background on CEO Performance under Uncertainty
 
-# Replication steps
-- You must have installed R (version 4.4.5), Rstudio or Visual Studio, and RTools (4.5) (https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html)
-- Download this folder clicking on the green button "<>Code", Download zip and unzip OR Clone repository using Github Desktop
-- If using Visual Studio open "code/00_main_code.R"
-- If using Rstudio open "replication_package_science.Rproj" then open "code/00_main_code.R"
-- Run command line renv::restore() (Only needed for the first time to install packages)
-  - Press "1" to activate the local repository
-  - R will probably reboot, run renv::restores again()
-  - Select "Y" to install required packages
-  - (if received error run renv::install("jsonlite", type = "binary"))
-- Run all the script
-- It may take up to 20 min to finish it all
-- If you only want to run a specific script, you still need to run the main script first, commenting out the source lines that run the other scripts
+## Replication Instructions
+
+### Requirements
+Before running the replication package, ensure you have installed:
+
+- **R (version 4.4.5)**
+- **RStudio** *or* **Visual Studio Code**
+- **RTools 4.5**  
+  <https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html>
+
+---
+
+## 1. Download the replication package
+
+Choose one of the following:
+
+- Click the green **<> Code** button → **Download ZIP** → unzip the folder  
+**OR**
+- Clone the repository using **GitHub Desktop**
+
+---
+
+## 2.A Running the replication in RStudio
+
+1. Open the project file: **`replication_package_science.Rproj`**
+2. Open the main script: **`code/00_main_code.R`**
+3. Click **Source** (or press **Ctrl + Shift + S**)
+4. When prompted:
+   - Press **"1"** to activate the local repository  
+   - R will likely restart  
+5. After R restarts, click **Source** again
+6. Select **"Y"** to install required packages
+7. The script will execute automatically and reproduce all figures and tables in **under 5 minutes**.
+
+---
+
+## 2.B Running the replication in Visual Studio Code
+
+1. Open **`code/00_main_code.R`**
+2. Click the **Explorer** icon on the left (Ctrl + Shift + E)
+3. Click **"Open Folder"** and select the folder **`replication_package_science-main`**
+4. Open **`code/00_main_code.R`** again
+5. Click **Run Source** to open the R Terminal
+6. Click **Run Source** once more to start the script
+7. When prompted:
+   - Press **"1"** to activate the local repository  
+   - R will reboot and continue running automatically  
+8. Wait approximately **5 minutes** for all outputs to be reproduced
+9. **If you encounter an error while installing the packages**, try it again after running:
+   ```r
+   renv::install("jsonlite", type = "binary")
