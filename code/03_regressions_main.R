@@ -148,7 +148,7 @@ covs_full_all_cohorts <- cbind(
 # estimates
 
 # Rdrobust function
-run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, prefix = "") {
+run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, outcome, prefix = "") {
   covs_base <- cbind(state.d, year.d)
   covs_full <- cbind(
     state.d,
@@ -161,24 +161,26 @@ run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, prefix = "
     df$idade * df$idade
   )
   models <- list(
-    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_base),
-    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full),
-    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela),
-    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.02),
-    rdrobust(df$Y_deaths_sivep, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.04)
+    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_base),
+    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full),
+    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela),
+    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.02),
+    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.04)
   )
   return(models)
 }
 
 # Running model for this specification
-models <- run_rdrobust_models(df, state.d, year.d, poli, k, janela)
+models_death <- run_rdrobust_models(df, state.d, year.d, poli, k, janela, df$Y_deaths_sivep)
+models_hosp  <- run_rdrobust_models(df, state.d, year.d, poli, k, janela, df$Y_hosp)
 
 # Extract optimal bandwidths for each panel (for reference or reporting)
-optimal_bw <- models[[2]]$bws[[1]]
+optimal_bw       <- models_death[[2]]$bws[[1]]
+optimal_bw_hosp  <- models_hosp[[2]]$bws[[1]]
 
-# Creating table
+# Creating table death
 modelsummary(
-  models,
+  models_death,
   estimate = "{estimate}",
   statistic = c("[{std.error}]", "{p.value}{stars}"),
   coef_rename = c("Robust" = "RD estimator"),
@@ -188,15 +190,49 @@ modelsummary(
   output = "outputs/tables/estimates.tex",
   title = "Impact of STEM Leadership on Deaths — RD estimates",
   coef_omit = "Corrected|Conventional",
-  coef_map = NULL
+  coef_map = NULL,
+  add_rows = data.frame(
+    term = "Mayor Controls",
+    `Model 1` = "No",
+    `Model 2` = "Yes",
+    `Model 3` = "Yes",
+    `Model 4` = "Yes",
+    `Model 5` = "Yes",
+    check.names = FALSE
+  )
 )
+
+# Creating table hosp
+modelsummary(
+  models_hosp,
+  estimate = "{estimate}",
+  statistic = c("[{std.error}]", "{p.value}{stars}"),
+  coef_rename = c("Robust" = "RD estimator"),
+  stars = c('*' = .1, '**' = .05, '***' = .01),
+  fmt = 2,
+  #output = "outputs/tables/estimates_hosp.png",
+  output = "outputs/tables/estimates_hosp.tex",
+  title = "Impact of STEM Leadership on Hospitalizations — RD estimates",
+  coef_omit = "Corrected|Conventional",
+  coef_map = NULL,
+  add_rows = data.frame(
+    term = "Mayor Controls",
+    `Model 1` = "No",
+    `Model 2` = "Yes",
+    `Model 3` = "Yes",
+    `Model 4` = "Yes",
+    `Model 5` = "Yes",
+    check.names = FALSE
+  )
+)
+
 
 # Creating table with all cohorts panels (Appendix)
 
 # Running models for each panel
-models_panelA <- run_rdrobust_models(df_2016, state.d_2016, year.d_2016, poli, k, janela)
-models_panelB <- run_rdrobust_models(df_2020, state.d_2020, year.d_2020, poli, k, janela)
-models_panelC <- run_rdrobust_models(df_all_cohorts, state.d_all_cohorts, year.d_all_cohorts, poli, k, janela)
+models_panelA <- run_rdrobust_models(df_2016, state.d_2016, year.d_2016, poli, k, janela, df_2016$Y_deaths_sivep)
+models_panelB <- run_rdrobust_models(df_2020, state.d_2020, year.d_2020, poli, k, janela, df_2020$Y_deaths_sivep)
+models_panelC <- run_rdrobust_models(df_all_cohorts, state.d_all_cohorts, year.d_all_cohorts, poli, k, janela, df_all_cohorts$Y_deaths_sivep)
 
 models_list <- list(
   "Panel A: Deaths (only 2016 cohort)" = models_panelA,
@@ -216,7 +252,16 @@ modelsummary(
   output = "outputs/tables/estimates_all_panels.tex",
   title = "Impact of STEM Leadership on Epidemiological Outcomes (2016 and 2020 cohorts)",
   coef_omit = "Corrected|Conventional",
-  coef_map = NULL
+  coef_map = NULL,
+  add_rows = data.frame(
+    term = "Mayor Controls",
+    `Model 1` = "No",
+    `Model 2` = "Yes",
+    `Model 3` = "Yes",
+    `Model 4` = "Yes",
+    `Model 5` = "Yes",
+    check.names = FALSE
+  )
 )
 
 
@@ -345,7 +390,17 @@ mr3 <- modelsummary(
   output = "outputs/tables/mechanism.tex", 
   title = "Impact of STEM Candidate Elected in 2016 on Non-Pharmaceutical Interventions in 2020",
   coef_omit = "Bias-Corrected|Conventional",
-  align = paste(rep("r", length(models) + 1), collapse = "") # Create alignment string
+  align = paste(rep("r", length(models) + 1), collapse = ""),
+  add_rows = data.frame(
+    term = "Mayor Controls",
+    `Model 1` = "Yes",
+    `Model 2` = "Yes",
+    `Model 3` = "Yes",
+    `Model 4` = "Yes",
+    `Model 5` = "Yes",
+    `Model 6` = "Yes",
+    check.names = FALSE
+  ) 
 )
 
 # Robustness --------------------------------------------------------------
@@ -392,8 +447,8 @@ plot_hosp_robs <- ggplot(df_robs_hosp, aes(x = bw, y = coef_conv)) +
   geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
   theme_clean
 
-#bw_optimal_hosp <- r4$bws[[1]]
-#plot_hosp_robs <- add_optimal_point(plot_hosp_robs, df_robs_hosp, bw_optimal_hosp)
+
+plot_hosp_robs <- add_optimal_point(plot_hosp_robs, df_robs_hosp, optimal_bw_hosp)
 
 plot_deaths_robs <- ggplot(df_robs_deaths, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
@@ -408,11 +463,10 @@ plot_deaths_robs <- ggplot(df_robs_deaths, aes(x = bw, y = coef_conv)) +
   geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
   theme_clean
 
-bw_optimal_deaths <- optimal_bw
-plot_deaths_robs <- add_optimal_point(plot_deaths_robs, df_robs_deaths, bw_optimal_deaths)
+plot_deaths_robs <- add_optimal_point(plot_deaths_robs, df_robs_deaths, optimal_bw)
 
 # Combinar gráficos de hospitalizações e mortes
-graficos_juntos <- plot_deaths_robs #/ plot_hosp_robs
+graficos_juntos <- plot_deaths_robs / plot_hosp_robs
 
 ggsave("outputs/figures/robust_outcomes.png", graficos_juntos,
        width = 5.50, height = 5.00, units = "in")
