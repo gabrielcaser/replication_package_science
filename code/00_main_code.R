@@ -43,7 +43,7 @@ data             = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem
 data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definition, "_definition.Rds")
 
 # Running scripts ---------------------------------------------------------
-#source("code/creates_covid_data.R") # Covid data not on Github due to size limitations. Contact the authors to access it.
+source("code/creates_covid_data.R") # Covid data not on Github due to size limitations. Contact the authors to access it.
 source("code/01_create_dataset.R")
 source("code/02_sum_stats.R")
 source("code/03_regressions_main.R")
@@ -52,3 +52,4 @@ source("code/05_parameters_latexR.R")
 
 print("All tables and figures have been reproduced and saved in the outputs folder.")
 # End of code -------------------------------------------------------------
+

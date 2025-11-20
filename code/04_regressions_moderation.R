@@ -23,8 +23,8 @@ rm(data_revenue)
 
 df$tenure <- df$tenure / 12
 
-df_subset <- subset(df, df$X >= -1 * 0.082 & df$X <= 0.082)
-
+#df_subset <- subset(df, df$X >= -1 * 0.082 & df$X <= 0.082)
+df_subset <- df
 df_subset$inter_receita_stem <- df_subset$receita_2015 * (as.double(df_subset$stem_background) - 1)
 df_subset$log_tenure         <- log(df_subset$tenure + 1)
 df_subset$inter_tenure_stem  <- df_subset$tenure  * (as.double(df_subset$stem_background) - 1)
@@ -42,9 +42,9 @@ pdata <- pdata.frame(df_subset, c("sigla_uf"))
 covsZ = cbind(pdata$mulher,
               pdata$ideology_party,
               pdata$instrucao,
-              pdata$reeleito,
-              pdata$idade,
-              pdata$idade * pdata$idade)
+              pdata$reeleito)#,
+              #pdata$idade,
+              p#data$idade * pdata$idade)
 
 #covsZ <- cbind(pdata$zero)
 
@@ -73,14 +73,14 @@ out3 <- plm(
 
 
 moderation_tenure <- stargazer::stargazer(
-  out2,
-  type = "text",
-  #type = "text",
- # covariate.labels = c("STEM Background", "Tenure Moderation Effect"),
+  list(out2),
+  type = "latex",
   dep.var.labels = c("Deaths"),
   out = paste(output_dir, "/tables/moderation_tenure.tex", sep = ""),
-  title = "Moderating effects of scientific intensity on the impact of STEM background",
-  notes = NULL
+  title = paste("Moderating effects of scientific intensity on the impact",
+                "of STEM background"),
+  notes = NULL,
+  omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4")
 )
 
 writeLines(moderation_tenure, con = "outputs/tables/moderation_tenure.tex")
