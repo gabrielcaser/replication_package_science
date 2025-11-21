@@ -4,14 +4,16 @@
 
 ## Opening main dataset
 df <- readRDS(paste(data_dir, "/final/", data, sep = ""))
+df_all_cohorts <- readRDS(paste(data_dir, "/final/", data_all_cohorts, sep = ""))
 
 ## Mantaining main vars
-df_aux <- df %>%
+df_aux <- df_all_cohorts %>%
   dplyr::select(
     id_municipio,
     stem_background,
     coorte,
-    X
+    X,
+    tenure
   )
 
 ## Opening covid day data
@@ -19,7 +21,7 @@ df_aux <- df %>%
 df_mean <- readRDS(paste(data_dir, "/intermediary/covid_day_data.rds", sep = ""))
 
 df_mean <- df_mean %>%
-  filter(EVOLUCAO == "Óbito" )
+  filter(EVOLUCAO == "Óbito")
 
 df_mean <- df_mean %>% 
   mutate(coorte = case_when(as.numeric(format(df_mean$DT_SIN_PRI, "%Y")) == 2020 ~ as.factor(2016),
@@ -58,6 +60,10 @@ n_distinct(df_mean$id_municipio)
 # Aggregating to month level
 df_plot <- df_mean %>%
   group_by(id_municipio, coorte, month, stem_background) %>%
+  summarise(deaths = n())
+
+df_regs <- df_mean %>%
+  group_by(id_municipio, coorte, month, stem_background, tenure) %>%
   summarise(deaths = n())
 
 # Aggregating to mean and then cumulative deaths
@@ -106,6 +112,61 @@ df_plot <- df_plot %>%
   
   }
 
+
+# OLS (plm with states fixed effect)
+
+# getting sigla_uf
+
+df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
+
+## merging year of population with coorte
+df_population <- df_population %>%
+  mutate(coorte = recode(ano, '2020' = '2016', '2021' = '2020')) %>% 
+  summarise(coorte = as.factor(coorte), populacao, id_municipio = as.character(id_municipio), sigla_uf)
+
+
+df_regs <- left_join(df_regs, df_population, by = c("id_municipio", "coorte"))
+
+
+# Replace missing tenure with 0
+df_regs$tenure[is.na(df_regs$tenure)] <- 0
+df_regs$tenure <- df_regs$tenure / 12
+
+df_regs <- df_regs %>%
+  ungroup() 
+
+# Saving as .dta
+
+haven::write_dta(df_regs, path = paste0(data_dir, "/intermediary/data_ols.dta"))
+skim(df_regs)
+# adding sigla_uf to municipalities
+
+summary(lm(deaths ~ stem_background, data = df_regs[df_regs$coorte == 2016, ]))
+summary(lm(deaths ~ stem_background + month , data = df_regs[df_regs$coorte == 2016, ]))
+summary(lm(deaths ~ stem_background + month + sigla_uf , data = df_regs[df_regs$coorte == 2016, ]))
+
+summary(lm(deaths ~ stem_background*tenure , data = df_regs[df_regs$coorte == 2016, ]))
+summary(lm(deaths ~ stem_background*tenure + month, data = df_regs[df_regs$coorte == 2016, ]))
+summary(lm(deaths ~ stem_background*tenure + month + sigla_uf, data = df_regs[df_regs$coorte == 2016, ]))
+
+summary(lm(deaths ~ stem_background, data = df_regs))
+summary(lm(deaths ~ stem_background, data = df_regs))
+summary(lm(deaths ~ stem_background*coorte, data = df_regs))
+summary(lm(deaths ~ stem_background*coorte + month, data = df_regs))
+summary(lm(deaths ~ stem_background*coorte + month + sigla_uf, data = df_regs))
+
+
+pdata <- pdata.frame(df_regs, c("sigla_uf"))
+
+ols_deaths <- plm(
+  Y_deaths_sivep ~ T + inter_tenure_stem + tenure,
+  data = pdata,
+  index = c("sigla_uf"),
+  model = "within" ,
+  effect = "twoways"
+)
+
+summary(ols_deaths_tenure)
 
 # Merging
 df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads

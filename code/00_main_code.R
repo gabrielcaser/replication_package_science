@@ -46,7 +46,7 @@ data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definitio
 #source("code/creates_covid_data.R") # Covid data not on Github due to size limitations. Contact the authors to access it.
 #source("code/01_create_dataset.R")
 #source("code/02_sum_stats.R")
-source("code/03_regressions_main.R")
+#source("code/03_regressions_main.R")
 #source("code/04_regressions_moderation.R")
 #source("code/05_parameters_latexR.R")
 

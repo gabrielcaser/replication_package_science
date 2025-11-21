@@ -42,9 +42,10 @@ pdata <- pdata.frame(df_subset, c("sigla_uf"))
 covsZ = cbind(pdata$mulher,
               pdata$ideology_party,
               pdata$instrucao,
-              pdata$reeleito)#,
+              pdata$reeleito#,
               #pdata$idade,
-              p#data$idade * pdata$idade)
+              #pdata$idade * pdata$idade
+              )
 
 #covsZ <- cbind(pdata$zero)
 
@@ -149,3 +150,51 @@ moderation_both <- stargazer::stargazer(
 )
 
 writeLines(moderation_both, con = "outputs/tables/moderation_both.tex")
+
+# OLS (plm with states fixed effect)
+
+
+ols_deaths_tenure <- plm(
+  Y_deaths_sivep ~ T + inter_tenure_stem + tenure,
+  data = pdata,
+  index = c("sigla_uf"),
+  model = "within" ,
+  effect = "twoways"
+)
+
+summary(ols_deaths_tenure)
+
+ols_deaths_tenure_controls <- plm(
+  Y_deaths_sivep ~ T + inter_tenure_stem + tenure + covsZ,
+  data = pdata,
+  index = c("sigla_uf"),
+  model = "within" ,
+  effect = "twoways"
+)
+
+summary(ols_deaths_tenure_controls)
+
+# now with hospitalizations
+
+ols_hosp_tenure <- plm(
+  Y_hosp ~ T + inter_tenure_stem + tenure,
+  data = pdata,
+  index = c("sigla_uf"),
+  model = "within" ,
+  effect = "twoways"
+)
+
+summary(ols_hosp_tenure)
+
+ols_hosp_tenure_controls <- plm(
+  Y_hosp ~ T + inter_tenure_stem + tenure + covsZ,
+  data = pdata,
+  index = c("sigla_uf"),
+  model = "within" ,
+  effect = "twoways"
+)
+
+summary(ols_hosp_tenure_controls)
+
+
+# Run considering all the 5570 municipalities
