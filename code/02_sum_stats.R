@@ -141,13 +141,38 @@ haven::write_dta(df_regs, path = paste0(data_dir, "/intermediary/data_ols.dta"))
 skim(df_regs)
 # adding sigla_uf to municipalities
 
-summary(lm(deaths ~ stem_background, data = df_regs[df_regs$coorte == 2016, ]))
-summary(lm(deaths ~ stem_background + month , data = df_regs[df_regs$coorte == 2016, ]))
-summary(lm(deaths ~ stem_background + month + sigla_uf , data = df_regs[df_regs$coorte == 2016, ]))
+library(sandwich)
+library(lmtest)
 
-summary(lm(deaths ~ stem_background*tenure , data = df_regs[df_regs$coorte == 2016, ]))
-summary(lm(deaths ~ stem_background*tenure + month, data = df_regs[df_regs$coorte == 2016, ]))
-summary(lm(deaths ~ stem_background*tenure + month + sigla_uf, data = df_regs[df_regs$coorte == 2016, ]))
+model <- lm(deaths ~ stem_background, data = df_regs[df_regs$coorte == 2016 , ])
+lmtest::coeftest(model, vcov = sandwich::vcovHC(model, type = "HC1"))
+
+# Criar uma nova tabela com isso
+library(plm)
+
+# Convert to panel data frame
+pdata <- df_regs[df_regs$coorte == 2016 & !is.na(df_regs$sigla_uf), ]
+pdata <- pdata.frame(pdata, 
+           index = c("sigla_uf"))
+
+# Estimate fixed effects model with robust standard errors
+model <- plm(deaths ~ stem_background * month, 
+       data = pdata,
+       #effect = "twoways",
+       model = "within")
+lmtest::coeftest(model, vcov = vcovHC(model, type = "HC1"))
+
+
+model2 <- lm(deaths ~ stem_background*month + sigla_uf, data = df_regs[df_regs$coorte == 2016, ])
+lmtest::coeftest(model2, vcov = sandwich::vcovHC(model2, type = "HC1"))
+
+
+summary(lm(deaths ~ stem_background + month , data = df_regs[df_regs$coorte == 2016 & df_regs$populacao > 50000, ]))
+summary(lm(deaths ~ stem_background  + sigla_uf , data = df_regs[df_regs$coorte == 2016 & df_regs$populacao > 50000, ]))
+
+summary(lm(deaths ~ stem_background*tenure , data = df_regs[df_regs$coorte == 2016 & df_regs$populacao > 50000, ]))
+summary(lm(deaths ~ stem_background*tenure + month, data = df_regs[df_regs$coorte == 2016 & df_regs$populacao > 50000, ]))
+summary(lm(deaths ~ stem_background*tenure  + sigla_uf, data = df_regs[df_regs$coorte == 2016 & df_regs$populacao > 50000, ]))
 
 summary(lm(deaths ~ stem_background, data = df_regs))
 summary(lm(deaths ~ stem_background, data = df_regs))

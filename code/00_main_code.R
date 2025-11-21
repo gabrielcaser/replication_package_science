@@ -43,11 +43,26 @@ data             = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem
 data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definition, "_definition.Rds")
 
 # Running scripts ---------------------------------------------------------
-#source("code/creates_covid_data.R") # Covid data not on Github due to size limitations. Contact the authors to access it.
+# 1. Create baseline data (health, ideology, political, npi, density, STEM classification)
+#source("code/create_baseline_data.R")
+
+# 2. Create COVID data (requires large raw files - not on Github)
+#source("code/clean_covid_data.R")
+#source("code/construct_covid_outcomes.R")
+
+# 3. Create final RDD dataset
 #source("code/01_create_dataset.R")
+
+# 4. Generate summary statistics
 #source("code/02_sum_stats.R")
+
+# 5. Run main regressions
 #source("code/03_regressions_main.R")
+
+# 6. Run moderation analysis
 #source("code/04_regressions_moderation.R")
+
+# 7. Generate LaTeX parameters
 #source("code/05_parameters_latexR.R")
 
 print("All tables and figures have been reproduced and saved in the outputs folder.")
