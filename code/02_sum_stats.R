@@ -63,7 +63,11 @@ df_plot <- df_mean %>%
   summarise(deaths = n())
 
 df_regs <- df_mean %>%
-  group_by(id_municipio, coorte, month, stem_background, tenure) %>%
+  group_by(id_municipio, coorte, stem_background, tenure) %>%
+  summarise(deaths = n())
+
+df_regs_month <- df_mean %>%
+  group_by(id_municipio, coorte, stem_background, month, tenure) %>%
   summarise(deaths = n())
 
 # Aggregating to mean and then cumulative deaths
@@ -125,8 +129,8 @@ df_population <- df_population %>%
   summarise(coorte = as.factor(coorte), populacao, id_municipio = as.character(id_municipio), sigla_uf)
 
 
-df_regs <- left_join(df_regs, df_population, by = c("id_municipio", "coorte"))
-
+df_regs       <- left_join(df_regs, df_population, by = c("id_municipio", "coorte"))
+df_regs_month <- left_join(df_regs_month, df_population, by = c("id_municipio", "coorte"))
 
 # Replace missing tenure with 0
 df_regs$tenure[is.na(df_regs$tenure)] <- 0
@@ -144,8 +148,14 @@ skim(df_regs)
 library(sandwich)
 library(lmtest)
 
-model <- lm(deaths ~ stem_background, data = df_regs[df_regs$coorte == 2016 , ])
+model <- lm(deaths ~ stem_background + sigla_uf, data = df_regs[df_regs$coorte == 2016 , ])
 lmtest::coeftest(model, vcov = sandwich::vcovHC(model, type = "HC1"))
+
+model_month <- lm(deaths ~ stem_background*month + sigla_uf, data = df_regs_month[df_regs_month$coorte == 2016 , ])
+lmtest::coeftest(model_month, vcov = sandwich::vcovHC(model_month, type = "HC1"))
+
+model2 <- lm(deaths ~ stem_background*month + sigla_uf, data = df_regs[df_regs$coorte == 2016 , ])
+lmtest::coeftest(model2, vcov = sandwich::vcovHC(model2, type = "HC1"))
 
 # Criar uma nova tabela com isso
 library(plm)
@@ -155,43 +165,23 @@ pdata <- df_regs[df_regs$coorte == 2016 & !is.na(df_regs$sigla_uf), ]
 pdata <- pdata.frame(pdata, 
            index = c("sigla_uf"))
 
+pdata_month <- df_regs_month[df_regs_month$coorte == 2016 & !is.na(df_regs_month$sigla_uf), ]
+pdata_month <- pdata.frame(pdata_month, 
+           index = c("sigla_uf"))
+
 # Estimate fixed effects model with robust standard errors
-model <- plm(deaths ~ stem_background * month, 
-       data = pdata,
-       #effect = "twoways",
-       model = "within")
-lmtest::coeftest(model, vcov = vcovHC(model, type = "HC1"))
-
-
-model2 <- lm(deaths ~ stem_background*month + sigla_uf, data = df_regs[df_regs$coorte == 2016, ])
-lmtest::coeftest(model2, vcov = sandwich::vcovHC(model2, type = "HC1"))
-
-
-summary(lm(deaths ~ stem_background + month , data = df_regs[df_regs$coorte == 2016 & df_regs$populacao > 50000, ]))
-summary(lm(deaths ~ stem_background  + sigla_uf , data = df_regs[df_regs$coorte == 2016 & df_regs$populacao > 50000, ]))
-
-summary(lm(deaths ~ stem_background*tenure , data = df_regs[df_regs$coorte == 2016 & df_regs$populacao > 50000, ]))
-summary(lm(deaths ~ stem_background*tenure + month, data = df_regs[df_regs$coorte == 2016 & df_regs$populacao > 50000, ]))
-summary(lm(deaths ~ stem_background*tenure  + sigla_uf, data = df_regs[df_regs$coorte == 2016 & df_regs$populacao > 50000, ]))
-
-summary(lm(deaths ~ stem_background, data = df_regs))
-summary(lm(deaths ~ stem_background, data = df_regs))
-summary(lm(deaths ~ stem_background*coorte, data = df_regs))
-summary(lm(deaths ~ stem_background*coorte + month, data = df_regs))
-summary(lm(deaths ~ stem_background*coorte + month + sigla_uf, data = df_regs))
-
-
-pdata <- pdata.frame(df_regs, c("sigla_uf"))
-
-ols_deaths <- plm(
-  Y_deaths_sivep ~ T + inter_tenure_stem + tenure,
+model <- plm(deaths ~ stem_background, 
   data = pdata,
-  index = c("sigla_uf"),
-  model = "within" ,
-  effect = "twoways"
-)
+  #effect = "twoways",
+  model = "within")
+results <- lmtest::coeftest(model, vcov = vcovHC(model, type = "HC1"))
 
-summary(ols_deaths_tenure)
+model_month <- plm(deaths ~ stem_background*month, 
+  data = pdata_month,
+  effect = "individual",
+  model = "pooling")
+lmtest::coeftest(model_month, vcov = vcovHC(model_month, type = "HC1"))
+
 
 # Merging
 df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
