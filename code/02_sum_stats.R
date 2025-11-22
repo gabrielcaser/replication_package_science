@@ -41,6 +41,18 @@ df_mean <- df_mean %>%
 
 df_mean <- merge(df_mean, df_aux, by = c("id_municipio", "coorte"), all.x = TRUE)
 
+# getting sigla_uf
+
+df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
+
+## merging year of population with coorte
+df_population <- df_population %>%
+  mutate(coorte = recode(ano, '2020' = '2016', '2021' = '2020')) %>% 
+  summarise(coorte = as.factor(coorte), populacao, id_municipio = as.character(id_municipio), sigla_uf)
+
+
+df_mean  <- left_join(df_mean, df_population, by = c("id_municipio", "coorte"))
+
 # Replaceing null stem_backgroun for 0
 df_mean <- df_mean %>%
   mutate(teste = as.numeric(stem_background))
@@ -57,30 +69,51 @@ df_mean <- df_mean %>%
 # Counting the number of unique id_municipio
 n_distinct(df_mean$id_municipio)
 
+# Droping the ones without population data
+df_mean <- df_mean %>%
+  filter(!is.na(populacao))
+
 # Aggregating to month level
 df_plot <- df_mean %>%
   group_by(id_municipio, coorte, month, stem_background) %>%
-  summarise(deaths = n())
+  summarise(deaths = n(), population = first(populacao)) %>%
+  mutate(deaths_100k = (deaths / population) * 100000)
+
+  #
 
 df_regs <- df_mean %>%
-  group_by(id_municipio, coorte, stem_background, tenure) %>%
-  summarise(deaths = n())
+  group_by(id_municipio, sigla_uf, coorte, stem_background, tenure) %>%
+  summarise(deaths = n(), population = first(populacao)) %>%
+  mutate(deaths_100k = (deaths / population) * 100000)
 
 df_regs_month <- df_mean %>%
-  group_by(id_municipio, coorte, stem_background, month, tenure) %>%
-  summarise(deaths = n())
+  group_by(id_municipio, sigla_uf, coorte, stem_background, month, tenure) %>%
+  summarise(deaths = n(), population = first(populacao)) %>%
+  mutate(deaths_100k = (deaths / population) * 100000)
+
+  # Average Population per stem_background
+df_regs_month %>%
+  group_by(coorte, stem_background) %>%
+  summarise(mean_population = mean(population, na.rm = FALSE))
 
 # Aggregating to mean and then cumulative deaths
 df_plot <- df_plot %>%
+  filter(population > 70000) %>%
   group_by(coorte, month, stem_background) %>%
-  summarise(mean_deaths = mean(deaths)) %>%
+  summarise(mean_deaths = mean(deaths_100k)) %>%
   group_by(coorte, stem_background) %>%
   mutate(cum_deaths = cumsum(mean_deaths))
-  # Plot mean deaths over time by stem_background for cohorts 2016 and 2020
-  plots_list <- list()
-  for (c in 2016) {
-    df_plot_coorte <- df_plot %>% filter(coorte == c)
-    # Set month labels
+
+# Creating a object with smallest population of a stem municipality
+min_population_stem <- df_regs %>%
+  group_by(stem_background, coorte) %>%
+  summarise(min_population = max(population))
+
+# Plot mean deaths over time by stem_background for cohorts 2016 and 2020
+plots_list <- list()
+for (c in 2016) {
+  df_plot_coorte <- df_plot %>% filter(coorte == c) 
+  # Set month labels
     month_labels <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
     p <- ggplot(df_plot_coorte, aes(x = month, y = cum_deaths, shape = as.factor(stem_background), group = stem_background)) +
       geom_line(size = 1) +
@@ -95,7 +128,7 @@ df_plot <- df_plot %>%
       ) +
       labs(
         x = NULL,
-        y = "Deaths",
+        y = "Deaths per 100k inhabitants",
         shape = "Background"
       ) +
       theme_minimal(base_size = 16) +
@@ -116,21 +149,10 @@ df_plot <- df_plot %>%
   
   }
 
+plots_list[["2016"]]
+
 
 # OLS (plm with states fixed effect)
-
-# getting sigla_uf
-
-df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
-
-## merging year of population with coorte
-df_population <- df_population %>%
-  mutate(coorte = recode(ano, '2020' = '2016', '2021' = '2020')) %>% 
-  summarise(coorte = as.factor(coorte), populacao, id_municipio = as.character(id_municipio), sigla_uf)
-
-
-df_regs       <- left_join(df_regs, df_population, by = c("id_municipio", "coorte"))
-df_regs_month <- left_join(df_regs_month, df_population, by = c("id_municipio", "coorte"))
 
 # Replace missing tenure with 0
 df_regs$tenure[is.na(df_regs$tenure)] <- 0
@@ -148,13 +170,15 @@ skim(df_regs)
 library(sandwich)
 library(lmtest)
 
-model <- lm(deaths ~ stem_background + sigla_uf, data = df_regs[df_regs$coorte == 2016 , ])
+table(df_regs[df_regs$coorte == 2016 & df_regs$population > 70000, ]$stem_background)
+
+model <- lm(deaths_100k ~ stem_background , data = df_regs_month[df_regs_month$coorte == 2016 & df_regs_month$population > 70000, ])
 lmtest::coeftest(model, vcov = sandwich::vcovHC(model, type = "HC1"))
 
-model_month <- lm(deaths ~ stem_background*month + sigla_uf, data = df_regs_month[df_regs_month$coorte == 2016 , ])
+model_month <- lm(deaths_100k ~ stem_background*month , data = df_regs_month[df_regs_month$coorte == 2016 & df_regs_month$population > 70000, ])
 lmtest::coeftest(model_month, vcov = sandwich::vcovHC(model_month, type = "HC1"))
 
-model2 <- lm(deaths ~ stem_background*month + sigla_uf, data = df_regs[df_regs$coorte == 2016 , ])
+model2 <- lm(deaths_100k ~ stem_background*coorte + sigla_uf , data = df_regs)
 lmtest::coeftest(model2, vcov = sandwich::vcovHC(model2, type = "HC1"))
 
 # Criar uma nova tabela com isso
