@@ -161,6 +161,27 @@ df_ols <- data.frame(
   n_obs = nobs(model)
 )
 
+# OLS with month interaction using PLM
+df_ols_month <- readRDS(paste0(data_dir, "/intermediary/data_ols_month.rds"))
+pdata_month <- df_ols_month[df_ols_month$coorte == 2016 & !is.na(df_ols_month$sigla_uf) & df_ols_month$population > 70000, ]
+pdata_month <- plm::pdata.frame(pdata_month, index = c("sigla_uf"))
+
+model_ols_month <- plm::plm(deaths ~ stem_background*month, 
+  data = pdata_month,
+  effect = "individual",
+  model = "pooling")
+ols_month_results <- lmtest::coeftest(model_ols_month, vcov = plm::vcovHC(model_ols_month, type = "HC1"))
+
+# Create a tidy version for modelsummary
+tidy_ols_month <- data.frame(
+  term = rownames(ols_month_results),
+  estimate = ols_month_results[, "Estimate"],
+  std.error = ols_month_results[, "Std. Error"],
+  statistic = ols_month_results[, "t value"],
+  p.value = ols_month_results[, "Pr(>|t|)"],
+  nobs = nobs(model_ols_month)
+)
+
 # Rdrobust function
 run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, outcome, prefix = "") {
   covs_base <- cbind(state.d, year.d)
@@ -239,6 +260,47 @@ modelsummary(
     check.names = FALSE
   )
 )
+
+
+# OLS Table with Month Interaction ----------------------------------------
+
+# Prepare table data
+table_data <- data.frame(
+  Variable = c("Intercept", "STEM background", "Month", "STEM × Month"),
+  Estimate = sprintf("%.3f", tidy_ols_month$estimate[1:4]),
+  `Std. Error` = sprintf("(%.3f)", tidy_ols_month$std.error[1:4]),
+  `p-value` = sprintf("%.3f", tidy_ols_month$p.value[1:4]),
+  N = rep(nobs(model_ols_month), 4),
+  check.names = FALSE
+)
+
+# Add significance stars
+# Add significance stars to all rows based on their p-values
+table_data$Estimate <- mapply(function(est, pval) {
+  stars <- if (pval < 0.01) {
+    "***"
+  } else if (pval < 0.05) {
+    "**"
+  } else if (pval < 0.1) {
+    "*"
+  } else {
+    ""
+  }
+  paste0(est, stars)
+}, table_data$Estimate, tidy_ols_month$p.value[1:4])
+
+# Create LaTeX table using xtable
+library(xtable)
+xtab <- xtable(table_data, 
+               caption = "OLS Estimates: Impact of STEM Leadership on Deaths with Month Interaction",
+               label = "tab:ols_month")
+
+# Save to file
+print(xtab, 
+      file = "outputs/tables/ols_month_interaction.tex",
+      include.rownames = FALSE,
+      caption.placement = "top",
+      booktabs = TRUE)
 
 
 # Creating table with all cohorts panels (Appendix)

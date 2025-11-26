@@ -1,0 +1,16 @@
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Wed Nov 26 09:11:04 2025
+\begin{table}[ht]
+\centering
+\caption{OLS Estimates: Impact of STEM Leadership on Deaths with Month Interaction} 
+\label{tab:ols_month}
+\begin{tabular}{llll}
+  \toprule
+Variable & Estimate & Std. Error & p-value \\ 
+  \midrule
+STEM background & 51.786*** & (9.996) & 0.000 \\ 
+  Month & -39.559*** & (9.220) & 0.000 \\ 
+  STEM × Month & -0.277 & (0.828) & 0.738 \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
