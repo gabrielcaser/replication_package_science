@@ -9,7 +9,7 @@ set.seed(1234)
 
 # Libraries ---------------------------------------------------------------
 library("tidyverse")    # to handle data
-library("estimatr")
+library("estimatr")     # to run regressions with robust se
 library("modelsummary") # to create tables
 library("gt")           # better tables
 library('geobr')        # to create maps
@@ -20,6 +20,8 @@ library('knitr')        # render presentations
 library('forcats')      # better figures
 library('plm')          # regressions with fixed effects
 library('rdhte')        # heterogeneous treatment effects in rdd
+library('sandwich')     # robust standard errors
+library('lmtest')       # coeftest function
 
 # Setting -----------------------------------------------------------------
 output_dir                     = paste0(getwd(),"/outputs")

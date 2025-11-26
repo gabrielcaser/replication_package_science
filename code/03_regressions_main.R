@@ -147,6 +147,20 @@ covs_full_all_cohorts <- cbind(
 
 # estimates
 
+# OLS
+df_ols <- readRDS(paste0(data_dir, "/intermediary/data_ols.rds"))
+model <- lm(deaths_100k ~ stem_background , data = df_ols[df_ols$coorte == 2016 & df_ols$population > 70000, ])
+ols_results <- lmtest::coeftest(model, vcov = sandwich::vcovHC(model, type = "HC1"))
+
+# Create a df with ols results
+df_ols <- data.frame(
+  term = row.names(ols_results),
+  estimate = ols_results[, "Estimate"],
+  std.error = ols_results[, "Std. Error"],
+  p.value = ols_results[, "Pr(>|t|)"],
+  n_obs = nobs(model)
+)
+
 # Rdrobust function
 run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, outcome, prefix = "") {
   covs_base <- cbind(state.d, year.d)

@@ -164,11 +164,13 @@ df_regs <- df_regs %>%
 # Saving as .dta
 
 haven::write_dta(df_regs, path = paste0(data_dir, "/intermediary/data_ols.dta"))
+saveRDS(df_regs, paste0(data_dir, "/intermediary/data_ols.rds"))
+haven::write_dta(df_regs_month, path = paste0(data_dir, "/intermediary/data_ols_month.dta"))
+saveRDS(df_regs_month, paste0(data_dir, "/intermediary/data_ols_month.rds"))
 skim(df_regs)
 # adding sigla_uf to municipalities
 
-library(sandwich)
-library(lmtest)
+
 
 table(df_regs[df_regs$coorte == 2016 & df_regs$population > 70000, ]$stem_background)
 
