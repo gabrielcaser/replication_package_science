@@ -51,7 +51,7 @@ covsZ = cbind(pdata$mulher,
 
 # Final table
 
-top1 <- plm(
+top3 <- plm(
   Y_deaths_sivep ~ stem_background + inter_tenure_stem ,
   data = pdata,
   index = c("sigla_uf"),
@@ -59,7 +59,7 @@ top1 <- plm(
   effect = "twoways"
 )
 
-top1_controls <- plm(
+top3_controls <- plm(
   Y_deaths_sivep ~ stem_background + inter_tenure_stem + mulher + ideology_party + reeleito + instrucao,
   data = pdata,
   index = c("sigla_uf"),
@@ -67,14 +67,14 @@ top1_controls <- plm(
   effect = "twoways"
 )
 
-top3 <- plm(
+top1 <- plm(
   Y_deaths_sivep ~  tenure,
   data = pdata_subset,
   index = c("sigla_uf"),
   model = "within" ,
   effect = "twoways"
 )
-top3_controls <- plm(
+top1_controls <- plm(
   Y_deaths_sivep ~  tenure + mulher + ideology_party + reeleito + instrucao ,
   data = pdata_subset,
   index = c("sigla_uf"),
@@ -84,7 +84,7 @@ top3_controls <- plm(
 
 
 moderation_tenure <- stargazer::stargazer(
-  list(top1, top1_controls, top3, top3_controls),
+  list(top3, top3_controls, top1, top1_controls),
   type = "text",
  # dep.var.labels = c("Deaths per 100k Inhabitants"),
   out = paste(output_dir, "/tables/moderation_tenure.tex", sep = ""),
