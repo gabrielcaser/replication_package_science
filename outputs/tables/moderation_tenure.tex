@@ -1,46 +1,34 @@
-
-% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-% Date and time: sex, nov 28, 2025 - 15:39:37
-\begin{table}[!htbp] \centering 
-  \caption{Moderating effects of scientific intensity on the impact of STEM background} 
-  \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lcccccc} 
-\\[-1.8ex]\hline 
-\hline \\[-1.8ex] 
- & \multicolumn{6}{c}{\textit{Dependent variable:}} \\ 
-\cline{2-7} 
-\\[-1.8ex] & \multicolumn{6}{c}{Deaths per 100k Inhabitants} \\ 
- & STEM Top 3 & STEM Top 3 + Controls & STEM Top 2 & STEM Top 2 + Controls & STEM Top 1 & STEM Top 1 + Controls \\ 
-\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6)\\ 
-\hline \\[-1.8ex] 
- STEM Background & 15.237 & 11.156 & 24.595$^{**}$ & 20.606$^{*}$ &  &  \\ 
-  & (10.705) & (11.101) & (11.379) & (11.894) &  &  \\ 
-  & & & & & & \\ 
- STEM x Sci. Intensity & $-$3.133$^{*}$ & $-$3.213$^{*}$ & $-$3.184$^{*}$ & $-$3.236$^{*}$ &  &  \\ 
-  & (1.662) & (1.688) & (1.674) & (1.709) &  &  \\ 
-  & & & & & & \\ 
- Woman Mayor &  & $-$14.112 &  & $-$3.600 &  & $-$66.273$^{*}$ \\ 
-  &  & (15.640) &  & (17.087) &  & (38.253) \\ 
-  & & & & & & \\ 
- Ideology of the Party &  & $-$0.480 &  & $-$3.363 &  & $-$20.074 \\ 
-  &  & (10.794) &  & (11.725) &  & (20.343) \\ 
-  & & & & & & \\ 
- Reelected &  & 6.888 &  & 5.497 &  & $-$30.058 \\ 
-  &  & (11.057) &  & (12.281) &  & (20.668) \\ 
-  & & & & & & \\ 
- Education Level &  & 3.500 &  & 3.804 &  & 16.708$^{**}$ \\ 
-  &  & (2.965) &  & (3.330) &  & (8.322) \\ 
-  & & & & & & \\ 
- Scientific Intensity &  &  &  &  & $-$4.444$^{**}$ & $-$6.652$^{***}$ \\ 
-  &  &  &  &  & (2.064) & (2.131) \\ 
-  & & & & & & \\ 
-\hline \\[-1.8ex] 
-Observations & 413 & 413 & 338 & 338 & 164 & 164 \\ 
-R$^{2}$ & 0.013 & 0.022 & 0.024 & 0.032 & 0.060 & 0.176 \\ 
-Adjusted R$^{2}$ & $-$0.495 & $-$0.503 & $-$0.530 & $-$0.547 & $-$1.099 & $-$0.947 \\ 
-F Statistic & 1.831 (df = 2; 272) & 1.020 (df = 6; 268) & 2.647$^{*}$ (df = 2; 215) & 1.146 (df = 6; 211) & 4.639$^{**}$ (df = 1; 73) & 2.944$^{**}$ (df = 5; 69) \\ 
-\hline 
-\hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{6}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
-\end{tabular} 
-\end{table} 
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Moderating effects of scientific intensity on the impact of STEM background},
+note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6,7}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{16}={1,2,3,4,5,6,7}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& STEM Top 3 & STEM Top 3  & STEM Top 2 & STEM Top 2  & STEM Top 1 & STEM Top 1  \\ \midrule %% TinyTableHeader
+STEM Background & \num{21.556}** & \num{18.838}* & \num{23.203}* & \num{19.982}* &  &  \\
+& (\num{7.383}) & (\num{8.754}) & (\num{9.217}) & (\num{9.955}) &  &  \\
+STEM x Sci. Intensity & \num{-3.861}* & \num{-3.882}* & \num{-3.810}* & \num{-3.871}* &  &  \\
+& (\num{1.693}) & (\num{1.776}) & (\num{1.647}) & (\num{1.757}) &  &  \\
+Scientific Intensity &  &  &  &  & \num{-4.776}*** & \num{-5.515}*** \\
+&  &  &  &  & (\num{1.345}) & (\num{1.527}) \\
+Woman Mayor &  & \num{-4.143} &  & \num{4.591} &  & \num{-14.322} \\
+&  & (\num{13.234}) &  & (\num{9.109}) &  & (\num{28.345}) \\
+Ideology of the Party &  & \num{8.594} &  & \num{6.291} &  & \num{0.917} \\
+&  & (\num{8.673}) &  & (\num{10.358}) &  & (\num{17.504}) \\
+Reelected &  & \num{3.217} &  & \num{1.062} &  & \num{-22.678} \\
+&  & (\num{9.741}) &  & (\num{11.786}) &  & (\num{13.907}) \\
+Education Level &  & \num{2.663} &  & \num{3.584} &  & \num{19.223}* \\
+&  & (\num{2.553}) &  & (\num{2.986}) &  & (\num{7.862}) \\
+Num.Obs. & \num{413} & \num{413} & \num{338} & \num{338} & \num{164} & \num{164} \\
+Mayor Controls & No & Yes & No & Yes & No & Yes \\
+State FE & Yes & Yes & Yes & Yes & Yes & Yes \\
+\bottomrule
+\end{talltblr}
+\end{table}

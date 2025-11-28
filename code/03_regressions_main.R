@@ -461,8 +461,7 @@ df_robs_nfi       <- robust_check(df$total_nfi,                    1, covs_full,
 df_robs_masks     <- robust_check(df$mascaras,                     1, covs_full, k, df$X)
 df_robs_trans_pub <- robust_check(df$restricao_transporte_publico, 1, covs_full, k, df$X)
 df_robs_circu     <- robust_check(df$restricao_circulacao,         1, covs_full, k, df$X)
-df_robs_atv       <- robust_check(df$restricao_atv_nao_essenciais, 1, covs_full, k, df$X)
-df_robs_sani      <- robust_check(df$barreiras_sanitarias,         1, covs_full, k, df$X)
+
 
 theme_clean <- theme(
   panel.grid.major = element_blank(), 
@@ -561,41 +560,13 @@ plot_nfi_trans <- ggplot(df_robs_trans_pub, aes(x = bw, y = coef_conv)) +
 bw_optimal_trans <- r32$bws[[1]]
 plot_nfi_trans <- add_optimal_point(plot_nfi_trans, df_robs_trans_pub, bw_optimal_trans)
 
-plot_nfi_sani <- ggplot(df_robs_sani, aes(x = bw, y = coef_conv)) +
-  geom_point(na.rm = TRUE) +
-  xlim(0.02, 0.24) +
-  ylab("") +
-  xlab("bandwidth") +
-  theme(axis.title = element_text(size = 10)) +
-  ggtitle("(d) Cordon sanitaire restrictions") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
-  theme_clean
-
-bw_optimal_sani <- r42$bws[[1]]
-plot_nfi_sani <- add_optimal_point(plot_nfi_sani, df_robs_sani, bw_optimal_sani)
-
-plot_nfi_atv <- ggplot(df_robs_atv, aes(x = bw, y = coef_conv)) +
-  geom_point(na.rm = TRUE) +
-  xlim(0.02, 0.24) +
-  ylab("") +
-  xlab("bandwidth") +
-  theme(axis.title = element_text(size = 10)) +
-  ggtitle("(e) Non-essential activ. restrictions") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
-  theme_clean
-
-bw_optimal_atv <- r52$bws[[1]]
-plot_nfi_atv <- add_optimal_point(plot_nfi_atv, df_robs_atv, bw_optimal_atv)
-
 plot_nfi_circu <- ggplot(df_robs_circu, aes(x = bw, y = coef_conv)) +
   geom_point(na.rm = TRUE) +
   xlim(0.02, 0.24) +
   ylab("") +
   xlab("bandwidth") +
   theme(axis.title = element_text(size = 10)) +
-  ggtitle("(f) Public gathering restrictions") +
+  ggtitle("(d) Public gathering restrictions") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
   geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
   theme_clean

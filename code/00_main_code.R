@@ -49,8 +49,7 @@ data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definitio
 #source("code/create_baseline_data.R")
 
 # 2. Create COVID data (requires large raw files - not on Github)
-#source("code/clean_covid_data.R")
-#source("code/construct_covid_outcomes.R")
+#source("code/creates_covid_data.R")
 
 # 3. Create final RDD dataset
 #source("code/01_create_dataset.R")
@@ -59,10 +58,10 @@ data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definitio
 #source("code/02_sum_stats.R")
 
 # 5. Run main regressions
-#source("code/03_regressions_main.R")
+source("code/03_regressions_main.R")
 
 # 6. Run moderation analysis
-#source("code/04_regressions_moderation.R")
+source("code/04_regressions_moderation.R")
 
 # 7. Generate LaTeX parameters
 #source("code/05_parameters_latexR.R")

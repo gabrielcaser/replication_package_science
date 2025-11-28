@@ -2,39 +2,15 @@
 set.seed(1234)
 
 # Oppening ----------------------------------------------------------------
-
 df <- readRDS(paste(data_dir, "/final/", data, sep = ""))
 
-# Merging with Revenue data
-
-data_revenue <- readxl::read_excel(paste(data_dir,"/raw/ipea_receitas_municipais.xlsx", sep = ""), sheet = "Receitas Totais")
-
-data_revenue <- data_revenue %>% 
-  summarise(id_municipio = Cod.IBGE,
-            receita_2015 = `2015` / 10000000)
-
-df <- merge(df, data_revenue, by = "id_municipio")
-
-rm(data_revenue)
-
-# Regression OLS with moderator
-
-## Creating interaction term
-
+# Creating vars
 df$tenure <- df$tenure / 12
-
-#df_subset <- subset(df, df$X >= -1 * 0.082 & df$X <= 0.082)
 df_subset <- df
-df_subset$inter_receita_stem <- df_subset$receita_2015 * (as.double(df_subset$stem_background) - 1)
-df_subset$log_tenure         <- log(df_subset$tenure + 1)
 df_subset$inter_tenure_stem  <- df_subset$tenure  * (as.double(df_subset$stem_background) - 1)
-df_subset$inter_ideo_stem    <- df_subset$ideology_party * (as.double(df_subset$stem_background) - 1)
-df_subset$inter_X_stem       <- df_subset$X * (as.double(df_subset$stem_background) - 1)
-df_subset$zero               <- 0
-
-# FE
 
 
+# Samples
 pdata_top3 <- pdata.frame(df_subset, c("sigla_uf"))
 pdata_top1 <- pdata_top3[pdata_top3$stem_background == 1, ]
 pdata_top2 <- pdata_top3[pdata_top3$stem_position %in% c("eleito","segundo") , ]
@@ -88,18 +64,40 @@ top1_controls <- plm(
 )
 
 
-moderation_tenure <- stargazer::stargazer(
-  list(top3, top3_controls, top2, top2_controls, top1, top1_controls),
-  type = "latex",
-  dep.var.labels = c("Deaths per 100k Inhabitants"),
-  out = paste(output_dir, "/tables/moderation_tenure.tex", sep = ""),
-  title = paste("Moderating effects of scientific intensity on the impact",
-                "of STEM background"),
-  covariate.labels = c("STEM Background", "STEM x Sci. Intensity", "Woman Mayor", "Ideology of the Party",
-                       "Reelected", "Education Level", "Scientific Intensity"),
-  column.labels = c("STEM Top 3", "STEM Top 3 + Controls", "STEM Top 2", "STEM Top 2 + Controls", "STEM Top 1", "STEM Top 1 + Controls"),
-  notes = NULL
+models <- list(
+  "STEM Top 3" = top3,
+  "STEM Top 3" = top3_controls,
+  "STEM Top 2" = top2,
+  "STEM Top 2" = top2_controls,
+  "STEM Top 1" = top1,
+  "STEM Top 1" = top1_controls
 )
 
-writeLines(moderation_tenure, con = "outputs/tables/moderation_tenure.tex")
+modelsummary(
+  models,
+  vcov = function(x) vcovHC(x, type = "HC1", cluster = "group"),
+  output = paste(output_dir, "/tables/moderation_tenure.tex", sep = ""),
+  title = "Moderating effects of scientific intensity on the impact of STEM background",
+  stars = TRUE,
+ coef_map = c(
+   "stem_background1" = "STEM Background",
+   "inter_tenure_stem" = "STEM x Sci. Intensity",
+   "tenure" = "Scientific Intensity",
+   "mulherTRUE" = "Woman Mayor",
+   "ideology_party" = "Ideology of the Party",
+   "reeleitoTRUE" = "Reelected",
+   "instrucao" = "Education Level"
+ ),
+ gof_omit = "IC|Log|Adj|Within|Between|R2|RMSE|Std.Errors",
+  add_rows = data.frame(
+    term = c("Mayor Controls", "State FE"),
+    `Model 1` = c("No", "Yes"),
+    `Model 2` = c("Yes", "Yes"),
+    `Model 3` = c("No", "Yes"),
+    `Model 4` = c("Yes", "Yes"),
+    `Model 5` = c("No", "Yes"),
+    `Model 6` = c("Yes", "Yes"),
+    check.names = FALSE
+  )
+)
 
