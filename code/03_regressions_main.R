@@ -149,7 +149,7 @@ covs_full_all_cohorts <- cbind(
 
 # OLS
 df_ols <- readRDS(paste0(data_dir, "/intermediary/data_ols.rds"))
-model <- lm(deaths_100k ~ stem_background , data = df_ols[df_ols$coorte == 2016 & df_ols$population > 70000, ])
+model <- lm(deaths_100k ~ stem_background + sigla_uf, data = df_ols[df_ols$coorte == 2016 & df_ols$population > 70000, ])
 ols_results <- lmtest::coeftest(model, vcov = sandwich::vcovHC(model, type = "HC1"))
 
 # Create a df with ols results
@@ -165,6 +165,35 @@ df_ols <- data.frame(
 df_ols_month <- readRDS(paste0(data_dir, "/intermediary/data_ols_month.rds"))
 pdata_month <- df_ols_month[df_ols_month$coorte == 2016 & !is.na(df_ols_month$sigla_uf) & df_ols_month$population > 70000, ]
 pdata_month <- plm::pdata.frame(pdata_month, index = c("sigla_uf"))
+
+# plotting number of observations per month
+# Plotting number of observations per month
+library(ggplot2)
+library(dplyr)
+
+obs_per_month <- pdata_month %>%
+  group_by(month) %>%
+  summarise(n_obs = n())
+
+n_unique_municipios <- length(unique(pdata_month$id_municipio))
+n_total_obs <- nrow(pdata_month)
+
+ggplot(obs_per_month, aes(x = as.factor(month), y = n_obs)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = n_obs), vjust = -0.5, size = 5) +
+  labs(
+    x = "Month",
+    y = "Number of Observations",
+    title = "Number of Observations per Month",
+    subtitle = paste(
+      "Number of unique municipalities:", n_unique_municipios,
+      "| Total observations:", n_total_obs
+    )
+  ) +
+  theme_minimal(base_size = 16)
+
+# number of unique municipalities
+length(unique(df_ols_month$id_municipio))
 
 model_ols_month <- plm::plm(deaths ~ stem_background*month, 
   data = pdata_month,
