@@ -166,50 +166,34 @@ df_ols_month <- readRDS(paste0(data_dir, "/intermediary/data_ols_month.rds"))
 pdata_month <- df_ols_month[df_ols_month$coorte == 2016 & !is.na(df_ols_month$sigla_uf) & df_ols_month$population > 70000, ]
 pdata_month <- plm::pdata.frame(pdata_month, index = c("sigla_uf"))
 
-# plotting number of observations per month
-# Plotting number of observations per month
-library(ggplot2)
-library(dplyr)
 
-obs_per_month <- pdata_month %>%
-  group_by(month) %>%
-  summarise(n_obs = n())
-
-n_unique_municipios <- length(unique(pdata_month$id_municipio))
-n_total_obs <- nrow(pdata_month)
-
-ggplot(obs_per_month, aes(x = as.factor(month), y = n_obs)) +
-  geom_col(fill = "steelblue") +
-  geom_text(aes(label = n_obs), vjust = -0.5, size = 5) +
-  labs(
-    x = "Month",
-    y = "Number of Observations",
-    title = "Number of Observations per Month",
-    subtitle = paste(
-      "Number of unique municipalities:", n_unique_municipios,
-      "| Total observations:", n_total_obs
-    )
-  ) +
-  theme_minimal(base_size = 16)
-
-# number of unique municipalities
-length(unique(df_ols_month$id_municipio))
-
-model_ols_month <- plm::plm(deaths ~ stem_background*month, 
+model_ols_month <- plm::plm(deaths_100k ~ stem_background*month, 
   data = pdata_month,
-  effect = "individual",
-  model = "pooling")
-ols_month_results <- lmtest::coeftest(model_ols_month, vcov = plm::vcovHC(model_ols_month, type = "HC1"))
+  model = "within")
+  
+  modelsummary(
+    model_ols_month,
+    vcov = function(x) vcovHC(x, type = "HC1", cluster = "group"),
+    estimate = "{estimate}",
+    statistic = c("[{std.error}]", "{p.value}{stars}"),
+    stars = c('*' = .1, '**' = .05, '***' = .01),
+    fmt = 2,
+    output = "outputs/tables/ols_month_interaction.tex",
+    title = "Impact of STEM Leadership on Deaths with Month Interaction",
+    coef_map = c(
+      "stem_background" = "STEM Background",
+      "month" = "Month",
+      "stem_background:month" = "STEM Background × Month"
+    ),
+    add_rows = data.frame(
+      term = c("State FE"),
+      `Model 1` = c("Yes"),
+      check.names = FALSE
+    ),
+    gof_omit = "BIC|AIC| Log.Lik.|Adj.R2|R2|RMSE|Std.Errors"
+  )
 
-# Create a tidy version for modelsummary
-tidy_ols_month <- data.frame(
-  term = rownames(ols_month_results),
-  estimate = ols_month_results[, "Estimate"],
-  std.error = ols_month_results[, "Std. Error"],
-  statistic = ols_month_results[, "t value"],
-  p.value = ols_month_results[, "Pr(>|t|)"],
-  nobs = nobs(model_ols_month)
-)
+
 
 # Rdrobust function
 run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, outcome, prefix = "") {
@@ -289,48 +273,6 @@ modelsummary(
     check.names = FALSE
   )
 )
-
-
-# OLS Table with Month Interaction ----------------------------------------
-
-# Prepare table data
-table_data <- data.frame(
-  Variable = c("Intercept", "STEM background", "Month", "STEM × Month"),
-  Estimate = sprintf("%.3f", tidy_ols_month$estimate[1:4]),
-  `Std. Error` = sprintf("(%.3f)", tidy_ols_month$std.error[1:4]),
-  `p-value` = sprintf("%.3f", tidy_ols_month$p.value[1:4]),
-  N = rep(nobs(model_ols_month), 4),
-  check.names = FALSE
-)
-
-# Add significance stars
-# Add significance stars to all rows based on their p-values
-table_data$Estimate <- mapply(function(est, pval) {
-  stars <- if (pval < 0.01) {
-    "***"
-  } else if (pval < 0.05) {
-    "**"
-  } else if (pval < 0.1) {
-    "*"
-  } else {
-    ""
-  }
-  paste0(est, stars)
-}, table_data$Estimate, tidy_ols_month$p.value[1:4])
-
-# Create LaTeX table using xtable
-library(xtable)
-xtab <- xtable(table_data, 
-               caption = "OLS Estimates: Impact of STEM Leadership on Deaths with Month Interaction",
-               label = "tab:ols_month")
-
-# Save to file
-print(xtab, 
-      file = "outputs/tables/ols_month_interaction.tex",
-      include.rownames = FALSE,
-      caption.placement = "top",
-      booktabs = TRUE)
-
 
 # Creating table with all cohorts panels (Appendix)
 
@@ -662,7 +604,7 @@ bw_optimal_circu <- r62$bws[[1]]
 plot_nfi_circu <- add_optimal_point(plot_nfi_circu, df_robs_circu, bw_optimal_circu)
 
 # Combining NPI graphs
-graf <- (plot_nfi_robs + plot_nfi_masks) / (plot_nfi_sani + plot_nfi_trans) / (plot_nfi_atv + plot_nfi_circu)
+graf <- (plot_nfi_robs + plot_nfi_masks) / (plot_nfi_trans + plot_nfi_circu)
 
 ggsave("outputs/figures/npi_rob.png", graf,
        width = 10.00, height = 8.00, units = "in")
