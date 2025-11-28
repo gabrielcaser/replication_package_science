@@ -36,116 +36,65 @@ df_subset$zero               <- 0
 
 
 pdata <- pdata.frame(df_subset, c("sigla_uf"))
-
+pdata_subset <- pdata[pdata$stem_background == 1, ]
 # Controles
 
 covsZ = cbind(pdata$mulher,
               pdata$ideology_party,
               pdata$instrucao,
-              pdata$reeleito)#,
-              #pdata$idade,
-              p#data$idade * pdata$idade)
+              pdata$reeleito,
+              pdata$idade,
+              pdata$idade * pdata$idade
+              )
 
 #covsZ <- cbind(pdata$zero)
 
 # Final table
-out1 <- plm(
-  Y_hosp ~ X + T + T_X + inter_tenure_stem + tenure + covsZ,
+
+top3 <- plm(
+  Y_deaths_sivep ~ stem_background + inter_tenure_stem ,
   data = pdata,
   index = c("sigla_uf"),
   model = "within" ,
   effect = "twoways"
 )
-out2 <- plm(
-  Y_deaths_sivep ~ X + T + T_X + inter_tenure_stem + tenure + covsZ,
+
+top3_controls <- plm(
+  Y_deaths_sivep ~ stem_background + inter_tenure_stem + mulher + ideology_party + reeleito + instrucao,
   data = pdata,
+  index = c("sigla_uf"),
+  model = "within" ,
+  effect = "twoways"
+)
+
+top1 <- plm(
+  Y_deaths_sivep ~  tenure,
+  data = pdata_subset,
+  index = c("sigla_uf"),
+  model = "within" ,
+  effect = "twoways"
+)
+top1_controls <- plm(
+  Y_deaths_sivep ~  tenure + mulher + ideology_party + reeleito + instrucao ,
+  data = pdata_subset,
   index = c("sigla_uf"),
   model = "within"  ,
-  effect = "twoways"
-)
-out3 <- plm(
-  total_nfi ~ X + T + T_X + inter_tenure_stem + tenure + covsZ,
-  data = pdata,
-  index = c("sigla_uf"),
-  model = "within" ,
   effect = "twoways"
 )
 
 
 moderation_tenure <- stargazer::stargazer(
-  list(out2),
-  type = "latex",
-  dep.var.labels = c("Deaths"),
+  list(top3, top3_controls, top1, top1_controls),
+  type = "text",
+ # dep.var.labels = c("Deaths per 100k Inhabitants"),
   out = paste(output_dir, "/tables/moderation_tenure.tex", sep = ""),
   title = paste("Moderating effects of scientific intensity on the impact",
                 "of STEM background"),
-  notes = NULL,
-  omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4")
+  covariate.labels = c("STEM Background", "STEM x Sci. Intensity", "Woman Mayor", "Ideology of the Party",
+                       "Reelected", "Education Level", "Scientific Intensity"),
+  notes = NULL#,
+  #omit = c("covsZ1", "covsZ2", "covsZ3", "covsZ4")
 )
 
 writeLines(moderation_tenure, con = "outputs/tables/moderation_tenure.tex")
 
-
-out5 <- plm(
-  Y_deaths_sivep ~ X + T + T_X + receita_2015  + inter_receita_stem + covsZ,
-  data = pdata,
-  index = c("sigla_uf"),
-  model = "within"
-)
-
-moderation_revenue <- stargazer::stargazer(
-  out5,
-  type = "text",
-  #type = "text",
- #covariate.labels = c(
- #  "STEM Background",
- #  "Revenue Modereration Effect"
- #),
-  #dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
-  title = "Moderating effects of cities’ development on the impact of STEM background",
-  out = paste(output_dir, "/tables/moderation_revenue.tex", sep = ""),
-  #omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "covsZ6", "receita_2015"),
-  notes = NULL
-)
-
-writeLines(moderation_revenue, con = "outputs/tables/moderation_revenue.tex")
-
-
-# Testing
-
-
-out7 <- plm(
-  Y_hosp ~ X + T + T_X + receita_2015 +  covsZ + inter_receita_stem + inter_tenure_stem ,
-  data = pdata,
-  index = c("sigla_uf"),
-  model = "within"
-)
-out8 <- plm(
-  Y_deaths_sivep ~ X + T + T_X + receita_2015 + covsZ + inter_receita_stem + inter_tenure_stem,
-  data = pdata,
-  index = c("sigla_uf"),
-  model = "within"
-)
-out9 <- plm(
-  total_nfi ~ X + T + T_X + receita_2015 + covsZ  + inter_receita_stem + inter_tenure_stem,
-  data = pdata,
-  index = c("sigla_uf"),
-  model = "within"
-)
-
-moderation_both <- stargazer::stargazer(
-  out8,
-  type = "text",
-  ###covariate.labels = c(
-  #  "STEM Education",
-  #  "2015 City's Revenue Mod. Eff.",
-  #  "STEM Work Tenure Mod. Eff."
-  #),
-  #dep.var.labels = c("Hospitalizations", "Deaths", "NPI"),
-  title = "Moderating effects of cities’ development and STEM work tenure on the impact of STEM Education",
-  out = paste(output_dir, "/tables/moderation_both.tex", sep = ""),
-  #omit = c("X", "T_X", "covsZ1", "covsZ2", "covsZ3", "covsZ4", "covsZ5", "receita_2015"),
-  notes = NULL
-)
-
-writeLines(moderation_both, con = "outputs/tables/moderation_both.tex")

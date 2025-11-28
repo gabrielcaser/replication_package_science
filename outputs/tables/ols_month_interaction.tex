@@ -1,0 +1,27 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Impact of STEM Leadership on Deaths with Month Interaction},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]},
+column{2}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{11}={1,2}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& (1) \\ \midrule %% TinyTableHeader
+STEM Background & \num{-4.72} \\
+& [\num{2.07}] \\
+& \num{0.02}** \\
+Month & \num{0.39} \\
+& [\num{0.24}] \\
+& \num{0.10} \\
+STEM Background × Month & \num{0.51} \\
+& [\num{0.22}] \\
+& \num{0.02}** \\
+Num.Obs. & \num{4738} \\
+State FE & Yes \\
+\bottomrule
+\end{talltblr}
+\end{table}
