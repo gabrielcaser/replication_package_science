@@ -35,25 +35,15 @@ df_subset$zero               <- 0
 # FE
 
 
-pdata <- pdata.frame(df_subset, c("sigla_uf"))
-pdata_subset <- pdata[pdata$stem_background == 1, ]
-# Controles
-
-covsZ = cbind(pdata$mulher,
-              pdata$ideology_party,
-              pdata$instrucao,
-              pdata$reeleito,
-              pdata$idade,
-              pdata$idade * pdata$idade
-              )
-
-#covsZ <- cbind(pdata$zero)
+pdata_top3 <- pdata.frame(df_subset, c("sigla_uf"))
+pdata_top1 <- pdata_top3[pdata_top3$stem_background == 1, ]
+pdata_top2 <- pdata_top3[pdata_top3$stem_position %in% c("eleito","segundo") , ]
 
 # Final table
 
 top3 <- plm(
   Y_deaths_sivep ~ stem_background + inter_tenure_stem ,
-  data = pdata,
+  data = pdata_top3,
   index = c("sigla_uf"),
   model = "within" ,
   effect = "twoways"
@@ -61,22 +51,37 @@ top3 <- plm(
 
 top3_controls <- plm(
   Y_deaths_sivep ~ stem_background + inter_tenure_stem + mulher + ideology_party + reeleito + instrucao,
-  data = pdata,
+  data = pdata_top3,
   index = c("sigla_uf"),
   model = "within" ,
   effect = "twoways"
 )
 
+top2 <- plm(
+  Y_deaths_sivep ~  stem_background + inter_tenure_stem ,
+  data = pdata_top2,
+  index = c("sigla_uf"),
+  model = "within" ,
+  effect = "twoways"
+)
+top2_controls <- plm(
+  Y_deaths_sivep ~  stem_background + inter_tenure_stem + mulher + ideology_party + reeleito + instrucao ,
+  data = pdata_top2,
+  index = c("sigla_uf"),
+  model = "within"  ,
+  effect = "twoways"
+)
+
 top1 <- plm(
   Y_deaths_sivep ~  tenure,
-  data = pdata_subset,
+  data = pdata_top1,
   index = c("sigla_uf"),
   model = "within" ,
   effect = "twoways"
 )
 top1_controls <- plm(
   Y_deaths_sivep ~  tenure + mulher + ideology_party + reeleito + instrucao ,
-  data = pdata_subset,
+  data = pdata_top1,
   index = c("sigla_uf"),
   model = "within"  ,
   effect = "twoways"
@@ -84,16 +89,16 @@ top1_controls <- plm(
 
 
 moderation_tenure <- stargazer::stargazer(
-  list(top3, top3_controls, top1, top1_controls),
-  type = "text",
- # dep.var.labels = c("Deaths per 100k Inhabitants"),
+  list(top3, top3_controls, top2, top2_controls, top1, top1_controls),
+  type = "latex",
+  dep.var.labels = c("Deaths per 100k Inhabitants"),
   out = paste(output_dir, "/tables/moderation_tenure.tex", sep = ""),
   title = paste("Moderating effects of scientific intensity on the impact",
                 "of STEM background"),
   covariate.labels = c("STEM Background", "STEM x Sci. Intensity", "Woman Mayor", "Ideology of the Party",
                        "Reelected", "Education Level", "Scientific Intensity"),
-  notes = NULL#,
-  #omit = c("covsZ1", "covsZ2", "covsZ3", "covsZ4")
+  column.labels = c("STEM Top 3", "STEM Top 3 + Controls", "STEM Top 2", "STEM Top 2 + Controls", "STEM Top 1", "STEM Top 1 + Controls"),
+  notes = NULL
 )
 
 writeLines(moderation_tenure, con = "outputs/tables/moderation_tenure.tex")

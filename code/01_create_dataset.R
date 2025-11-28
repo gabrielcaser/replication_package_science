@@ -48,20 +48,23 @@ for (definition in c("strict", "broad")) {
   df_mayors <- pivot_wider(df_mayors, id_cols = c('id_municipio', 'coorte', 'dif_votos_segundo', 'dif_votos_terceiro'), names_from =  'resultado', values_from = c('stem_background','tenure', 'hours', 'tenure_rais', 'cbo_2002', 'cbo_agregado', 'sigla_partido', 'instrucao', 'ocupacao', 'genero', 'raca', 'idade', 'stem_job', 'curso_stem') )
   
   ## Keeping only municipalities where at least 1 candidate has a STEM background
-  
   df_mayors <- df_mayors %>%
     dplyr::group_by(id_municipio, coorte) %>% 
     dplyr::mutate(n_stem_background = sum(stem_background_eleito, stem_background_segundo, stem_background_terceiro, na.rm = TRUE)) %>% 
     dplyr::ungroup()
-  
   df_mayors <- df_mayors %>% 
     dplyr::filter(n_stem_background >= 1)
-  
+
   ## Defining cities to use third most voted candidate 
   df_mayors$use_third <- ifelse(df_mayors$stem_background_eleito != 1 & df_mayors$stem_background_segundo != 1 & df_mayors$stem_background_terceiro == 1, 1, 0)
   df_mayors$use_third <- ifelse(df_mayors$stem_background_eleito == 1 & df_mayors$stem_background_segundo == 1 & df_mayors$stem_background_terceiro != 1, 1, df_mayors$use_third)
-  
-  
+
+  # NOVO: Criar variável stem_position antes de manipular os nomes das colunas
+  df_mayors$stem_position <- NA_character_
+  df_mayors$stem_position[df_mayors$stem_background_eleito == 1] <- "eleito"
+  df_mayors$stem_position[df_mayors$stem_background_segundo == 1 & is.na(df_mayors$stem_position)] <- "segundo"
+  df_mayors$stem_position[df_mayors$stem_background_terceiro == 1 & is.na(df_mayors$stem_position)] <- "terceiro"
+
   
   ## Replace values in variables ending with "_segundo" if use_third == 1
   
@@ -138,7 +141,6 @@ for (definition in c("strict", "broad")) {
   df_tenure <- readRDS(paste0(data_dir, "/intermediary/tenure_data.Rds"))
   
   # Merging datasets --------------------------------------------------------
-  
   df <- left_join(df_mayors, df_npi, by = c("id_municipio")) # 29% of municipalities with missing data. That is expected since not everyone responded the survey
   
   df <- left_join(df, df_covid, by = c("id_municipio", "coorte")) # 4 municipalities with missing data
@@ -324,7 +326,9 @@ for (definition in c("strict", "broad")) {
                      restricao_atv_nao_essenciais,
                      restricao_circulacao,
                      restricao_transporte_publico,
-                     total_nfi)
+                     total_nfi,
+                     stem_position # <-- adicionar aqui
+    )
   
   
   df <- df %>%
