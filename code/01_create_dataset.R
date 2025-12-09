@@ -135,6 +135,13 @@ for (definition in c("strict", "broad")) {
   df_covid <- df_covid %>% 
     dplyr::ungroup()
   
+  # Covid Monthly Data ------------------------------------------------------
+  
+  df_covid_monthly <- readRDS(paste0(data_dir, "/intermediary/covid_data_monthly.Rds"))
+  
+  df_covid_monthly <- df_covid_monthly %>% 
+    dplyr::ungroup()
+  
   
   # Tenure data -------------------------------------------------------------
   
@@ -177,7 +184,7 @@ for (definition in c("strict", "broad")) {
   
   df$coorte <- as.factor(df$coorte)
   
-  rm(df_covid, df_density, df_health, df_ideology, df_mayors, df_npi, df_political, df_tenure) # removing dataset
+  # Note: We'll remove baseline datasets after creating monthly data
   
   
   ### Creating "variable" of non_stem_candidate
@@ -364,6 +371,151 @@ for (definition in c("strict", "broad")) {
   saveRDS(df_college_mayors_only, file = paste0("data/final/rdd_data_college_mayors_only_", definition, "_definition.rds", sep = ""))
   saveRDS(df_college_mayors_only_2016, file = paste0("data/final/rdd_data_college_mayors_only_2016_", definition, "_definition.rds", sep = ""))
   #write.csv(df_college_mayors_only_2016, file = paste0("data/final/rdd_data_college_mayors_only_2016_", definition, "_definition.csv"), row.names = FALSE, na = ".")
+  
+  # Creating monthly municipality-cohort dataset ---------------------------
+  
+  # Merging monthly covid data with mayor data
+  df_monthly <- left_join(df_mayors, df_covid_monthly, by = c("id_municipio", "coorte"))
+  
+  # Merging with other baseline data
+  df_monthly <- left_join(df_monthly, df_npi, by = c("id_municipio"))
+  df_monthly <- left_join(df_monthly, df_health, by = c("id_municipio"))
+  df_monthly <- left_join(df_monthly, df_density, by = c("id_municipio"))
+  df_monthly <- left_join(df_monthly, df_ideology, by = c("id_municipio", "coorte"))
+  df_monthly <- left_join(df_monthly, df_tenure, by = c('id_municipio', 'coorte'))
+  df_monthly <- left_join(df_monthly, df_stem_eleito, by = c('cbo_agregado_eleito'))
+  df_monthly <- left_join(df_monthly, df_stem_naoeleito, by = c('cbo_agregado_naoeleito'))
+  
+  df_monthly <- df_monthly %>%
+    dplyr::rename(sigla_partido = sigla_partido_eleito)
+  
+  df_monthly <- left_join(df_monthly, df_political, by = c("sigla_partido", "coorte"))
+  
+  df_monthly <- df_monthly %>%
+    dplyr::rename(sigla_partido_eleito = sigla_partido,
+                  ideology_party_eleito = ideology_party)
+  
+  df_monthly <- df_monthly %>%
+    dplyr::rename(sigla_partido = sigla_partido_naoeleito)
+  
+  df_monthly <- left_join(df_monthly, df_political, by = c("sigla_partido", "coorte"))
+  
+  df_monthly <- df_monthly %>%
+    dplyr::rename(sigla_partido_naoeleito = sigla_partido,
+                  ideology_party_naoeleito = ideology_party)
+  
+  df_monthly$coorte <- as.factor(df_monthly$coorte)
+  
+  # Creating variables for monthly data
+  df_monthly$he_non_stem_cdt = ifelse(df_monthly$stem_background_eleito == 1 & str_detect(df_monthly$instrucao_naoeleito, "ensino superior completo"), 1, 0)
+  df_monthly$he_non_stem_cdt = ifelse(df_monthly$stem_background_naoeleito == 1 & str_detect(df_monthly$instrucao_eleito, "ensino superior completo"), 1, df_monthly$he_non_stem_cdt)
+  df_monthly$sch_non_stem_cdt <- as.logical(df_monthly$he_non_stem_cdt)
+  
+  # Drop variables ending with "_naoeleito"
+  df_monthly <- df_monthly %>%
+    select(-ends_with("_naoeleito"))
+  
+  # Remove "_eleito" suffix
+  eleito_columns <- colnames(df_monthly)[endsWith(colnames(df_monthly), "_eleito")]
+  for (col_name in eleito_columns) {
+    new_col_name <- sub("_eleito", "", col_name)
+    colnames(df_monthly)[colnames(df_monthly) == col_name] <- new_col_name
+  }
+  
+  # Filter out missing outcome variables
+  df_monthly <- df_monthly %>% 
+    filter(!is.na(hosp_per_100k_inhabitants) | !is.na(deaths_sivep_per_100k_inhabitants))
+  
+  # Creating running variable
+  df_monthly$dif_votos = ifelse(df_monthly$stem_background == 1, df_monthly$dif_votos, -df_monthly$dif_votos)
+  
+  # Creating candidate level variables
+  df_monthly <- df_monthly %>%
+    dplyr::mutate(reeleito = ocupacao == "prefeito")
+  df_monthly <- df_monthly %>%
+    dplyr::mutate(mulher = genero == "feminino")
+  
+  df_monthly$ens_sup = as.logical(ifelse(str_detect(df_monthly$instrucao, "ensino superior completo"),1,0))
+  
+  # Creating X, Y, T variables
+  df_monthly$X = df_monthly$dif_votos
+  df_monthly$Y_deaths_sivep = df_monthly$deaths_sivep_per_100k_inhabitants
+  df_monthly$Y_hosp = df_monthly$hosp_per_100k_inhabitants
+  df_monthly$T = ifelse(df_monthly$X >= 0, 1, 0)
+  df_monthly$T_X = df_monthly$X * df_monthly$T
+  
+  # Winsorizing for monthly data
+  if (deaths_and_hosp_in_log == "yes") {
+    df_monthly$Y_hosp         <- winsorize(df_monthly$Y_hosp)
+    df_monthly$Y_deaths_sivep <- winsorize(df_monthly$Y_deaths_sivep)
+  }
+  
+  # Cleaning the monthly data
+  df_monthly <- df_monthly %>% 
+    dplyr::select(coorte,
+                  month,
+                  sigla_uf,
+                  id_municipio,
+                  instrucao,
+                  ocupacao,
+                  curso_stem,
+                  cbo_2002,
+                  cbo_agregado,
+                  stem_background,
+                  tenure,
+                  tenure_rais,
+                  situacao,
+                  sigla_partido,
+                  idade,
+                  genero,
+                  populacao,
+                  densidade,
+                  idhm,
+                  renda_pc,
+                  per_populacao_urbana,
+                  per_populacao_homens,
+                  tx_med_ch,
+                  tx_med,
+                  tx_enf_ch,
+                  tx_enf,
+                  pct_desp_recp_saude_mun,
+                  cob_esf,
+                  tx_leito_sus,
+                  ideology_party,
+                  ideology_municipality,
+                  reeleito,
+                  mulher,
+                  ens_sup,
+                  sch_non_stem_cdt,
+                  X,
+                  Y_deaths_sivep,
+                  Y_hosp,
+                  T,
+                  T_X,
+                  barreiras_sanitarias,
+                  mascaras,
+                  restricao_atv_nao_essenciais,
+                  restricao_circulacao,
+                  restricao_transporte_publico,
+                  total_nfi,
+                  stem_position
+    )
+  
+  df_monthly <- df_monthly %>%
+    dplyr::mutate(instrucao = dplyr::recode(instrucao,
+                                            "ensino superior completo" = 7,
+                                            "ensino superior incompleto" = 6,
+                                            "ensino medio completo" = 5,
+                                            "ensino medio incompleto" = 4,
+                                            "ensino fundamental completo" = 3,
+                                            "ensino fundamental incompleto" = 2,
+                                            "le e escreve" = 1))
+  
+  # Save monthly data
+  saveRDS(df_monthly, file = paste0("data/final/rdd_data_monthly_", definition, "_definition.rds", sep = ""))
+  
+  # Clean up baseline datasets
+  rm(df_covid, df_covid_monthly, df_density, df_health, df_ideology, df_mayors, df_npi, df_political, df_tenure, df_stem_eleito, df_stem_naoeleito)
   
 }
 

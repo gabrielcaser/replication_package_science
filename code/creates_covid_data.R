@@ -691,6 +691,35 @@ sivep_2021 <- sivep_full %>%
 
 
 sivep <- bind_rows(sivep_2020, sivep_2021) # joining coortes
+
+### Creating MONTHLY Outcome Variables ----------------------------------------------
+
+# Adding month variable to the full dataset
+sivep_full <- sivep_full %>%
+  mutate(month = format(DT_SIN_PRI, "%Y-%m"))
+
+sivep_2020_monthly <- sivep_full %>%
+  filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & DT_SIN_PRI >= start_date_covid_2016 & DT_SIN_PRI <= end_date_covid_2016) %>%
+  group_by(CO_MUN_RES, month) %>%
+  summarise(deaths = sum(EVOLUCAO == "Óbito", na.rm = TRUE),
+            hosp = sum(HOSPITAL == "Sim", na.rm = TRUE),
+            coorte = 2016,
+            .groups = 'drop') %>%
+  arrange(CO_MUN_RES, month) 
+
+sivep_2021_monthly <- sivep_full %>%
+  filter((CLASSI_FIN == "SRAG COVID-19") & DT_SIN_PRI > end_date_covid_2016 & DT_SIN_PRI <= end_date_covid_2020) %>% 
+  group_by(CO_MUN_RES, month) %>%
+  summarise(deaths = sum(EVOLUCAO == "Óbito", na.rm = TRUE),
+            hosp = sum(HOSPITAL == "Sim", na.rm = TRUE),
+            coorte = 2020,
+            .groups = 'drop') %>%
+  arrange(CO_MUN_RES, month) 
+
+sivep_monthly <- bind_rows(sivep_2020_monthly, sivep_2021_monthly) # joining coortes monthly data
+rm(sivep_2020_monthly, sivep_2021_monthly)
+
+sivep <- bind_rows(sivep_2020, sivep_2021) # joining coortes
 rm(sivep_2020, sivep_2021)
 sivep <- sivep %>% 
   rename(id_municipio = CO_MUN_RES)
@@ -707,6 +736,15 @@ sivep <- sivep %>% # creating delta outcomes
   mutate(delta_deaths_sivep = deaths_sivep - lag(deaths_sivep, n = 1, default = NA),
          delta_hosp_sivep = hosp_sivep - lag(hosp_sivep, n = 1, default = NA)) %>% 
   arrange(desc(coorte))
+
+# Processing monthly data
+sivep_monthly <- sivep_monthly %>% 
+  rename(id_municipio = CO_MUN_RES)
+sivep_monthly <- sivep_monthly %>% 
+  rename(deaths_sivep = deaths, hosp_sivep = hosp)
+
+sivep_monthly <- sivep_monthly %>% # changing data type
+  mutate(id_municipio = as.character(id_municipio))
 
 # Merging with population data
 
@@ -731,6 +769,16 @@ sivep <- sivep %>%
                 deaths_sivep_per_100k_inhabitants = (deaths_sivep / populacao) * 100000) %>% 
   ungroup()
 
+# Merging population data with monthly dataset
+sivep_monthly <- left_join(sivep_monthly, df_population, by = c("id_municipio", "coorte"))
+
+# Creating outcome variables for monthly data
+sivep_monthly <- sivep_monthly %>% 
+  dplyr::group_by(id_municipio, coorte, month) %>%
+  dplyr::mutate(hosp_per_100k_inhabitants = (hosp_sivep / populacao) * 100000,
+                deaths_sivep_per_100k_inhabitants = (deaths_sivep / populacao) * 100000) %>% 
+  ungroup()
+
 
 
 # Saving
@@ -738,4 +786,5 @@ sivep <- sivep %>%
 rm(sivep_full)
 
 saveRDS(sivep, paste0(data_dir, "/intermediary/covid_data.rds"))
+saveRDS(sivep_monthly, paste0(data_dir, "/intermediary/covid_data_monthly.rds"))
 
