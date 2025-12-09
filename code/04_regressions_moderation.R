@@ -5,7 +5,6 @@ set.seed(1234)
 df <- readRDS(paste(data_dir, "/final/", data, sep = ""))
 
 # Creating vars
-df$tenure <- df$tenure / 12
 df_subset <- df
 df_subset$inter_tenure_stem  <- df_subset$tenure  * (as.double(df_subset$stem_background) - 1)
 

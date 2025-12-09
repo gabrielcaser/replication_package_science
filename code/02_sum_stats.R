@@ -149,66 +149,6 @@ for (c in 2016) {
   
   }
 
-plots_list[["2016"]]
-
-
-# OLS (plm with states fixed effect)
-
-# Replace missing tenure with 0
-df_regs$tenure[is.na(df_regs$tenure)] <- 0
-df_regs$tenure <- df_regs$tenure / 12
-
-df_regs <- df_regs %>%
-  ungroup() 
-
-# Saving as .dta
-
-haven::write_dta(df_regs, path = paste0(data_dir, "/intermediary/data_ols.dta"))
-saveRDS(df_regs, paste0(data_dir, "/intermediary/data_ols.rds"))
-haven::write_dta(df_regs_month, path = paste0(data_dir, "/intermediary/data_ols_month.dta"))
-saveRDS(df_regs_month, paste0(data_dir, "/intermediary/data_ols_month.rds"))
-skim(df_regs)
-# adding sigla_uf to municipalities
-
-
-
-table(df_regs[df_regs$coorte == 2016 & df_regs$population > 70000, ]$stem_background)
-
-model <- lm(deaths_100k ~ stem_background , data = df_regs_month[df_regs_month$coorte == 2016 & df_regs_month$population > 70000, ])
-lmtest::coeftest(model, vcov = sandwich::vcovHC(model, type = "HC1"))
-
-model_month <- lm(deaths_100k ~ stem_background*month , data = df_regs_month[df_regs_month$coorte == 2016 & df_regs_month$population > 70000, ])
-lmtest::coeftest(model_month, vcov = sandwich::vcovHC(model_month, type = "HC1"))
-
-model2 <- lm(deaths_100k ~ stem_background*coorte + sigla_uf , data = df_regs)
-lmtest::coeftest(model2, vcov = sandwich::vcovHC(model2, type = "HC1"))
-
-# Criar uma nova tabela com isso
-library(plm)
-
-# Convert to panel data frame
-pdata <- df_regs[df_regs$coorte == 2016 & !is.na(df_regs$sigla_uf), ]
-pdata <- pdata.frame(pdata, 
-           index = c("sigla_uf"))
-
-pdata_month <- df_regs_month[df_regs_month$coorte == 2016 & !is.na(df_regs_month$sigla_uf), ]
-pdata_month <- pdata.frame(pdata_month, 
-           index = c("sigla_uf"))
-
-# Estimate fixed effects model with robust standard errors
-model <- plm(deaths ~ stem_background, 
-  data = pdata,
-  #effect = "twoways",
-  model = "within")
-results <- lmtest::coeftest(model, vcov = vcovHC(model, type = "HC1"))
-
-model_month <- plm(deaths ~ stem_background*month, 
-  data = pdata_month,
-  effect = "individual",
-  model = "pooling")
-lmtest::coeftest(model_month, vcov = vcovHC(model_month, type = "HC1"))
-
-
 # Merging
 df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
 df_population <- df_population %>%
@@ -262,7 +202,7 @@ dat <- df[c(
 
 dat <- dat %>%
   summarise(
-    "Tenure in STEM job" = tenure,
+    "Scientific Intensity (years in STEM)" = tenure,
     "Female" = as.numeric(mulher),
     "Age" = idade,
     "Education" = instrucao,
