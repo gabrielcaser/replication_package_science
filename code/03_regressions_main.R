@@ -26,10 +26,7 @@ tidy.rdrobust <- function(model, ...) {
 glance.rdrobust <- function(model, ...) {
   ret <- data.frame(
     "Eff N obs." = as.character(model$N_h[1] + model$N_h[2]),
-    "Bandwidth" = as.character(round(model$bws[1,1] * 100, 2))#,
-    #"State FE" = "X",
-    #"Election FE" = "X",
-    #"Gender" = ifelse("mulher" %in% colnames(as.data.frame(covsZ)),"X"," ")
+    "Bandwidth" = paste0(as.character(round(model$bws[1,1] * 100, 2)),"%")
   )
   ret
 }
@@ -176,31 +173,6 @@ pdata_month <- plm::pdata.frame(pdata_month, index = c("sigla_uf"))
 
 pdata_month$month <- ifelse(pdata_month$coorte == 2020, pdata_month$month + 12, pdata_month$month)
 
-# Criar painel balanceado com deaths_100k = 0 para meses ausentes
-
-# Identificar todos os municípios e meses possíveis
-all_municipios <- unique(pdata_month$id_municipio)
-all_months <- unique(pdata_month$month)
-
-# Criar grid completo de município x mês
-panel_grid <- expand.grid(id_municipio = all_municipios, month = all_months)
-
-# Juntar com o dataset original
-panel_balanced <- merge(panel_grid, pdata_month, by = c("id_municipio", "month"), all.x = TRUE)
-
-# Substituir deaths_100k NA por 0
-panel_balanced$deaths_100k[is.na(panel_balanced$deaths_100k)] <- 0
-
-# Repetir informações dos outros meses para variáveis fixas
-fixed_vars <- c("sigla_uf", "stem_background", "coorte", "population")
-for (var in fixed_vars) {
-  panel_balanced[[var]] <- ave(panel_balanced[[var]], panel_balanced$id_municipio, FUN = function(x) {
-    rep(na.omit(x)[1], length(x))
-  })
-}
-
-# Atualizar pdata_month para painel balanceado
-pdata_month <- panel_balanced
 
 model_ols_month <- plm::plm(deaths_100k ~ stem_background*month , 
   data = pdata_month[pdata_month$month > 2, ],
@@ -228,12 +200,6 @@ model_ols_month <- plm::plm(deaths_100k ~ stem_background*month ,
     gof_omit = "BIC|AIC| Log.Lik.|Adj.R2|R2|RMSE|Std.Errors"
   )
 
-# Plot the number of observations per month
-panel_balanced %>%
-  group_by(month) %>%
-  summarise(n_obs = n_distinct(id_municipio))
-
-
 # Rdrobust function
 run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, outcome, prefix = "") {
   covs_base <- cbind(state.d, year.d)
@@ -248,11 +214,11 @@ run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, outcome, p
     df$idade * df$idade
   )
   models <- list(
-    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_base),
     rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full),
+    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela - 0.01),
     rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela),
-    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.02),
-    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.04)
+    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = janela + 0.01),
+    rdrobust(outcome, df$X, p = poli, kernel = k, bwselect = "mserd", covs = covs_full, h = 1.00)
   )
   return(models)
 }
@@ -279,77 +245,15 @@ modelsummary(
   coef_omit = "Corrected|Conventional",
   coef_map = NULL,
   add_rows = data.frame(
-    term = "Mayor Controls",
-    `Model 1` = "No",
-    `Model 2` = "Yes",
-    `Model 3` = "Yes",
-    `Model 4` = "Yes",
-    `Model 5` = "Yes",
+    term = "Type of Bandwidth",
+    `Model 1` = "Optimal",
+    `Model 2` = "Fixed",
+    `Model 3` = "Fixed",
+    `Model 4` = "Fixed",
+    `Model 5` = "Fixed",
     check.names = FALSE
   )
 )
-
-# Creating table hosp
-modelsummary(
-  models_hosp,
-  estimate = "{estimate}",
-  statistic = c("[{std.error}]", "{p.value}{stars}"),
-  coef_rename = c("Robust" = "RD estimator"),
-  stars = c('*' = .1, '**' = .05, '***' = .01),
-  fmt = 2,
-  #output = "outputs/tables/estimates_hosp.png",
-  output = "outputs/tables/estimates_hosp.tex",
-  title = "Impact of STEM Leadership on Hospitalizations — RD estimates",
-  coef_omit = "Corrected|Conventional",
-  coef_map = NULL,
-  add_rows = data.frame(
-    term = "Mayor Controls",
-    `Model 1` = "No",
-    `Model 2` = "Yes",
-    `Model 3` = "Yes",
-    `Model 4` = "Yes",
-    `Model 5` = "Yes",
-    check.names = FALSE
-  )
-)
-
-# Creating table with all cohorts panels (Appendix)
-
-# Running models for each panel
-models_panelA <- run_rdrobust_models(df_2016, state.d_2016, year.d_2016, poli, k, janela, df_2016$Y_deaths_sivep)
-models_panelB <- run_rdrobust_models(df_2020, state.d_2020, year.d_2020, poli, k, janela, df_2020$Y_deaths_sivep)
-models_panelC <- run_rdrobust_models(df_all_cohorts, state.d_all_cohorts, year.d_all_cohorts, poli, k, janela, df_all_cohorts$Y_deaths_sivep)
-
-models_list <- list(
-  "Panel A: Deaths (only 2016 cohort)" = models_panelA,
-  "Panel B: Deaths (only 2020 cohort)" = models_panelB,
-  "Panel C: Deaths (both cohorts)"     = models_panelC
-)
-
-modelsummary(
-  models_list,
-  shape = "rbind",
-  estimate = "{estimate}",
-  statistic = c("[{std.error}]", "{p.value}{stars}"),
-  coef_rename = c("Robust" = "RD estimator"),
-  stars = c('*' = .1, '**' = .05, '***' = .01),
-  fmt = 2,
-  #output = "outputs/tables/estimates_all_panels.png",
-  output = "outputs/tables/estimates_all_panels.tex",
-  title = "Impact of STEM Leadership on Epidemiological Outcomes (2016 and 2020 cohorts)",
-  coef_omit = "Corrected|Conventional",
-  coef_map = NULL,
-  add_rows = data.frame(
-    term = "Mayor Controls",
-    `Model 1` = "No",
-    `Model 2` = "Yes",
-    `Model 3` = "Yes",
-    `Model 4` = "Yes",
-    `Model 5` = "Yes",
-    check.names = FALSE
-  )
-)
-
 
 # Baseline table
 
