@@ -78,85 +78,86 @@ n_distinct(df_mean$id_municipio)
 # Droping the ones without population data
 df_mean <- df_mean %>%
   filter(!is.na(populacao))
+  # Aggregating to month level
+  df_plot <- df_mean %>%
+    group_by(id_municipio, coorte, month, stem_background, X) %>%
+    summarise(deaths = n(), population = first(populacao)) %>%
+    mutate(deaths_100k = (deaths / population) * 100000)
 
-# Aggregating to month level
-df_plot <- df_mean %>%
-  group_by(id_municipio, coorte, month, stem_background) %>%
-  summarise(deaths = n(), population = first(populacao)) %>%
-  mutate(deaths_100k = (deaths / population) * 100000)
+  # Adding 12 to month when coorte is 2020
+  df_plot <- df_plot %>%
+    mutate(month = ifelse(coorte == 2020, month + 12, month))
 
-  #
+  # Substituir coorte por 2016 quando month = 13 ou 14
+  df_plot <- df_plot %>%
+    mutate(coorte = ifelse(month %in% c(13, 14), 1, coorte))
 
+  # Manter apenas municipios que estão em df_aux
+  #df_plot <- df_plot %>%
+    #filter(id_municipio %in% df_aux$id_municipio & abs(X) <= 0.082)
+   #filter(population >= 70000)
+
+  # Aggregating to mean and then cumulative deaths
+  df_plot <- df_plot %>%
+    group_by(coorte, month, stem_background) %>%
+    summarise(mean_deaths = mean(deaths)) %>%
+    group_by(coorte, stem_background) %>%
+    mutate(cum_deaths = cumsum(mean_deaths))
+    
+  # Plot mean deaths over time by stem_background for cohorts 2016 and 2020
+  plots_list <- list()
+  for (c in 1) {
+    df_plot_coorte <- df_plot %>% filter((coorte == c | month %in% c(13,14))) 
+    # Set month labels
+      month_labels <- c("Jan/20", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan/21", "Feb/21")
+      p <- ggplot(df_plot_coorte, aes(x = month, y = cum_deaths, shape = as.factor(stem_background), group = stem_background)) +
+        geom_line(size = 1) +
+        geom_point(size = 4) +
+        scale_shape_manual(
+          values = c("0" = 17, "1" = 15), 
+          labels = c("Non-STEM", "STEM")
+        ) +
+        scale_x_continuous(
+          breaks = 1:14,
+          labels = month_labels
+        ) +
+        labs(
+          x = NULL,
+          y = "Deaths per 100k inhabitants",
+          shape = "Background"
+        ) +
+        theme_minimal(base_size = 16) +
+        theme(
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank()
+        )
+      plots_list[[as.character(c)]] <- p
+    
+      # Saving plot
+    ggsave(
+      filename = paste0(output_dir, "/figures/mean_cumulative_deaths_stem_background_", 2016, ".png"),
+      plot = plots_list[[as.character(c)]],
+      height = 5.0,
+      width = 12,
+      dpi = 600
+    )
+    
+  }
+# Regressions
 df_regs <- df_mean %>%
-  group_by(id_municipio, sigla_uf, coorte, stem_background, tenure, X, idade, mulher, reeleito, instrucao, ideology_party) %>%
-  summarise(deaths = n(), population = first(populacao)) %>%
-  mutate(deaths_100k = (deaths / population) * 100000)
+    group_by(id_municipio, sigla_uf, coorte, stem_background, tenure, X, idade, mulher, reeleito, instrucao, ideology_party) %>%
+    summarise(deaths = n(), population = first(populacao)) %>%
+    mutate(deaths_100k = (deaths / population) * 100000)
 
-df_regs_month <- df_mean %>%
-  group_by(id_municipio, sigla_uf, coorte, stem_background, month, tenure, X, idade, mulher, reeleito, instrucao, ideology_party) %>%
-  summarise(deaths = n(), population = first(populacao)) %>%
-  mutate(deaths_100k = (deaths / population) * 100000)
+  df_regs_month <- df_mean %>%
+    group_by(id_municipio, sigla_uf, coorte, stem_background, month, tenure, X, idade, mulher, reeleito, instrucao, ideology_party) %>%
+    summarise(deaths = n(), population = first(populacao)) %>%
+    mutate(deaths_100k = (deaths / population) * 100000)
 
   # Average Population per stem_background
-df_regs_month %>%
-  group_by(coorte, stem_background, X) %>%
-  summarise(mean_population = mean(population, na.rm = FALSE))
-
-# Aggregating to mean and then cumulative deaths
-df_plot <- df_plot %>%
-  filter(population > 70000) %>%
-  group_by(coorte, month, stem_background) %>%
-  summarise(mean_deaths = mean(deaths_100k)) %>%
-  group_by(coorte, stem_background) %>%
-  mutate(cum_deaths = cumsum(mean_deaths))
-
-# Creating a object with smallest population of a stem municipality
-min_population_stem <- df_regs %>%
-  group_by(stem_background, coorte) %>%
-  summarise(min_population = max(population))
-
-# Plot mean deaths over time by stem_background for cohorts 2016 and 2020
-plots_list <- list()
-for (c in 2016) {
-  df_plot_coorte <- df_plot %>% filter(coorte == c) 
-  # Set month labels
-    month_labels <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-    p <- ggplot(df_plot_coorte, aes(x = month, y = cum_deaths, shape = as.factor(stem_background), group = stem_background)) +
-      geom_line(size = 1) +
-      geom_point(size = 4) +
-      scale_shape_manual(
-        values = c("0" = 17, "1" = 15), 
-        labels = c("Non-STEM", "STEM")
-      ) +
-      scale_x_continuous(
-        breaks = 1:12,
-        labels = month_labels
-      ) +
-      labs(
-        x = NULL,
-        y = "Deaths per 100k inhabitants",
-        shape = "Background"
-      ) +
-      theme_minimal(base_size = 16) +
-      theme(
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()
-      )
-    plots_list[[as.character(c)]] <- p
-  
-    # Saving plot
-  ggsave(
-    filename = paste0(output_dir, "/figures/mean_cumulative_deaths_stem_background_", c, ".png"),
-    plot = plots_list[[as.character(c)]],
-    height = 5.0,
-    width = 10,
-    dpi = 600
-  )
-  
-  }
-
-# OLS (plm with states fixed effect)
-
+  df_regs_month %>%
+    group_by(coorte, stem_background, X) %>%
+    summarise(mean_population = mean(population, na.rm = FALSE))
 # Replace missing tenure with 0
 df_regs$tenure[is.na(df_regs$tenure)] <- 0
 
