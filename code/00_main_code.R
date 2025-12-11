@@ -53,22 +53,22 @@ data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definitio
 #source("code/creates_covid_data.R")
 
 # 3. Create final RDD dataset
-source("code/01_create_dataset.R")
+#source("code/01_create_dataset.R")
 
 # 4. Generate summary statistics
-source("code/02_sum_stats.R")
+#source("code/02_sum_stats.R")
 
 # 5. Run main regressions
-source("code/03_regressions_main.R")
+#source("code/03_regressions_main.R")
 
 # 6. Run moderation analysis
-source("code/04_regressions_moderation.R")
+#source("code/04_regressions_moderation.R")
 
 # 7. Run moderation analysis with monthly data (heterogeneous effects by month)
 #source("code/05_regressions_moderation_monthly.R")
 
 # 8. Generate LaTeX parameters
-source("code/05_parameters_latexR.R")
+#source("code/05_parameters_latexR.R")
 
 print("All tables and figures have been reproduced and saved in the outputs folder.")
 # End of code -------------------------------------------------------------

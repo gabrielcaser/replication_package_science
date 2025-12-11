@@ -13,7 +13,13 @@ df_aux <- df_all_cohorts %>%
     stem_background,
     coorte,
     X,
-    tenure
+    tenure,
+    idade,
+    reeleito,
+    mulher,
+    instrucao,
+    ideology_party
+
   )
 
 ## Opening covid day data
@@ -82,18 +88,18 @@ df_plot <- df_mean %>%
   #
 
 df_regs <- df_mean %>%
-  group_by(id_municipio, sigla_uf, coorte, stem_background, tenure) %>%
+  group_by(id_municipio, sigla_uf, coorte, stem_background, tenure, X, idade, mulher, reeleito, instrucao, ideology_party) %>%
   summarise(deaths = n(), population = first(populacao)) %>%
   mutate(deaths_100k = (deaths / population) * 100000)
 
 df_regs_month <- df_mean %>%
-  group_by(id_municipio, sigla_uf, coorte, stem_background, month, tenure) %>%
+  group_by(id_municipio, sigla_uf, coorte, stem_background, month, tenure, X, idade, mulher, reeleito, instrucao, ideology_party) %>%
   summarise(deaths = n(), population = first(populacao)) %>%
   mutate(deaths_100k = (deaths / population) * 100000)
 
   # Average Population per stem_background
 df_regs_month %>%
-  group_by(coorte, stem_background) %>%
+  group_by(coorte, stem_background, X) %>%
   summarise(mean_population = mean(population, na.rm = FALSE))
 
 # Aggregating to mean and then cumulative deaths
@@ -149,6 +155,22 @@ for (c in 2016) {
   
   }
 
+# OLS (plm with states fixed effect)
+
+# Replace missing tenure with 0
+df_regs$tenure[is.na(df_regs$tenure)] <- 0
+
+df_regs <- df_regs %>%
+  ungroup() 
+
+# Saving as .dta
+
+haven::write_dta(df_regs, path = paste0(data_dir, "/intermediary/data_ols.dta"))
+saveRDS(df_regs, paste0(data_dir, "/intermediary/data_ols.rds"))
+haven::write_dta(df_regs_month, path = paste0(data_dir, "/intermediary/data_ols_month.dta"))
+saveRDS(df_regs_month, paste0(data_dir, "/intermediary/data_ols_month.rds"))
+skim(df_regs)
+
 # Merging
 df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
 df_population <- df_population %>%
@@ -202,6 +224,7 @@ dat <- df[c(
 
 dat <- dat %>%
   summarise(
+    "STEM Background" = as.numeric(stem_background) - 1,
     "Scientific Intensity (years in STEM)" = tenure,
     "Female" = as.numeric(mulher),
     "Age" = idade,
@@ -209,7 +232,6 @@ dat <- dat %>%
     "Incumbent when elected" = as.numeric(reeleito),
     "Party ideology" = ideology_party,
     "Deaths per 100k inhabitants" = Y_deaths_sivep,
-    "Hospitalizations per 100k inhabitants" = Y_hosp,
     "Cordon sanitaire" = barreiras_sanitarias,
     "Face covering required" = mascaras,
     "Closure of non-essential activities" = restricao_atv_nao_essenciais,
@@ -225,17 +247,10 @@ dat <- dat %>%
     "Physicians per 1k inhabitants" = tx_med,
     "Health municipal spending rate" = pct_desp_recp_saude_mun,
     "Community health agency coverage rate" = cob_esf,
-    "Hospital beds per 100k population" = tx_leito_sus,
-    stem_background
+    "Hospital beds per 100k population" = tx_leito_sus
   )
 
-# Creating McCrary test figure
-mctest  <- rddensity::rddensity(X = df$X, c = 0)
-mc_plot <- rddensity::rdplotdensity(mctest, df$X)
-png(file.path(output_dir, "figures", "mccrary_density_rddensity.png"),
-    width = 1600, height = 1200, res = 200)
-rddensity::rdplotdensity(mctest, df$X)
-dev.off()
+
 
 ## creating table without groups
 
@@ -256,7 +271,7 @@ datasummary(
 
 ## creating table with groups
 
-dat$stem_background <- ifelse(dat$stem_background == 1, "STEM", "Non-STEM")
+dat$stem_background <- ifelse(dat[["STEM Background"]] == 1, "STEM", "Non-STEM")
 
 datasummary_balance(
   ~ stem_background,
@@ -267,6 +282,14 @@ datasummary_balance(
   title = "Summary Statistics by Group",
   output = paste0(output_dir, "/tables/table_sum_stats_groups.tex")
 )
+
+# Creating McCrary test figure
+mctest  <- rddensity::rddensity(X = df$X, c = 0)
+mc_plot <- rddensity::rdplotdensity(mctest, df$X)
+png(file.path(output_dir, "figures", "mccrary_density_rddensity.png"),
+    width = 1600, height = 1200, res = 200)
+rddensity::rdplotdensity(mctest, df$X)
+dev.off()
 
 ## Figures for STEM candidates ---------------------------------------------------------
 

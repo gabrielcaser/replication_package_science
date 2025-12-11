@@ -163,12 +163,47 @@ df_ols <- data.frame(
 
 # OLS with month interaction using PLM
 df_ols_month <- readRDS(paste0(data_dir, "/intermediary/data_ols_month.rds"))
-pdata_month <- df_ols_month[df_ols_month$coorte == 2016 & !is.na(df_ols_month$sigla_uf) & df_ols_month$population > 70000, ]
+
+# Manter apenas os id_municipio presentes em df_2016
+df_ols_month <- df_ols_month[df_ols_month$id_municipio %in% df_2016$id_municipio, ]
+
+pdata_month <- df_ols_month[(df_ols_month$coorte == 2016 | df_ols_month$month %in% c(1,2)) & !is.na(df_ols_month$sigla_uf) , ]
+pdata_month <- pdata_month %>%
+  ungroup()
+
+
 pdata_month <- plm::pdata.frame(pdata_month, index = c("sigla_uf"))
 
+pdata_month$month <- ifelse(pdata_month$coorte == 2020, pdata_month$month + 12, pdata_month$month)
 
-model_ols_month <- plm::plm(deaths_100k ~ stem_background*month, 
-  data = pdata_month,
+# Criar painel balanceado com deaths_100k = 0 para meses ausentes
+
+# Identificar todos os municípios e meses possíveis
+all_municipios <- unique(pdata_month$id_municipio)
+all_months <- unique(pdata_month$month)
+
+# Criar grid completo de município x mês
+panel_grid <- expand.grid(id_municipio = all_municipios, month = all_months)
+
+# Juntar com o dataset original
+panel_balanced <- merge(panel_grid, pdata_month, by = c("id_municipio", "month"), all.x = TRUE)
+
+# Substituir deaths_100k NA por 0
+panel_balanced$deaths_100k[is.na(panel_balanced$deaths_100k)] <- 0
+
+# Repetir informações dos outros meses para variáveis fixas
+fixed_vars <- c("sigla_uf", "stem_background", "coorte", "population")
+for (var in fixed_vars) {
+  panel_balanced[[var]] <- ave(panel_balanced[[var]], panel_balanced$id_municipio, FUN = function(x) {
+    rep(na.omit(x)[1], length(x))
+  })
+}
+
+# Atualizar pdata_month para painel balanceado
+pdata_month <- panel_balanced
+
+model_ols_month <- plm::plm(deaths_100k ~ stem_background*month , 
+  data = pdata_month[pdata_month$month > 2, ],
   model = "within")
   
   modelsummary(
@@ -178,7 +213,7 @@ model_ols_month <- plm::plm(deaths_100k ~ stem_background*month,
     statistic = c("[{std.error}]", "{p.value}{stars}"),
     stars = c('*' = .1, '**' = .05, '***' = .01),
     fmt = 2,
-    output = "outputs/tables/ols_month_interaction.tex",
+    #output = "outputs/tables/ols_month_interaction.tex",
     title = "Impact of STEM Leadership on Deaths with Month Interaction",
     coef_map = c(
       "stem_background" = "STEM Background",
@@ -186,13 +221,17 @@ model_ols_month <- plm::plm(deaths_100k ~ stem_background*month,
       "stem_background:month" = "STEM Background × Month"
     ),
     add_rows = data.frame(
-      term = c("State FE"),
-      `Model 1` = c("Yes"),
+      term = c("State FE", "Mayor Controls"),
+      `Model 1` = c("Yes", "No"),
       check.names = FALSE
     ),
     gof_omit = "BIC|AIC| Log.Lik.|Adj.R2|R2|RMSE|Std.Errors"
   )
 
+# Plot the number of observations per month
+panel_balanced %>%
+  group_by(month) %>%
+  summarise(n_obs = n_distinct(id_municipio))
 
 
 # Rdrobust function
