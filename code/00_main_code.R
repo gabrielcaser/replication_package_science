@@ -47,16 +47,16 @@ data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definitio
 
 # Running scripts ---------------------------------------------------------
 # 1. Create baseline data (health, ideology, political, npi, density, STEM classification)
-#source("code/create_baseline_data.R")
+source("code/create_baseline_data.R")
 
 # 2. Create COVID data (requires large raw files - not on Github)
 #source("code/creates_covid_data.R")
 
 # 3. Create final RDD dataset
-#source("code/01_create_dataset.R")
+source("code/01_create_dataset.R")
 
 # 4. Generate summary statistics
-#source("code/02_sum_stats.R")
+source("code/02_sum_stats.R")
 
 # 5. Run main regressions
 source("code/03_regressions_main.R")
