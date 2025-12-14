@@ -402,8 +402,6 @@ sf2$perc_stem = sf2$perc_stem * 100
 sf2 %>%
   ggplot() +
   geom_sf(aes(fill = perc_stem), alpha = 0.9, color = NA) +
-  labs(#title="Percentage of STEM mayors per state (2016)",
-    caption='Source: Author', size = 8) +
   viridis::scale_fill_viridis(
     direction = 1,
     name="% of STEM mayors",
@@ -440,12 +438,10 @@ sf3 %>%
   ggplot() +
   geom_sf(data = subset(dados_mapa)) +
   geom_sf(aes(fill = stem_background), alpha = .7, color = NA) +
-  labs(#title="Municipalities where a STEM canditate was among the top 2 voted (2016)",
-    caption='Source: Author', size = 8) +
   scale_fill_manual(values = c("red", "blue"),
                     name = "STEM candidate",
                     na.value = "grey90",
-                    labels = c("Lost","Won", "Not in top 2")) +
+                    labels = c("Lost","Won", "Not in top 3")) +
   theme_minimal(base_size = 16) +
   theme(axis.title = element_blank(),
         axis.text = element_blank(),

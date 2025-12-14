@@ -56,7 +56,7 @@ data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definitio
 #source("code/01_create_dataset.R")
 
 # 4. Generate summary statistics
-#source("code/02_sum_stats.R")
+source("code/02_sum_stats.R")
 
 # 5. Run main regressions
 #source("code/03_regressions_main.R")
