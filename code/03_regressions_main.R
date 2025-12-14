@@ -228,8 +228,8 @@ models_death <- run_rdrobust_models(df, state.d, year.d, poli, k, janela, df$Y_d
 models_hosp  <- run_rdrobust_models(df, state.d, year.d, poli, k, janela, df$Y_hosp)
 
 # Extract optimal bandwidths for each panel (for reference or reporting)
-optimal_bw       <- models_death[[2]]$bws[[1]]
-optimal_bw_hosp  <- models_hosp[[2]]$bws[[1]]
+optimal_bw       <- models_death[[1]]$bws[[1]]
+optimal_bw_hosp  <- models_hosp[[1]]$bws[[1]]
 
 # Creating table death
 modelsummary(
