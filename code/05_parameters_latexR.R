@@ -24,7 +24,7 @@ writeLines(c(
   "\\newcommand{\\parKernel}{", k, "}",
   "\\newcommand{\\parWindow}{", janela*100, "}",
   "\\newcommand{\\parPoli}{", poli, "}",
-  "\\newcommand{\\parMainEffectDeaths}{", round(models_panelA[[2]]$coef[[1]],2), "}"
+  "\\newcommand{\\parMainEffectDeaths}{", round(models_death[[1]]$coef[[1]]), "}"
   
 ), fileConn)
 

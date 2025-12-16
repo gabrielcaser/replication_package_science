@@ -50,7 +50,7 @@ sivep_2020 <- read_csv2(paste0(data_dir, '/raw/220613_srag_base_oficial_2020.csv
   OUTRO_SIN = col_double(),
   OUTRO_DES = col_character(),
   PUERPERA = col_double(),
-  FATOR_RISC = col_character(),
+  FATOR_RISC = col_double(),
   CARDIOPATI = col_double(),
   HEMATOLOGI = col_double(),
   SIND_DOWN = col_double(),
@@ -89,7 +89,7 @@ sivep_2020 <- read_csv2(paste0(data_dir, '/raw/220613_srag_base_oficial_2020.csv
   DT_SAIDUTI = col_date(format = formato_data),
   SUPORT_VEN = col_double(),
   RAIOX_RES = col_double(),
-  RAIOX_OUT = col_character(),
+  RAIOX_OUT = col_double(),
   DT_RAIOX = col_date(format = formato_data),
   AMOSTRA = col_double(),
   DT_COLETA = col_date(format = formato_data),
@@ -106,12 +106,12 @@ sivep_2020 <- read_csv2(paste0(data_dir, '/raw/220613_srag_base_oficial_2020.csv
   POS_PCROUT = col_double(),
   PCR_VSR = col_double(),
   PCR_PARA1 = col_double(),
-  PCR_PARA2 = col_character(),
+  PCR_PARA2 = col_double(),
   PCR_PARA3 = col_double(),
-  PCR_PARA4 = col_character(),
+  PCR_PARA4 = col_double(),
   PCR_ADENO = col_double(),
   PCR_METAP = col_double(),
-  PCR_BOCA = col_character(),
+  PCR_BOCA = col_double(),
   PCR_RINO = col_double(),
   PCR_OUTRO = col_double(),
   DS_PCR_OUT = col_character(),
@@ -137,20 +137,20 @@ sivep_2020 <- read_csv2(paste0(data_dir, '/raw/220613_srag_base_oficial_2020.csv
   PERD_OLFT = col_double(),
   PERD_PALA = col_double(),
   TOMO_RES = col_double(),
-  TOMO_OUT = col_character(),
+  TOMO_OUT = col_double(),
   DT_TOMO = col_date(format = formato_data),
   TP_TES_AN = col_double(),
   DT_RES_AN = col_date(format = formato_data),
   RES_AN = col_double(),
   POS_AN_FLU = col_double(),
-  TP_FLU_AN = col_character(),
+  TP_FLU_AN = col_double(),
   POS_AN_OUT = col_double(),
   AN_SARS2 = col_double(),
-  AN_VSR = col_character(),
-  AN_PARA1 = col_character(),
-  AN_PARA2 = col_character(),
-  AN_PARA3 = col_character(),
-  AN_ADENO = col_character(),
+  AN_VSR = col_double(),
+  AN_PARA1 = col_double(),
+  AN_PARA2 = col_double(),
+  AN_PARA3 = col_double(),
+  AN_ADENO = col_double(),
   AN_OUTRO = col_double(),
   DS_AN_OUT = col_character(),
   TP_AM_SOR = col_double(),
@@ -159,15 +159,79 @@ sivep_2020 <- read_csv2(paste0(data_dir, '/raw/220613_srag_base_oficial_2020.csv
   TP_SOR = col_double(),
   OUT_SOR = col_character(),
   DT_RES = col_date(format = formato_data),
-  RES_IGG = col_character(),
-  RES_IGM = col_character(),
-  RES_IGA = col_character()
+  RES_IGG = col_double(),
+  RES_IGM = col_double(),
+  RES_IGA = col_double(),
+  ESTRANG = col_double(),
+  VACINA_COV = col_double(),
+  DOSE_1_COV = col_date(format = formato_data),
+  DOSE_2_COV = col_date(format = formato_data),
+  FABRICANTE = col_double(),
+  LOTE_1_COV = col_character(),
+  LOTE_2_COV = col_character()
 ))
 
-head(sivep_2020)
 
-### 2021 --------------------------------------------------------------------
+# Filtering data
+
+sivep_2020 <- sivep_2020 %>% 
+  filter(SG_UF != "IGNORADO" & SG_UF != "EXTERIOR")
+
+# Recategorizing
+
+sivep_2020 <- sivep_2020 %>%
+  mutate(
+    SG_UF = recode(SG_UF, 
+                   "DISTRITO FEDERAL" = "DF"),
+    CLASSI_FIN = recode(CLASSI_FIN,
+                        '1' = 'SRAG influenza',
+                        '2' = 'SRAG outros vírus',
+                        '3' = 'SRAG outros agentes',
+                        '4' = 'SRAG não especificado',
+                        '5' = 'SRAG COVID-19'),
+    EVOLUCAO = recode(EVOLUCAO,
+                      '1' = 'Cura',
+                      '2' = 'Óbito',
+                      '3' = 'Óbito por outras causas',
+                      '9' = 'Ignorado'),
+    HOSPITAL = recode(HOSPITAL,
+                      '1' = 'Sim',
+                      '2' = 'Não',
+                      '9' = 'Ignorado'),
+    CS_SEXO = recode(CS_SEXO,
+                     'I' = 'Ignorado',
+                     'M' = 'Masculino',
+                     'F' = 'Feminino'),
+    CS_RACA = recode(CS_RACA,
+                     '1' = 'Branca',
+                     '2' = 'Preta',
+                     '3' = 'Amarela',
+                     '4' = 'Parda',
+                     '5' = 'Indígena',
+                     '9' = 'Ignorado')
+  )
+
+
+# defining death date
+
+sivep_2020 <- sivep_2020 %>% 
+  mutate(death_date = ifelse(EVOLUCAO == "Óbito" | EVOLUCAO == "Óbito por outras causas", DT_EVOLUCA, NA))
+
+
+# Saving
+
+saveRDS(sivep_2020, paste0(data_dir, "/intermediary/sivep_2020.rds"))
+
+
+
+### 2021 ------------------------------------------------------------------
 ### source: https://opendatasus.saude.gov.br/dataset/srag-2021-e-2022
+### cleaning based on: Escola de Dados -> https://escoladedados.org/coda2021/
+
+formato_data <- "%d/%m/%Y" # defining date type
+
+
+# defining data types
 
 sivep_2021 <- read_csv2(paste0(data_dir, '/raw/230831_srag_base_oficial_2021.csv'), col_types = cols(
   DT_NOTIFIC = col_date(format = formato_data),
@@ -212,7 +276,7 @@ sivep_2021 <- read_csv2(paste0(data_dir, '/raw/230831_srag_base_oficial_2021.csv
   OUTRO_SIN = col_double(),
   OUTRO_DES = col_character(),
   PUERPERA = col_double(),
-  FATOR_RISC = col_character(),
+  FATOR_RISC = col_double(),
   CARDIOPATI = col_double(),
   HEMATOLOGI = col_double(),
   SIND_DOWN = col_double(),
@@ -251,7 +315,7 @@ sivep_2021 <- read_csv2(paste0(data_dir, '/raw/230831_srag_base_oficial_2021.csv
   DT_SAIDUTI = col_date(format = formato_data),
   SUPORT_VEN = col_double(),
   RAIOX_RES = col_double(),
-  RAIOX_OUT = col_character(),
+  RAIOX_OUT = col_double(),
   DT_RAIOX = col_date(format = formato_data),
   AMOSTRA = col_double(),
   DT_COLETA = col_date(format = formato_data),
@@ -268,12 +332,12 @@ sivep_2021 <- read_csv2(paste0(data_dir, '/raw/230831_srag_base_oficial_2021.csv
   POS_PCROUT = col_double(),
   PCR_VSR = col_double(),
   PCR_PARA1 = col_double(),
-  PCR_PARA2 = col_character(),
+  PCR_PARA2 = col_double(),
   PCR_PARA3 = col_double(),
-  PCR_PARA4 = col_character(),
+  PCR_PARA4 = col_double(),
   PCR_ADENO = col_double(),
   PCR_METAP = col_double(),
-  PCR_BOCA = col_character(),
+  PCR_BOCA = col_double(),
   PCR_RINO = col_double(),
   PCR_OUTRO = col_double(),
   DS_PCR_OUT = col_character(),
@@ -299,20 +363,20 @@ sivep_2021 <- read_csv2(paste0(data_dir, '/raw/230831_srag_base_oficial_2021.csv
   PERD_OLFT = col_double(),
   PERD_PALA = col_double(),
   TOMO_RES = col_double(),
-  TOMO_OUT = col_character(),
+  TOMO_OUT = col_double(),
   DT_TOMO = col_date(format = formato_data),
   TP_TES_AN = col_double(),
   DT_RES_AN = col_date(format = formato_data),
   RES_AN = col_double(),
   POS_AN_FLU = col_double(),
-  TP_FLU_AN = col_character(),
+  TP_FLU_AN = col_double(),
   POS_AN_OUT = col_double(),
   AN_SARS2 = col_double(),
-  AN_VSR = col_character(),
-  AN_PARA1 = col_character(),
-  AN_PARA2 = col_character(),
-  AN_PARA3 = col_character(),
-  AN_ADENO = col_character(),
+  AN_VSR = col_double(),
+  AN_PARA1 = col_double(),
+  AN_PARA2 = col_double(),
+  AN_PARA3 = col_double(),
+  AN_ADENO = col_double(),
   AN_OUTRO = col_double(),
   DS_AN_OUT = col_character(),
   TP_AM_SOR = col_double(),
@@ -321,341 +385,84 @@ sivep_2021 <- read_csv2(paste0(data_dir, '/raw/230831_srag_base_oficial_2021.csv
   TP_SOR = col_double(),
   OUT_SOR = col_character(),
   DT_RES = col_date(format = formato_data),
-  RES_IGG = col_character(),
-  RES_IGM = col_character(),
-  RES_IGA = col_character()
+  RES_IGG = col_double(),
+  RES_IGM = col_double(),
+  RES_IGA = col_double(),
+  ESTRANG = col_double(),
+  VACINA_COV = col_double(),
+  DOSE_1_COV = col_date(format = formato_data),
+  DOSE_2_COV = col_date(format = formato_data),
+  FABRICANTE = col_double(),
+  LOTE_1_COV = col_character(),
+  LOTE_2_COV = col_character(),
+  DOSE_REF = col_date(format = formato_data),
+  LOTE_REF = col_character(),
+  FAB_COVREF = col_double()
 ))
 
-head(sivep_2021)
+
+# Filtering data
+
+sivep_2021 <- sivep_2021 %>% 
+  filter(SG_UF != "IGNORADO" & SG_UF != "EXTERIOR")
+
+# Recategorizing
+
+sivep_2021 <- sivep_2021 %>%
+  mutate(
+    SG_UF = recode(SG_UF, 
+                   "DISTRITO FEDERAL" = "DF"),
+    CLASSI_FIN = recode(CLASSI_FIN,
+                        '1' = 'SRAG influenza',
+                        '2' = 'SRAG outros vírus',
+                        '3' = 'SRAG outros agentes',
+                        '4' = 'SRAG não especificado',
+                        '5' = 'SRAG COVID-19'),
+    EVOLUCAO = recode(EVOLUCAO,
+                      '1' = 'Cura',
+                      '2' = 'Óbito',
+                      '3' = 'Óbito por outras causas',
+                      '9' = 'Ignorado'),
+    HOSPITAL = recode(HOSPITAL,
+                      '1' = 'Sim',
+                      '2' = 'Não',
+                      '9' = 'Ignorado'),
+    CS_SEXO = recode(CS_SEXO,
+                     'I' = 'Ignorado',
+                     'M' = 'Masculino',
+                     'F' = 'Feminino'),
+    CS_RACA = recode(CS_RACA,
+                     '1' = 'Branca',
+                     '2' = 'Preta',
+                     '3' = 'Amarela',
+                     '4' = 'Parda',
+                     '5' = 'Indígena',
+                     '9' = 'Ignorado')
+  )
 
 
+# defining death date
 
-### Merging ----------------------------------------------------------------
+sivep_2021 <- sivep_2021 %>% 
+  mutate(death_date = ifelse(EVOLUCAO == "Óbito" | EVOLUCAO == "Óbito por outras causas", DT_EVOLUCA, NA))
 
+
+# Saving
+
+saveRDS(sivep_2021, paste0(data_dir, "/intermediary/sivep_2021.rds"))
+
+
+### Joining ------------------------------------------------------------------
+
+
+sivep_2020 <- readRDS(paste0(data_dir, "/intermediary/sivep_2020.rds"))
+sivep_2021 <- readRDS(paste0(data_dir, "/intermediary/sivep_2021.rds"))
 
 sivep_full <- bind_rows(sivep_2020, sivep_2021)
-
 rm(sivep_2020, sivep_2021)
 
-## Garbage collector
-gc()
 
-dim(sivep_full)
-
-
-### Recoding variables ------------------------------------------------------
-### based on: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/pdfs/dicionario_de_dados_srag_hosp_17_02_2022.pdf
-
-sivep_full <- sivep_full %>%
-  mutate(CS_SEXO = recode(CS_SEXO,
-                          "F" = "Feminino",
-                          "M" = "Masculino",
-                          "I" = "Ignorado",
-                          .default = NA_character_)) %>%
-  mutate(CS_SEXO = replace_na(CS_SEXO, "Não preenchido")) %>%
-  mutate(TP_IDADE = recode(TP_IDADE,
-                           "1" = "Dia",
-                           "2" = "Mês",
-                           "3" = "Ano",
-                           .default = NA_character_)) %>%
-  mutate(CS_GESTANT = recode(CS_GESTANT,
-                             "1" = "1o trimestre",
-                             "2" = "2o trimestre",
-                             "3" = "3o trimestre",
-                             "4" = "Idade gestacional ignorada",
-                             "5" = "Não",
-                             "6" = "Não se aplica",
-                             "9" = "Ignorado",
-                             "0" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(CS_GESTANT = replace_na(CS_GESTANT, "Não preenchido")) %>%
-  mutate(CS_RACA = recode(CS_RACA,
-                          "1" = "Branca",
-                          "2" = "Preta",
-                          "3" = "Amarela",
-                          "4" = "Parda",
-                          "5" = "Indígena",
-                          "9" = "Ignorado",
-                          .default = "Ignorado")) %>%
-  mutate(CS_RACA = replace_na(CS_RACA, "Não preenchido")) %>%
-  mutate(CS_ESCOL_N = recode(CS_ESCOL_N,
-                             "0" = "Sem escolaridade/Analfabeto",
-                             "1" = "Fundamental 1o ciclo (1a a 5a série)",
-                             "2" = "Fundamental 2o ciclo (6a a 9a série",
-                             "3" = "Médio (1o ao 3o ano)",
-                             "4" = "Superior",
-                             "5" = "Não se aplica",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(CS_ESCOL_N = replace_na(CS_ESCOL_N, "Não preenchido")) %>%
-  mutate(CS_ZONA = recode(CS_ZONA, 
-                          "1" = "Urbana",
-                          "2" = "Rural",
-                          "3" = "Periurbana",
-                          "9" = "Ignorado",
-                          .default = "Ignorado")) %>%
-  mutate(CS_ZONA = replace_na(CS_ZONA, "Não preenchido")) %>%
-  mutate(HISTO_VGM = recode(HISTO_VGM,
-                            "1" = "Sim",
-                            "2" = "Não",
-                            "9" = "Ignorado",
-                            "0" = "Ignorado",
-                            .default = "Ignorado")) %>%
-  mutate(SURTO_SG = recode(SURTO_SG,
-                           "1" = "Sim",
-                           "2" = "Não",
-                           "9" = "Ignorado",
-                           .default = "Ignorado")) %>%
-  mutate(NOSOCOMIAL = recode(NOSOCOMIAL,
-                             "1" = "Sim",
-                             "2" = "Não",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(NOSOCOMIAL = replace_na(NOSOCOMIAL, "Não preenchido")) %>%
-  mutate(AVE_SUINO = recode(AVE_SUINO,
-                            "1" = "Sim",
-                            "2" = "Não",
-                            "9" = "Ignorado",
-                            .default = "Ignorado")) %>%
-  mutate(FEBRE = recode(FEBRE,
-                        "1" = "Sim",
-                        "2" = "Não",
-                        "9" = "Ignorado",
-                        .default = "Ignorado")) %>%
-  mutate(TOSSE = recode(TOSSE,
-                        "1" = "Sim",
-                        "2" = "Não",
-                        "9" = "Ignorado",
-                        .default = "Ignorado")) %>%
-  mutate(GARGANTA = recode(GARGANTA,
-                           "1" = "Sim",
-                           "2" = "Não",
-                           "9" = "Ignorado",
-                           .default = "Ignorado")) %>%
-  mutate(DISPNEIA = recode(DISPNEIA,
-                           "1" = "Sim",
-                           "2" = "Não",
-                           "9" = "Ignorado",
-                           .default = "Ignorado")) %>%
-  mutate(DESC_RESP = recode(DESC_RESP,
-                            "1" = "Sim",
-                            "2" = "Não",
-                            "9" = "Ignorado",
-                            .default = "Ignorado")) %>%
-  mutate(SATURACAO = recode(SATURACAO,
-                            "1" = "Sim",
-                            "2" = "Não",
-                            "9" = "Ignorado",
-                            .default = "Ignorado")) %>%
-  mutate(DIARREIA = recode(DIARREIA,
-                           "1" = "Sim",
-                           "2" = "Não",
-                           "9" = "Ignorado",
-                           .default = "Ignorado")) %>%
-  mutate(VOMITO = recode(VOMITO,
-                         "1" = "Sim",
-                         "2" = "Não",
-                         "9" = "Ignorado",
-                         .default = "Ignorado")) %>%
-  mutate(OUTRO_SIN = recode(OUTRO_SIN,
-                            "1" = "Sim",
-                            "2" = "Não",
-                            "9" = "Ignorado",
-                            .default = "Ignorado")) %>%
-  mutate(PUERPERA = recode(PUERPERA,
-                           "1" = "Sim",
-                           "2" = "Não",
-                           "9" = "Ignorado",
-                           .default = "Ignorado")) %>%
-  mutate(CARDIOPATI = recode(CARDIOPATI,
-                             "1" = "Sim",
-                             "2" = "Não",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(HEMATOLOGI = recode(HEMATOLOGI,
-                             "1" = "Sim",
-                             "2" = "Não",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(SIND_DOWN = recode(SIND_DOWN,
-                            "1" = "Sim",
-                            "2" = "Não",
-                            "9" = "Ignorado",
-                            .default = "Ignorado")) %>%
-  mutate(HEPATICA = recode(HEPATICA,
-                           "1" = "Sim",
-                           "2" = "Não",
-                           "9" = "Ignorado",
-                           .default = "Ignorado")) %>%
-  mutate(ASMA = recode(ASMA,
-                       "1" = "Sim",
-                       "2" = "Não",
-                       "9" = "Ignorado",
-                       .default = "Ignorado")) %>%
-  mutate(DIABETES = recode(DIABETES,
-                           "1" = "Sim",
-                           "2" = "Não",
-                           "9" = "Ignorado",
-                           .default = "Ignorado")) %>%
-  mutate(NEUROLOGIC = recode(NEUROLOGIC,
-                             "1" = "Sim",
-                             "2" = "Não",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(PNEUMOPATI = recode(PNEUMOPATI,
-                             "1" = "Sim",
-                             "2" = "Não",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(IMUNODEPRE = recode(IMUNODEPRE,
-                             "1" = "Sim",
-                             "2" = "Não",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(RENAL = recode(RENAL,
-                        "1" = "Sim",
-                        "2" = "Não",
-                        "9" = "Ignorado",
-                        .default = "Ignorado")) %>%
-  mutate(OBESIDADE = recode(OBESIDADE,
-                            "1" = "Sim",
-                            "2" = "Não",
-                            "9" = "Ignorado",
-                            .default = "Ignorado")) %>%
-  mutate(OUT_MORBI = recode(OUT_MORBI,
-                            "1" = "Sim",
-                            "2" = "Não",
-                            "9" = "Ignorado",
-                            .default = "Ignorado")) %>%
-  mutate(VACINA = recode(VACINA,
-                         "1" = "Sim",
-                         "2" = "Não",
-                         "9" = "Ignorado",
-                         .default = "Ignorado")) %>%
-  mutate(MAE_VAC = recode(MAE_VAC,
-                          "1" = "Sim",
-                          "2" = "Não",
-                          "9" = "Ignorado",
-                          .default = "Ignorado")) %>%
-  mutate(M_AMAMENTA = recode(M_AMAMENTA,
-                             "1" = "Sim",
-                             "2" = "Não",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(ANTIVIRAL = recode(ANTIVIRAL,
-                            "1" = "Sim",
-                            "2" = "Não",
-                            "9" = "Ignorado")) %>%
-  mutate(ANTIVIRAL = replace_na(ANTIVIRAL, "Não preenchido")) %>%
-  mutate(TP_ANTIVIR = recode(TP_ANTIVIR,
-                             "1" = "Oseltamivir",
-                             "2" = "Zanamivir",
-                             "3" = "Outro",
-                             .default = "Ignorado")) %>%
-  mutate(HOSPITAL = recode(HOSPITAL,
-                           "1" = "Sim",
-                           "2" = "Não",
-                           "9" = "Ignorado",
-                           .default = "Ignorado")) %>%
-  mutate(UTI = recode(UTI,
-                      "1" = "Sim",
-                      "2" = "Não",
-                      "9" = "Ignorado",
-                      .default = "Ignorado")) %>%
-  mutate(SUPORT_VEN = recode(SUPORT_VEN,
-                             "1" = "Sim, invasivo",
-                             "2" = "Sim, não invasivo",
-                             "3" = "Não",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(RAIOX_RES = recode(RAIOX_RES,
-                            "1" = "Normal",
-                            "2" = "Infiltrado intersticial",
-                            "3" = "Consolidação",
-                            "4" = "Misto",
-                            "5" = "Outro",
-                            "6" = "Não realizado",
-                            "9" = "Ignorado",
-                            .default = "Ignorado")) %>%
-  mutate(AMOSTRA = recode(AMOSTRA,
-                          "1" = "Sim",
-                          "2" = "Não",
-                          "9" = "Ignorado",
-                          .default = "Ignorado")) %>%
-  mutate(TP_AMOSTRA = recode(TP_AMOSTRA,
-                             "1" = "Secreção de naso-orofaringe",
-                             "2" = "Lavado broco-alveolar",
-                             "3" = "Tecido post mortem",
-                             "4" = "Outra",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(PCR_RESUL = recode(PCR_RESUL,
-                            "1" = "Detectável",
-                            "2" = "Não detectável",
-                            "3" = "Inconclusivo",
-                            "4" = "Não realizado",
-                            "5" = "Aguardando resultado",
-                            "9" = "Ignorado",
-                            .default = "Ignorado")) %>%
-  mutate(TP_FLU_PCR = recode(TP_FLU_PCR,
-                             "1" = "Influenza A",
-                             "2" = "Influenza B")) %>%
-  mutate(PCR_FLUASU = recode(PCR_FLUASU,
-                             "1" = "Influenza A (H1N1)",
-                             "2" = "Influenza A (H3N2)",
-                             "3" = "Influenza A (Não subtipado)",
-                             "4" = "Influenza A (Não subtipável)",
-                             "5" = "Inconclusivo",
-                             "6" = "Outro",
-                             .default = "Ignorado")) %>%
-  mutate(PCR_FLUBLI = recode(PCR_FLUBLI,
-                             "1" = "Victoria",
-                             "2" = "Yamagatha",
-                             "3" = "Não realizado",
-                             "4" = "Inconclusivo",
-                             "5" = "Outro",
-                             .default = "Ignorado")) %>%
-  mutate(POS_PCROUT = recode(POS_PCROUT,
-                             "1" = "Sim",
-                             "2" = "Não",
-                             "9" = "Ignorado",
-                             .default = "Ignorado")) %>%
-  mutate(CLASSI_FIN = recode(CLASSI_FIN,
-                             "1" = "SRAG por influenza",
-                             "2" = "SRAG por outro vírus respiratório",
-                             "3" = "SRAG por outro agente etiológico",
-                             "4" = "SRAG não especificado",
-                             "5" = "SRAG COVID-19",
-                             .default = "Ignorado")) %>%
-  mutate(CRITERIO = recode(CRITERIO,
-                           "1" = "Laboratorial",
-                           "2" = "Vínculo epidemiológico",
-                           "3" = "Clínico",
-                           .default = "Ignorado")) %>%
-  mutate(EVOLUCAO = recode(EVOLUCAO,
-                           "1" = "Cura",
-                           "2" = "Óbito",
-                           "3" = "Óbito por outras causas",
-                           "9" = "Ignorado",
-                           .default = "Ignorado")) %>%
-  mutate(VACINA_COV = recode(VACINA_COV,
-                             "1" = "Sim",
-                             "2" = "Não",
-                             "9" = "Ignorado")) %>%                
-  mutate(VACINA_COV = replace_na(VACINA_COV, "Não preenchido")) %>%                                  
-  mutate(PAC_DSCBO = replace_na(PAC_DSCBO, "Não preenchido")) %>%
-  mutate(ID_UNIDADE = replace_na(ID_UNIDADE, "Unidade não informada")) %>%
-  mutate(EVOLUCAO = replace_na(EVOLUCAO, "Em andamento")) %>%
-  mutate(idade = if_else(TP_IDADE == "Ano", NU_IDADE_N, 0)) %>%
-  mutate(fx_etaria = cut(idade, 
-                         breaks = c(-Inf, 2, 4, 9, 19, 29, 39, 49, 59, +Inf),
-                         labels = c("< 2 anos", "2-4 anos", "5-9 anos", "10-19 anos", "20-29 anos", "30-39 anos", "40-49 anos", "50-59 anos", "60+ anos")
-  )
-  ) %>%
-  select(-idade)
-
-
-### Cleaning ----------------------------------------------------------------
+# checking municipalities
 
 length(unique(sivep_full$ID_MN_RESI)) # 200 municipalities missing.
 length(unique(sivep_full$CO_MUN_RES)) 
@@ -669,122 +476,4 @@ df_covid <- sivep_full %>%
   filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & (EVOLUCAO == "Óbito" | HOSPITAL == "Sim")) %>% 
   reframe(CLASSI_FIN, id_municipio = as.character(CO_MUN_RES), DT_SIN_PRI, EVOLUCAO, HOSPITAL)
 saveRDS(df_covid, paste0(data_dir, "/intermediary/covid_day_data.rds"))
-
-### Creating Outcome Variables ----------------------------------------------
-
-
-sivep_2020 <- sivep_full %>%
-  filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & DT_SIN_PRI >= start_date_covid_2016 & DT_SIN_PRI <= end_date_covid_2016) %>%
-  group_by(CO_MUN_RES) %>%
-  summarise(deaths = sum(EVOLUCAO == "Óbito", na.rm = TRUE),
-            hosp = sum(HOSPITAL == "Sim", na.rm = TRUE),
-            coorte = 2016) %>%
-  arrange(desc(deaths)) 
-
-sivep_2021 <- sivep_full %>%
-  filter((CLASSI_FIN == "SRAG COVID-19") & DT_SIN_PRI > end_date_covid_2016 & DT_SIN_PRI <= end_date_covid_2020) %>% 
-  group_by(CO_MUN_RES) %>%
-  summarise(deaths = sum(EVOLUCAO == "Óbito", na.rm = TRUE),
-            hosp = sum(HOSPITAL == "Sim", na.rm = TRUE),
-            coorte = 2020) %>%
-  arrange(desc(deaths)) 
-
-
-sivep <- bind_rows(sivep_2020, sivep_2021) # joining coortes
-
-### Creating MONTHLY Outcome Variables ----------------------------------------------
-
-# Adding month variable to the full dataset
-sivep_full <- sivep_full %>%
-  mutate(month = format(DT_SIN_PRI, "%Y-%m"))
-
-sivep_2020_monthly <- sivep_full %>%
-  filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & DT_SIN_PRI >= start_date_covid_2016 & DT_SIN_PRI <= end_date_covid_2016) %>%
-  group_by(CO_MUN_RES, month) %>%
-  summarise(deaths = sum(EVOLUCAO == "Óbito", na.rm = TRUE),
-            hosp = sum(HOSPITAL == "Sim", na.rm = TRUE),
-            coorte = 2016,
-            .groups = 'drop') %>%
-  arrange(CO_MUN_RES, month) 
-
-sivep_2021_monthly <- sivep_full %>%
-  filter((CLASSI_FIN == "SRAG COVID-19") & DT_SIN_PRI > end_date_covid_2016 & DT_SIN_PRI <= end_date_covid_2020) %>% 
-  group_by(CO_MUN_RES, month) %>%
-  summarise(deaths = sum(EVOLUCAO == "Óbito", na.rm = TRUE),
-            hosp = sum(HOSPITAL == "Sim", na.rm = TRUE),
-            coorte = 2020,
-            .groups = 'drop') %>%
-  arrange(CO_MUN_RES, month) 
-
-sivep_monthly <- bind_rows(sivep_2020_monthly, sivep_2021_monthly) # joining coortes monthly data
-rm(sivep_2020_monthly, sivep_2021_monthly)
-
-sivep <- bind_rows(sivep_2020, sivep_2021) # joining coortes
-rm(sivep_2020, sivep_2021)
-sivep <- sivep %>% 
-  rename(id_municipio = CO_MUN_RES)
-sivep <- sivep %>% 
-  rename(deaths_sivep = deaths, hosp_sivep = hosp)
-
-sivep <- sivep %>% # changing data type
-  mutate(id_municipio = as.character(id_municipio))
-
-
-sivep <- sivep %>% # creating delta outcomes
-  group_by(id_municipio) %>% 
-  arrange(coorte) %>% 
-  mutate(delta_deaths_sivep = deaths_sivep - lag(deaths_sivep, n = 1, default = NA),
-         delta_hosp_sivep = hosp_sivep - lag(hosp_sivep, n = 1, default = NA)) %>% 
-  arrange(desc(coorte))
-
-# Processing monthly data
-sivep_monthly <- sivep_monthly %>% 
-  rename(id_municipio = CO_MUN_RES)
-sivep_monthly <- sivep_monthly %>% 
-  rename(deaths_sivep = deaths, hosp_sivep = hosp)
-
-sivep_monthly <- sivep_monthly %>% # changing data type
-  mutate(id_municipio = as.character(id_municipio))
-
-# Merging with population data
-
-df_population <- read.csv2(paste0(data_dir, "/raw/populacao.csv"), sep = ",") # source: https://iepsdata.org.br/data-downloads
-
-## merging year of population with coorte
-df_population <- df_population %>%
-  mutate(coorte = recode(ano, '2020' = '2016', '2021' = '2020')) %>% 
-  summarise(coorte = as.double(coorte), populacao, id_municipio = as.character(id_municipio), sigla_uf)
-
-sivep <- sivep %>% 
-  ungroup()
-
-sivep <- left_join(sivep, df_population, by = c("id_municipio", "coorte"))
-
-
-# Creating outcome variables
-
-sivep <- sivep %>% 
-  dplyr::group_by(id_municipio, coorte) %>%
-  dplyr::mutate(hosp_per_100k_inhabitants = (hosp_sivep / populacao) * 100000,
-                deaths_sivep_per_100k_inhabitants = (deaths_sivep / populacao) * 100000) %>% 
-  ungroup()
-
-# Merging population data with monthly dataset
-sivep_monthly <- left_join(sivep_monthly, df_population, by = c("id_municipio", "coorte"))
-
-# Creating outcome variables for monthly data
-sivep_monthly <- sivep_monthly %>% 
-  dplyr::group_by(id_municipio, coorte, month) %>%
-  dplyr::mutate(hosp_per_100k_inhabitants = (hosp_sivep / populacao) * 100000,
-                deaths_sivep_per_100k_inhabitants = (deaths_sivep / populacao) * 100000) %>% 
-  ungroup()
-
-
-
-# Saving
-
-rm(sivep_full)
-
-saveRDS(sivep, paste0(data_dir, "/intermediary/covid_data.rds"))
-saveRDS(sivep_monthly, paste0(data_dir, "/intermediary/covid_data_monthly.rds"))
-
+saveRDS(sivep_full, paste0(data_dir, "/intermediary/sivep_full.rds"))
