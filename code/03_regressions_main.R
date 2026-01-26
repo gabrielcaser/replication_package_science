@@ -399,7 +399,9 @@ mr3 <- modelsummary(
 ## Different windows -----------------------------------------------------
 
 df_robs_hosp      <- robust_check(df$Y_hosp,                       1, covs_full, k, df$X)
+df_robs_hosp_2    <- robust_check(df$Y_hosp,                       2, covs_full, k, df$X)
 df_robs_deaths    <- robust_check(df$Y_deaths_sivep,               1, covs_full, k, df$X)
+df_robs_deaths_2  <- robust_check(df$Y_deaths_sivep,               2, covs_full, k, df$X)
 df_robs_nfi       <- robust_check(df$total_nfi,                    1, covs_full, k, df$X)
 df_robs_masks     <- robust_check(df$mascaras,                     1, covs_full, k, df$X)
 df_robs_trans_pub <- robust_check(df$restricao_transporte_publico, 1, covs_full, k, df$X)
@@ -436,6 +438,19 @@ plot_hosp_robs <- ggplot(df_robs_hosp, aes(x = bw, y = coef_conv)) +
   geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
   theme_clean
 
+plot_hosp_robs_2 <- ggplot(df_robs_hosp_2, aes(x = bw, y = coef_conv)) +
+  geom_point(na.rm = TRUE) +
+  xlim(0.00, 0.24) +
+  ylab("") +
+  xlab("bandwidth") +
+  theme(axis.title = element_text(size = 12),
+        title = element_text(size = 12)) +
+  ggtitle("(d) COVID-19 hospitalizations") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
+
 
 plot_hosp_robs <- add_optimal_point(plot_hosp_robs, df_robs_hosp, optimal_bw_hosp)
 
@@ -454,11 +469,26 @@ plot_deaths_robs <- ggplot(df_robs_deaths, aes(x = bw, y = coef_conv)) +
 
 plot_deaths_robs <- add_optimal_point(plot_deaths_robs, df_robs_deaths, optimal_bw)
 
+plot_deaths_robs_2 <- ggplot(df_robs_deaths_2, aes(x = bw, y = coef_conv)) +
+  geom_point(na.rm = TRUE) +
+  xlim(0.00, 0.24) +
+  ylab("") +
+  xlab("bandwidth") +
+  theme(axis.title = element_text(size = 12),
+        title = element_text(size = 12)) +
+  ggtitle("(c) COVID-19 deaths") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
+
+
+
 # Combinar gráficos de hospitalizações e mortes
-graficos_juntos <- plot_deaths_robs / plot_hosp_robs
+graficos_juntos <- (plot_deaths_robs + plot_deaths_robs_2) / (plot_hosp_robs + plot_hosp_robs_2)
 
 ggsave("outputs/figures/robust_outcomes.png", graficos_juntos,
-       width = 5.50, height = 5.00, units = "in")
+       width = 11.00, height = 5.00, units = "in")
 
 # Gráficos de NPIs
 plot_nfi_robs <- ggplot(df_robs_nfi, aes(x = bw, y = coef_conv)) +
