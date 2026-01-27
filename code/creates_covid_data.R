@@ -478,3 +478,4 @@ df_covid <- sivep_full %>%
   reframe(CLASSI_FIN, id_municipio = as.character(CO_MUN_RES), DT_SIN_PRI, EVOLUCAO, HOSPITAL)
 saveRDS(df_covid, paste0(data_dir, "/intermediary/covid_day_data.rds"))
 
+rm(sivep_full, df_covid)
