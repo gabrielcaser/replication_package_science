@@ -471,9 +471,10 @@ length(unique(sivep_full$CO_MUN_RES))
 
 ### Saving ------------------------------------------------------------------
 
+saveRDS(sivep_full, paste0(data_dir, "/intermediary/sivep_full.rds"))
 
 df_covid <- sivep_full %>%
   filter((CLASSI_FIN == "SRAG COVID-19" | CLASSI_FIN == "SRAG não especificado") & (EVOLUCAO == "Óbito" | HOSPITAL == "Sim")) %>% 
   reframe(CLASSI_FIN, id_municipio = as.character(CO_MUN_RES), DT_SIN_PRI, EVOLUCAO, HOSPITAL)
 saveRDS(df_covid, paste0(data_dir, "/intermediary/covid_day_data.rds"))
-saveRDS(sivep_full, paste0(data_dir, "/intermediary/sivep_full.rds"))
+
