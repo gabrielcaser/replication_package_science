@@ -23,6 +23,7 @@ library('rdhte')        # heterogeneous treatment effects in rdd
 library('sandwich')     # robust standard errors
 library('lmtest')       # coeftest function
 library('lfe')          # high-dimensional fixed effects
+library('data.table')   # to handle large data
 
 # Setting -----------------------------------------------------------------
 output_dir                     = paste0(getwd(),"/outputs")
@@ -49,18 +50,18 @@ data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definitio
 # 1. Create baseline data (health, ideology, political, npi, density, STEM classification)
 #source("code/creates_baseline_data.R")
 
-# 2. Create COVID data (requires large raw files - not on Github)
-#source("code/creates_covid_data.R")
+# 2. Create COVID data 
+#source("code/creates_covid_data.R") (requires large raw files -> contact authors for access)
 source("code/construct_covid_outcomes.R")
 
 # 3. Create final RDD dataset
-#source("code/01_create_dataset.R")
+source("code/01_create_dataset.R")
 
 # 4. Generate summary statistics
 #source("code/02_sum_stats.R")
 
 # 5. Run main regressions
-#source("code/03_regressions_main.R")
+source("code/03_regressions_main.R")
 
 # 6. Run moderation analysis
 #source("code/04_regressions_moderation.R")

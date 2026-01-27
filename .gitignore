@@ -20,3 +20,4 @@ data/raw/230831_srag_base_oficial_2021.csv
 data/intermediary/sivep_2020.rds
 data/intermediary/sivep_2021.rds
 data/intermediary/sivep_full.rds
+data/intermediary/sivep_full.parquet
