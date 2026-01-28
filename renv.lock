@@ -157,6 +157,28 @@
       ],
       "Hash": "5e839855647f3223785c408f9c20b60d"
     },
+    "arrow": {
+      "Package": "arrow",
+      "Version": "23.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "R6",
+        "assertthat",
+        "bit64",
+        "cpp11",
+        "glue",
+        "methods",
+        "purrr",
+        "rlang",
+        "stats",
+        "tidyselect",
+        "utils",
+        "vctrs"
+      ],
+      "Hash": "e94bed282e0305c7b74ddb0e2578723b"
+    },
     "askpass": {
       "Package": "askpass",
       "Version": "1.2.1",
@@ -166,6 +188,16 @@
         "sys"
       ],
       "Hash": "c39f4155b3ceb1a9a2799d700fbd4b6a"
+    },
+    "assertthat": {
+      "Package": "assertthat",
+      "Version": "0.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "tools"
+      ],
+      "Hash": "50c838a310445e954bc13f26f26a6ecf"
     },
     "backports": {
       "Package": "backports",
@@ -1080,6 +1112,24 @@
       ],
       "Hash": "934f30aea6442867f57a610034ab06d3"
     },
+    "lfe": {
+      "Package": "lfe",
+      "Version": "3.1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "Formula",
+        "Matrix",
+        "R",
+        "compiler",
+        "methods",
+        "parallel",
+        "sandwich",
+        "utils",
+        "xtable"
+      ],
+      "Hash": "cecbb9d585c9e3fd0a5d219fcb8ddc74"
+    },
     "lifecycle": {
       "Package": "lifecycle",
       "Version": "1.0.4",
@@ -1870,17 +1920,6 @@
       ],
       "Hash": "8f138ff2c8fbea9e0a523f6c399c0386"
     },
-    "stargazer": {
-      "Package": "stargazer",
-      "Version": "5.2.3",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "stats",
-        "utils"
-      ],
-      "Hash": "d313fa83180f3376229f98633813cd31"
-    },
     "stringi": {
       "Package": "stringi",
       "Version": "1.8.7",
@@ -2263,6 +2302,18 @@
         "rlang"
       ],
       "Hash": "f5130b2f3d461964bac93cc618013231"
+    },
+    "xtable": {
+      "Package": "xtable",
+      "Version": "1.8-4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "stats",
+        "utils"
+      ],
+      "Hash": "b8acdf8af494d9ec19ccb2481a9b11c2"
     },
     "yaml": {
       "Package": "yaml",
