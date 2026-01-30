@@ -255,6 +255,30 @@ modelsummary(
   )
 )
 
+# Creating table hosps
+modelsummary(
+  models_death,
+  estimate = "{estimate}",
+  statistic = c("[{std.error}]", "{p.value}{stars}"),
+  coef_rename = c("Robust" = "RD estimator"),
+  stars = c('*' = .1, '**' = .05, '***' = .01),
+  fmt = 2,
+  #output = "outputs/tables/estimates.png",
+  output = "outputs/tables/estimates_hosp.tex",
+  title = "Impact of STEM Leadership on Hospitalizations — RD estimates",
+  coef_omit = "Corrected|Conventional",
+  coef_map = NULL,
+  add_rows = data.frame(
+    term = "Type of Bandwidth",
+    `Model 1` = "Optimal",
+    `Model 2` = "Fixed",
+    `Model 3` = "Fixed",
+    `Model 4` = "Fixed",
+    `Model 5` = "Fixed",
+    check.names = FALSE
+  )
+)
+
 # Baseline table
 
 renda_pc                <- rdrobust(df$renda_pc,                 df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covs_base, h = optimal_bw)

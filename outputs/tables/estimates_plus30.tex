@@ -1,0 +1,22 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Impact of STEM Leadership on Deaths — RD estimates (plus30)},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{5}={1,2,3,4,5,6}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& (1) & (2) & (3) & (4) & (5) \\ \midrule %% TinyTableHeader
+RD estimator & \num{-40.61} & \num{-92.51} & \num{-76.76} & \num{-81.94} & \num{-11.24} \\
+& [\num{30.65}] & [\num{27.49}] & [\num{30.00}] & [\num{27.21}] & [\num{18.92}] \\
+& \num{0.19} & \num{<0.01}*** & \num{0.01}** & \num{<0.01}*** & \num{0.55} \\
+Eff.N.obs. & 99 & 47 & 50 & 57 & 192 \\
+Bandwidth & 15.5\% & 7\% & 8\% & 9\% & 100\% \\
+Type of Bandwidth & Optimal & Fixed & Fixed & Fixed & Fixed \\
+\bottomrule
+\end{talltblr}
+\end{table}
