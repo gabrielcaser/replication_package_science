@@ -1,8 +1,27 @@
 # Program - This program merges all data to create the rdd dataset 
 
+# Define the COVID data files to use
+covid_files <- c(
+  "covid_data_minus_30days.rds",
+  "covid_data_minus_15days.rds",
+  "covid_data.rds",
+  "covid_data_plus_15days.rds",
+  "covid_data_plus_30days.rds"
+)
+
+# Define suffixes for output files
+covid_suffixes <- c("minus30", "minus15", "original", "plus15", "plus30")
 
 # Loop to run code with different definitions of "stem_background"
 for (definition in c("strict", "broad")) {
+  
+  # Loop through each COVID data version
+  for (covid_idx in 1:length(covid_files)) {
+    
+    covid_file <- covid_files[covid_idx]
+    covid_suffix <- covid_suffixes[covid_idx]
+    
+    print(paste0("Processing definition: ", definition, " with COVID data: ", covid_file))
   
   # Mayors Data ----------------------------------------------------
   
@@ -130,7 +149,7 @@ for (definition in c("strict", "broad")) {
   
   # Covid Data --------------------------------------------------------------
   
-  df_covid <- readRDS(paste0(data_dir, "/intermediary/covid_data.Rds"))
+  df_covid <- readRDS(paste0(data_dir, "/intermediary/", covid_file))
   
   df_covid <- df_covid %>% 
     dplyr::ungroup()
@@ -366,10 +385,14 @@ for (definition in c("strict", "broad")) {
 
   # Saving ------------------------------------------------------------------
   
-  saveRDS(df, file = paste0("data/final/rdd_data_all_", definition, "_definition.rds", sep = ""))
-  saveRDS(df_2016, file = paste0("data/final/rdd_data_all_2016_", definition, "_definition.rds", sep = ""))
-  saveRDS(df_2020, file = paste0("data/final/rdd_data_all_2020_", definition, "_definition.rds", sep = ""))
-  saveRDS(df_college_mayors_only, file = paste0("data/final/rdd_data_college_mayors_only_", definition, "_definition.rds", sep = ""))
-  saveRDS(df_college_mayors_only_2016, file = paste0("data/final/rdd_data_college_mayors_only_2016_", definition, "_definition.rds", sep = ""))
+  saveRDS(df, file = paste0("data/final/rdd_data_all_", definition, "_definition_", covid_suffix, ".rds", sep = ""))
+  saveRDS(df_2016, file = paste0("data/final/rdd_data_all_2016_", definition, "_definition_", covid_suffix, ".rds", sep = ""))
+  saveRDS(df_2020, file = paste0("data/final/rdd_data_all_2020_", definition, "_definition_", covid_suffix, ".rds", sep = ""))
+  saveRDS(df_college_mayors_only, file = paste0("data/final/rdd_data_college_mayors_only_", definition, "_definition_", covid_suffix, ".rds", sep = ""))
+  saveRDS(df_college_mayors_only_2016, file = paste0("data/final/rdd_data_college_mayors_only_2016_", definition, "_definition_", covid_suffix, ".rds", sep = ""))
   #write.csv(df_college_mayors_only_2016, file = paste0("data/final/rdd_data_college_mayors_only_2016_", definition, "_definition.csv"), row.names = FALSE, na = ".")
+  
+  print(paste0("Saved datasets for definition: ", definition, " with suffix: ", covid_suffix))
+  
+  } # End of COVID data loop
 }

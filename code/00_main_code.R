@@ -48,26 +48,30 @@ data             = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem
 data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definition, "_definition.Rds")
 
 # Running scripts ---------------------------------------------------------
-# 1. Create baseline data (health, ideology, political, npi, density, STEM classification)
-source("code/creates_baseline_data.R")
+# Create baseline data (health, ideology, political, npi, density, STEM classification)
+#source("code/creates_baseline_data.R")
 
-# 2. Create COVID data 
+# Create COVID data 
 source("code/creates_covid_data.R") #(requires large raw files -> contact authors for access)
+source("code/construct_covid_data.R")
 
-# 3. Create final RDD dataset
+# Create final RDD dataset
 source("code/01_create_dataset.R")
 
-# 4. Generate summary statistics
-source("code/02_sum_stats.R")
+# Generate summary statistics
+#source("code/02_sum_stats.R")
 
-# 5. Run main regressions
+# Run main regressions
 source("code/03_regressions_main.R")
 
-# 6. Run moderation analysis
-source("code/04_regressions_moderation.R")
+# Run moderation analysis
+#source("code/04_regressions_moderation.R")
 
-# 8. Generate LaTeX parameters
-source("code/05_parameters_latexR.R")
+# Generate LaTeX parameters
+#source("code/05_parameters_latexR.R")
+
+# Create robustness tables
+#soruce(code/06_robustness.R)
 
 print("All tables and figures have been reproduced and saved in the outputs folder.")
 # End of code -------------------------------------------------------------
