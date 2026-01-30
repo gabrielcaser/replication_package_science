@@ -257,7 +257,7 @@ modelsummary(
 
 # Creating table hosps
 modelsummary(
-  models_death,
+  models_hosp,
   estimate = "{estimate}",
   statistic = c("[{std.error}]", "{p.value}{stars}"),
   coef_rename = c("Robust" = "RD estimator"),
