@@ -224,13 +224,16 @@ run_rdrobust_models <- function(df, state.d, year.d, poli, k, janela, outcome, p
 }
 
 # Running model for this specification
-models_death <- run_rdrobust_models(df, state.d, year.d, poli, k, janela, df$Y_deaths_sivep)
-models_hosp  <- run_rdrobust_models(df, state.d, year.d, poli, k, janela, df$Y_hosp)
+models_death   <- run_rdrobust_models(df, state.d, year.d, poli, k, janela, df$Y_deaths_sivep)
+models_death_2 <- run_rdrobust_models(df, state.d, year.d, poli + 1, k, janela, df$Y_deaths_sivep)
+models_hosp    <- run_rdrobust_models(df, state.d, year.d, poli, k, janela, df$Y_hosp)
+models_hosp_2  <- run_rdrobust_models(df, state.d, year.d, poli + 1, k, janela, df$Y_hosp)
 
 # Extract optimal bandwidths for each panel (for reference or reporting)
 optimal_bw       <- models_death[[1]]$bws[[1]]
+optimal_bw2      <- models_death_2[[1]]$bws[[1]]
 optimal_bw_hosp  <- models_hosp[[1]]$bws[[1]]
-
+optimal_bw_hosp2 <- models_hosp_2[[1]]$bws[[1]]
 # Creating table death
 modelsummary(
   models_death,
@@ -242,6 +245,28 @@ modelsummary(
   #output = "outputs/tables/estimates.png",
   output = "outputs/tables/estimates.tex",
   title = "Impact of STEM Leadership on Deaths — RD estimates",
+  coef_omit = "Corrected|Conventional",
+  coef_map = NULL,
+  add_rows = data.frame(
+    term = "Type of Bandwidth",
+    `Model 1` = "Optimal",
+    `Model 2` = "Fixed",
+    `Model 3` = "Fixed",
+    `Model 4` = "Fixed",
+    `Model 5` = "Fixed",
+    check.names = FALSE
+  )
+)
+
+modelsummary(
+  models_death_2,
+  estimate = "{estimate}",
+  statistic = c("[{std.error}]", "{p.value}{stars}"),
+  coef_rename = c("Robust" = "RD estimator"),
+  stars = c('*' = .1, '**' = .05, '***' = .01),
+  fmt = 2,
+  output = "outputs/tables/estimates_quadratic.tex",
+  title = "Impact of STEM Leadership on Deaths — RD estimates (quadratic equation)",
   coef_omit = "Corrected|Conventional",
   coef_map = NULL,
   add_rows = data.frame(
@@ -279,6 +304,28 @@ modelsummary(
   )
 )
 
+modelsummary(
+  models_hosp_2,
+  estimate = "{estimate}",
+  statistic = c("[{std.error}]", "{p.value}{stars}"),
+  coef_rename = c("Robust" = "RD estimator"),
+  stars = c('*' = .1, '**' = .05, '***' = .01),
+  fmt = 2,
+  #output = "outputs/tables/estimates.png",
+  output = "outputs/tables/estimates_hosp_quadratic.tex",
+  title = "Impact of STEM Leadership on Hospitalizations — RD estimates (quadratic equation)",
+  coef_omit = "Corrected|Conventional",
+  coef_map = NULL,
+  add_rows = data.frame(
+    term = "Type of Bandwidth",
+    `Model 1` = "Optimal",
+    `Model 2` = "Fixed",
+    `Model 3` = "Fixed",
+    `Model 4` = "Fixed",
+    `Model 5` = "Fixed",
+    check.names = FALSE
+  )
+)
 # Baseline table
 
 renda_pc                <- rdrobust(df$renda_pc,                 df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covs_base, h = optimal_bw)

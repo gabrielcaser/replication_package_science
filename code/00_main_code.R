@@ -59,7 +59,7 @@ source("code/construct_covid_data.R")
 source("code/01_create_dataset.R")
 
 # Generate summary statistics
-source("code/02_sum_stats.R")
+#source("code/02_sum_stats.R")
 
 # Run main regressions
 source("code/03_regressions_main.R")
