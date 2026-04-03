@@ -294,7 +294,7 @@ dev.off()
 
 ## Figures for STEM candidates ---------------------------------------------------------
 
-### Main occupations
+### Main occupations (RAIS occupations)
 
 profi <- df %>% 
   filter(stem_background == 1) %>%
@@ -304,16 +304,13 @@ profi <- df %>%
   slice_max(order_by = percentage, n = 10) %>%
   arrange(desc(percentage))
 
-
 library(forcats)
 
-# Ordering
 profi <- profi %>%
   mutate(cbo_agregado_nome_caser.laverde.rothwell = fct_reorder(
     cbo_agregado_nome_caser.laverde.rothwell, percentage, .desc = FALSE
   ))
 
-# Creating the plot
 p <- ggplot(profi, aes(y = cbo_agregado_nome_caser.laverde.rothwell, x = percentage)) +
   geom_bar(pattern = "occupation", stat = "identity") +
   geom_text(aes(label = sprintf("%.0f%%", percentage)), 
@@ -342,6 +339,159 @@ ggsave(
   dpi = 600 
 )
 
+
+### Main occupations (TSE occupations)
+
+# Ensure variable exists and non-missing values
+if(!"ocupacao" %in% names(df)) stop("A variável 'ocupacao' não existe em df")
+
+# Compute shares by STEM status
+# Translate occupation labels to English (manual mapping for common Portuguese terms)
+occupation_mapper <- c(
+  "prefeito" = "Mayor",
+  "engenheiro" = "Engineer",
+  "médico" = "Doctor",
+  "professor" = "Teacher",
+  "professor de ensino medio" = "High School Teacher",
+  "servidor publico municipal" = "Municipal Public Servant",
+  "servidor publico estadual" = "State Public Servant",
+  "advogado" = "Lawyer",
+  "administrador" = "Administrator",
+  "empresario" = "Businessperson",
+  "técnico" = "Technician",
+  "agricultor" = "Farmer",
+  "pecuarista" = "Rancher",
+  "aposentado (exceto servidor publico)" = "Retired"
+)
+
+translate_occupation <- function(oc) {
+  oc_lower <- tolower(oc)
+  oc_trans <- occupation_mapper[oc_lower]
+  oc_trans[is.na(oc_trans)] <- oc[is.na(oc_trans)]
+  oc_trans
+}
+
+df_ocup <- df %>%
+  filter(!is.na(ocupacao)) %>%
+  group_by(stem_background, ocupacao) %>%
+  summarise(number = n(), .groups = "drop") %>%
+  group_by(stem_background) %>%
+  mutate(percentage = 100 * number / sum(number)) %>%
+  ungroup() %>%
+  mutate(ocupacao_en = translate_occupation(ocupacao))
+
+# Optional: verify all top labels are translated for debugging
+untranslated_ocup <- df_ocup %>%
+  distinct(ocupacao, ocupacao_en) %>%
+  filter(ocupacao == ocupacao_en)
+if(nrow(untranslated_ocup) > 0) {
+  message("Untranslated occupations detected (objects kept in Portuguese):")
+  print(untranslated_ocup)
+}
+
+# Top 5 STEM occupations
+top5_stem <- df_ocup %>%
+  filter(stem_background == 1) %>%
+  slice_max(order_by = percentage, n = 5) %>%
+  arrange(desc(percentage))
+
+# Top 5 non-STEM occupations
+top5_non_stem <- df_ocup %>%
+  filter(stem_background == 0) %>%
+  slice_max(order_by = percentage, n = 5) %>%
+  arrange(desc(percentage))
+
+# Plot function for top 5
+plot_top5 <- function(df_plot, title, file, fill_color = "steelblue") {
+  df_plot <- df_plot %>%
+    mutate(ocupacao_en = fct_reorder(ocupacao_en, percentage, .desc = FALSE))
+
+  # Title: passed in `title` argument, but not displayed in chart (removed per request)
+  p <- ggplot(df_plot, aes(y = ocupacao_en, x = percentage)) +
+    geom_col(fill = fill_color) +
+    geom_text(aes(label = sprintf("%.1f%%", percentage)),
+              hjust = -0.1,
+              size = 4,
+              fontface = "bold") +
+    labs(x = NULL, y = NULL) +
+    # original title for reference:
+    # title = title
+    theme_minimal(base_size = 14) +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank()) +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.1)))
+
+  ggsave(filename = file,
+         plot = p,
+         height = 4.5,
+         width = 10,
+         dpi = 600)
+}
+
+plot_top5(top5_stem,
+          "Top 5 Occupations of STEM Candidates",
+          paste0(output_dir, "/figures/barplot_ocupacao_stem_top5.png"),
+          fill_color = "steelblue")
+
+plot_top5(top5_non_stem,
+          "Top 5 Occupations of Non-STEM Candidates",
+          paste0(output_dir, "/figures/barplot_ocupacao_nonstem_top5.png"),
+          fill_color = "grey70")
+
+# Combined plot: união das principais ocupações de ambos os grupos
+top_ocupacoes <- union(top5_stem$ocupacao, top5_non_stem$ocupacao)
+
+df_combined <- df_ocup %>%
+  filter(ocupacao %in% top_ocupacoes) %>%
+  mutate(stem_group = ifelse(stem_background == 1, "STEM", "Non-STEM"))
+
+# Order occupations by STEM share asc (smallest STEM at top of the plot)
+stem_order <- df_combined %>%
+  filter(stem_group == "STEM") %>%
+  arrange(percentage) %>%
+  pull(ocupacao_en)
+
+# Ensure all occupations appear; put STEM-ranked first, then any remaining
+total_levels <- c(unique(stem_order), setdiff(unique(df_combined$ocupacao_en), stem_order))
+
+df_combined <- df_combined %>%
+  mutate(
+    stem_group = factor(stem_group, levels = c("Non-STEM", "STEM")),
+    ocupacao_en = factor(ocupacao_en, levels = total_levels)
+  )
+
+p_combined <- ggplot(df_combined, aes(y = ocupacao_en, x = percentage, fill = stem_group)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  geom_text(aes(label = sprintf("%.1f%%", percentage)),
+            position = position_dodge(width = 0.8),
+            hjust = -0.1,
+            size = 3.5,
+            fontface = "bold") +
+  # Title removed (for clean output as requested); keep in code comment below
+  # Title would be: "Side by side comparison (STEM vs Non-STEM)"
+  labs(x = NULL, y = NULL, fill = "Group") +
+  theme_minimal(base_size = 14) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.title = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y = element_text(size = 11, color = "black"),
+        axis.ticks.y = element_blank()) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
+  scale_fill_manual(
+    values = c("STEM" = "steelblue", "Non-STEM" = "grey70"),
+    breaks = c("Non-STEM", "STEM")
+  ) +
+  coord_cartesian(clip = "off")
+
+ggsave(filename = paste0(output_dir, "/figures/barplot_ocupacao_stem_vs_nonstem.png"),
+       plot = p_combined,
+       height = 5.5,
+       width = 12,
+       dpi = 600)
 
 
 ### getting all Brazilian municipalities
