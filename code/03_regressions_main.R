@@ -329,6 +329,15 @@ modelsummary(
 )
 
 # Placebo tables for candidate outcomes
+# Load 2015 data for placebo
+df_2015 <- readRDS(paste0(data_dir, "/intermediary/2015_data.rds"))
+
+# Merge with df
+df$Y_deaths_2015 <- df_2015$deaths_sivep_per_100k_inhabitants_2015[match(df$id_municipio, df_2015$id_municipio)]
+df$Y_hosp_2015 <- df_2015$hosp_per_100k_inhabitants_2015[match(df$id_municipio, df_2015$id_municipio)]
+df$Y_deaths_2015[is.na(df$Y_deaths_2015)] <- 0
+df$Y_hosp_2015[is.na(df$Y_hosp_2015)] <- 0
+
 placebo_outcomes <- list(
   df$renda_pc,
   log(df$populacao),
@@ -336,16 +345,20 @@ placebo_outcomes <- list(
   df$densidade,
   df$per_populacao_homens,
   df$pct_desp_recp_saude_mun,
-  df$tx_med_ch
+  df$tx_med_ch,
+  df$Y_deaths_2015,
+  df$Y_hosp_2015
 )
 placebo_titles <- c(
   "Per capita income (2015)",
-  "Log Population",
-  "HDI",
-  "Density",
-  "% Male Population",
-  "% Health spending",
-  "Doctors"
+  "Log Population (2015)",
+  "HDI (2015)",
+  "Density (2015)",
+  "% Male Population (2015)",
+  "% Health spending (2015)",
+  "Doctors (2015)",
+  "Deaths by SRAG (2015)",
+  "Hospitalizations by SRAG (2015)"
 )
 placebo_files <- c(
   "outputs/tables/estimates_placebo_renda_pc.tex",
@@ -354,7 +367,9 @@ placebo_files <- c(
   "outputs/tables/estimates_placebo_density.tex",
   "outputs/tables/estimates_placebo_male_population.tex",
   "outputs/tables/estimates_placebo_health_spending.tex",
-  "outputs/tables/estimates_placebo_doctors.tex"
+  "outputs/tables/estimates_placebo_doctors.tex",
+  "outputs/tables/estimates_placebo_deaths_2015.tex",
+  "outputs/tables/estimates_placebo_hosp_2015.tex"
 )
 
 for (i in seq_along(placebo_outcomes)) {

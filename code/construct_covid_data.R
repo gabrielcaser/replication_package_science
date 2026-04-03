@@ -85,4 +85,80 @@ for (days_adjustment in date_adjustments) {
 }
 
 # Clean up
-rm(sivep_full, df_population, sivep)
+rm(sivep_full, sivep)
+
+# Process 2015 data for placebo
+library(bigrquery)
+project_id <- "econometria-314719"
+
+query_2015 <- "
+SELECT 
+  id_municipio_6_notificacao AS id_municipio,
+  data_primeiros_sintomas AS DT_SIN_PRI,
+  evolucao_caso AS EVOLUCAO,
+  internacao AS HOSPITAL,
+  classificacao_final AS CLASSI_FIN
+FROM `basedosdados.br_ms_sinan.microdados_influenza_srag`
+WHERE ano = 2015
+"
+
+sivep_2015_full <- bq_table_download(bq_project_query(project_id, query_2015))
+
+# Process similar to COVID
+sivep_2015_full <- sivep_2015_full %>%
+  mutate(CLASSI_FIN = recode(CLASSI_FIN,
+                             "1" = "Influenza",
+                             "2" = "Outros vírus",
+                             "3" = "Outros agentes",
+                             "4" = "Não especificado",
+                             "5" = "COVID-19",
+                             .default = as.character(CLASSI_FIN)
+  )) %>%
+  mutate(EVOLUCAO = recode(EVOLUCAO,
+                           "1" = "Cura",
+                           "2" = "Óbito",
+                           "3" = "Óbito por outras causas",
+                           "9" = "Ignorado",
+                           .default = as.character(EVOLUCAO)
+  )) %>%
+  mutate(HOSPITAL = recode(HOSPITAL,
+                           "1" = "Sim",
+                           "2" = "Não",
+                           "9" = "Ignorado",
+                           .default = as.character(HOSPITAL)
+  )) %>%
+  mutate(EVOLUCAO = replace_na(EVOLUCAO, "Em andamento")) %>%
+  mutate(id_municipio = as.character(id_municipio))
+
+# Aggregate for 2015 data (for placebo, assign to coorte 2016)
+sivep_2015 <- sivep_2015_full %>%
+  filter(EVOLUCAO == "Óbito" | HOSPITAL == "Sim") %>%
+  group_by(id_municipio) %>%
+  summarise(deaths = sum(EVOLUCAO == "Óbito", na.rm = TRUE),
+            hosp = sum(HOSPITAL == "Sim", na.rm = TRUE),
+            coorte = 2016) %>%  # Assign to 2016 for placebo
+  arrange(desc(deaths))
+
+# Rename columns
+sivep_2015 <- sivep_2015 %>% 
+  rename(deaths_sivep = deaths, hosp_sivep = hosp)
+
+# Create delta outcomes (though not used for placebo)
+sivep_2015 <- sivep_2015 %>%
+  mutate(delta_deaths_sivep = deaths_sivep,
+         delta_hosp_sivep = hosp_sivep)
+
+# Merge with population data (use 2020 population for 2015, as approximation)
+df_population_2015 <- df_population %>% filter(coorte == 2016)  # Use 2016 population
+sivep_2015 <- left_join(sivep_2015, df_population_2015, by = c("id_municipio", "coorte"))
+
+# Create outcome variables per 100k inhabitants
+sivep_2015 <- sivep_2015 %>% 
+  mutate(hosp_per_100k_inhabitants_2015 = (hosp_sivep / populacao) * 100000,
+         deaths_sivep_per_100k_inhabitants_2015 = (deaths_sivep / populacao) * 100000)
+
+# Save
+saveRDS(sivep_2015, paste0(data_dir, "/intermediary/2015_data.rds"))
+
+# Clean up
+rm(sivep_2015_full, sivep_2015, df_population_2015)

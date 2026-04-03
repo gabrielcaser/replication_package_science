@@ -25,6 +25,7 @@ library('lmtest')       # coeftest function
 library('lfe')          # high-dimensional fixed effects
 library('data.table')   # to handle large data
 library('arrow')        # to read parquet files
+library('bigrquery')    # to access BigQuery
 
 # Setting -----------------------------------------------------------------
 output_dir                     = paste0(getwd(),"/outputs")
