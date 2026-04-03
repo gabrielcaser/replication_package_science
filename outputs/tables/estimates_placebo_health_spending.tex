@@ -1,0 +1,22 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Placebo: \% Health spending (One year before election) — RD estimates},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{5}={1,2,3,4,5,6}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& (1) & (2) & (3) & (4) & (5) \\ \midrule %% TinyTableHeader
+RD estimator & \num{2.23} & \num{1.32} & \num{0.69} & \num{1.17} & \num{0.59} \\
+& [\num{1.25}] & [\num{1.43}] & [\num{1.33}] & [\num{1.25}] & [\num{0.62}] \\
+& \num{0.07}* & \num{0.35} & \num{0.60} & \num{0.35} & \num{0.34} \\
+Eff.N.obs. & 142 & 96 & 107 & 121 & 413 \\
+Bandwidth & 10.41\% & 7\% & 8\% & 9\% & 100\% \\
+Type of Bandwidth & Optimal & Fixed & Fixed & Fixed & Fixed \\
+\bottomrule
+\end{talltblr}
+\end{table}

@@ -1,0 +1,22 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Placebo: Density (One year before election) — RD estimates},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{5}={1,2,3,4,5,6}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& (1) & (2) & (3) & (4) & (5) \\ \midrule %% TinyTableHeader
+RD estimator & \num{-2.49} & \num{61.88} & \num{63.64} & \num{53.36} & \num{15.74} \\
+& [\num{41.93}] & [\num{37.90}] & [\num{36.12}] & [\num{33.59}] & [\num{32.68}] \\
+& \num{0.95} & \num{0.10} & \num{0.08}* & \num{0.11} & \num{0.63} \\
+Eff.N.obs. & 202 & 95 & 106 & 120 & 412 \\
+Bandwidth & 14.68\% & 7\% & 8\% & 9\% & 100\% \\
+Type of Bandwidth & Optimal & Fixed & Fixed & Fixed & Fixed \\
+\bottomrule
+\end{talltblr}
+\end{table}

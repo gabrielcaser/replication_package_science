@@ -234,6 +234,7 @@ optimal_bw       <- models_death[[1]]$bws[[1]]
 optimal_bw2      <- models_death_2[[1]]$bws[[1]]
 optimal_bw_hosp  <- models_hosp[[1]]$bws[[1]]
 optimal_bw_hosp2 <- models_hosp_2[[1]]$bws[[1]]
+
 # Creating table death
 modelsummary(
   models_death,
@@ -326,6 +327,61 @@ modelsummary(
     check.names = FALSE
   )
 )
+
+# Placebo tables for candidate outcomes
+placebo_outcomes <- list(
+  df$renda_pc,
+  log(df$populacao),
+  df$idhm,
+  df$densidade,
+  df$per_populacao_homens,
+  df$pct_desp_recp_saude_mun,
+  df$tx_med_ch
+)
+placebo_titles <- c(
+  "Per capita income (2015)",
+  "Log Population",
+  "HDI",
+  "Density",
+  "% Male Population",
+  "% Health spending",
+  "Doctors"
+)
+placebo_files <- c(
+  "outputs/tables/estimates_placebo_renda_pc.tex",
+  "outputs/tables/estimates_placebo_log_pop.tex",
+  "outputs/tables/estimates_placebo_idhm.tex",
+  "outputs/tables/estimates_placebo_density.tex",
+  "outputs/tables/estimates_placebo_male_population.tex",
+  "outputs/tables/estimates_placebo_health_spending.tex",
+  "outputs/tables/estimates_placebo_doctors.tex"
+)
+
+for (i in seq_along(placebo_outcomes)) {
+  models_placebo <- run_rdrobust_models(df, state.d, year.d, poli, k, janela, placebo_outcomes[[i]])
+  modelsummary(
+    models_placebo,
+    estimate = "{estimate}",
+    statistic = c("[{std.error}]", "{p.value}{stars}"),
+    coef_rename = c("Robust" = "RD estimator"),
+    stars = c('*' = .1, '**' = .05, '***' = .01),
+    fmt = 2,
+    output = placebo_files[i],
+    title = paste0("Placebo: ", placebo_titles[i], " (One year before election) — RD estimates"),
+    coef_omit = "Corrected|Conventional",
+    coef_map = NULL,
+    add_rows = data.frame(
+      term = "Type of Bandwidth",
+      `Model 1` = "Optimal",
+      `Model 2` = "Fixed",
+      `Model 3` = "Fixed",
+      `Model 4` = "Fixed",
+      `Model 5` = "Fixed",
+      check.names = FALSE
+    )
+  )
+}
+
 # Baseline table
 
 renda_pc                <- rdrobust(df$renda_pc,                 df$X, p = poli, kernel = k,  bwselect = "mserd",  covs = covs_base, h = optimal_bw)
