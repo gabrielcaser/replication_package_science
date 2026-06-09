@@ -353,7 +353,8 @@ for (definition in c("strict", "broad")) {
                      restricao_circulacao,
                      restricao_transporte_publico,
                      total_nfi,
-                     stem_position # <-- adicionar aqui
+                     stem_position,
+                     general_deaths_2015_per_100k
     )
   
   

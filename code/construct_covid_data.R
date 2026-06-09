@@ -11,6 +11,21 @@ df_population <- df_population %>%
   mutate(coorte = recode(ano, '2020' = '2016', '2021' = '2020')) %>% 
   summarise(coorte = as.double(coorte), populacao, id_municipio = as.character(id_municipio), sigla_uf)
 
+# Load general municipality deaths from SIM for 2015 as placebo
+library(bigrquery)
+project_id <- "econometria-314719"
+query_general_deaths_2015 <- "
+SELECT
+  SUBSTR(id_municipio, 1, 6) AS id_municipio,
+  numero_obitos
+FROM `basedosdados.br_ms_sim.municipio`
+WHERE ano = 2015
+"
+df_general_deaths_2015 <- bq_table_download(bq_project_query(project_id, query_general_deaths_2015)) %>%
+  mutate(id_municipio = as.character(id_municipio),
+         general_deaths_2015 = as.numeric(numero_obitos)) %>%
+  select(id_municipio, general_deaths_2015)
+
 # Define date adjustments to create different datasets
 date_adjustments <- c(-30, -15, 0, 15, 30)
 
@@ -64,11 +79,16 @@ for (days_adjustment in date_adjustments) {
   
   sivep <- left_join(sivep, df_population, by = c("id_municipio", "coorte"))
   
+  # Merge general deaths 2015 from SIM
+  sivep <- left_join(sivep, df_general_deaths_2015, by = "id_municipio")
+  
   # Create outcome variables per 100k inhabitants
   sivep <- sivep %>% 
     dplyr::group_by(id_municipio, coorte) %>%
     dplyr::mutate(hosp_per_100k_inhabitants = (hosp_sivep / populacao) * 100000,
-                  deaths_sivep_per_100k_inhabitants = (deaths_sivep / populacao) * 100000) %>% 
+                  deaths_sivep_per_100k_inhabitants = (deaths_sivep / populacao) * 100000,
+                  general_deaths_2015 = replace_na(general_deaths_2015, 0),
+                  general_deaths_2015_per_100k = (general_deaths_2015 / populacao) * 100000) %>% 
     ungroup()
   
   # Save with appropriate filename
@@ -88,7 +108,7 @@ for (days_adjustment in date_adjustments) {
 rm(sivep_full, sivep)
 
 # Process 2015 data for placebo
-library(bigrquery)
+
 project_id <- "econometria-314719"
 
 query_2015 <- "

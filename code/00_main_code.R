@@ -44,17 +44,21 @@ start_date_covid_2016       = "2020-02-01"           # Start date for covid outc
 end_date_covid_2016         = "2021-02-28"           # End date for covid outcomes cohort 2016
 end_date_covid_2020         = "2021-12-31"           # End date for covid outcomes
 
+covid_suffix = "original"
+
 # Defining dataset
-data             = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem_definition, "_definition.Rds") 
-data_all_cohorts = paste0("rdd_data_", non_stem_college, "_", "", stem_definition, "_definition.Rds")
+data                  = paste0("rdd_data_", non_stem_college,"_", cohort_filter, stem_definition, "_definition.Rds") 
+data_all_cohorts      = paste0("rdd_data_", non_stem_college, "_", "", stem_definition, "_definition.Rds")
+data_regs             = paste0("rdd_data_", non_stem_college, "_", cohort_filter, stem_definition, "_definition_", covid_suffix, ".Rds")
+data_all_cohorts_regs = paste0("rdd_data_", non_stem_college, "_", "", stem_definition, "_definition_", covid_suffix, ".Rds")
 
 # Running scripts ---------------------------------------------------------
 # Create baseline data (health, ideology, political, npi, density, STEM classification)
-source("code/creates_baseline_data.R")
+#source("code/creates_baseline_data.R")
 
 # Create COVID data 
-source("code/creates_covid_data.R") #(requires large raw files -> contact authors for access)
-source("code/construct_covid_data.R")
+#source("code/creates_covid_data.R") #(requires large raw files -> contact authors for access)
+#source("code/construct_covid_data.R")
 
 # Create final RDD dataset
 source("code/01_create_dataset.R")
@@ -69,7 +73,7 @@ source("code/03_regressions_main.R")
 source("code/04_regressions_moderation.R")
 
 # Generate LaTeX parameters
-source("code/05_parameters_latexR.R")
+#source("code/05_parameters_latexR.R")
 
 # Create robustness tables
 source("code/06_robustness.R")

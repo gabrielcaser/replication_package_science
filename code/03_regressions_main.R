@@ -3,8 +3,8 @@
 
 # Oppening ----------------------------------------------------------------
 
-df             <- readRDS(paste(data_dir, "/final/", data, sep = ""))
-df_all_cohorts <- readRDS(paste(data_dir, "/final/", data_all_cohorts, sep = ""))
+df             <- readRDS(paste(data_dir, "/final/", data_regs, sep = ""))
+df_all_cohorts <- readRDS(paste(data_dir, "/final/", data_all_cohorts_regs, sep = ""))
 
 # Creating functions -----------------------------------
 
@@ -335,8 +335,11 @@ df_2015 <- readRDS(paste0(data_dir, "/intermediary/2015_data.rds"))
 # Merge with df
 df$Y_deaths_2015 <- df_2015$deaths_sivep_per_100k_inhabitants_2015[match(df$id_municipio, df_2015$id_municipio)]
 df$Y_hosp_2015 <- df_2015$hosp_per_100k_inhabitants_2015[match(df$id_municipio, df_2015$id_municipio)]
+df$Y_general_deaths_2015 <- df$general_deaths_2015_per_100k
+
 df$Y_deaths_2015[is.na(df$Y_deaths_2015)] <- 0
 df$Y_hosp_2015[is.na(df$Y_hosp_2015)] <- 0
+df$Y_general_deaths_2015[is.na(df$Y_general_deaths_2015)] <- 0
 
 placebo_outcomes <- list(
   df$renda_pc,
@@ -347,7 +350,8 @@ placebo_outcomes <- list(
   df$pct_desp_recp_saude_mun,
   df$tx_med_ch,
   df$Y_deaths_2015,
-  df$Y_hosp_2015
+  df$Y_hosp_2015,
+  df$Y_general_deaths_2015
 )
 placebo_titles <- c(
   "Per capita income (2015)",
@@ -358,7 +362,8 @@ placebo_titles <- c(
   "% Health spending (2015)",
   "Doctors (2015)",
   "Deaths by SRAG (2015)",
-  "Hospitalizations by SRAG (2015)"
+  "Hospitalizations by SRAG (2015)",
+  "General deaths (2015)"
 )
 placebo_files <- c(
   "outputs/tables/estimates_placebo_renda_pc.tex",
@@ -369,7 +374,8 @@ placebo_files <- c(
   "outputs/tables/estimates_placebo_health_spending.tex",
   "outputs/tables/estimates_placebo_doctors.tex",
   "outputs/tables/estimates_placebo_deaths_2015.tex",
-  "outputs/tables/estimates_placebo_hosp_2015.tex"
+  "outputs/tables/estimates_placebo_hosp_2015.tex",
+  "outputs/tables/estimates_placebo_general_deaths_2015.tex"
 )
 
 for (i in seq_along(placebo_outcomes)) {
@@ -544,6 +550,8 @@ df_robs_hosp      <- robust_check(df$Y_hosp,                       1, covs_full,
 df_robs_hosp_2    <- robust_check(df$Y_hosp,                       2, covs_full, k, df$X)
 df_robs_deaths    <- robust_check(df$Y_deaths_sivep,               1, covs_full, k, df$X)
 df_robs_deaths_2  <- robust_check(df$Y_deaths_sivep,               2, covs_full, k, df$X)
+df_robs_general_deaths_2015 <- robust_check(df$general_deaths_2015_per_100k, 1, covs_full, k, df$X)
+df_robs_general_deaths_2015_2 <- robust_check(df$general_deaths_2015_per_100k, 2, covs_full, k, df$X)
 df_robs_nfi       <- robust_check(df$total_nfi,                    1, covs_full, k, df$X)
 df_robs_masks     <- robust_check(df$mascaras,                     1, covs_full, k, df$X)
 df_robs_trans_pub <- robust_check(df$restricao_transporte_publico, 1, covs_full, k, df$X)
@@ -624,6 +632,37 @@ plot_deaths_robs_2 <- ggplot(df_robs_deaths_2, aes(x = bw, y = coef_conv)) +
   geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
   theme_clean
 
+plot_deaths_robs_2 <- add_optimal_point(plot_deaths_robs_2, df_robs_deaths_2, optimal_bw2)
+
+plot_general_deaths_2015_robs <- ggplot(df_robs_general_deaths_2015, aes(x = bw, y = coef_conv)) +
+  geom_point(na.rm = TRUE) +
+  xlim(0.00, 0.24) +
+  ylab("") +
+  xlab("bandwidth") +
+  theme(axis.title = element_text(size = 12),
+        title = element_text(size = 12)) +
+  ggtitle("(e) General deaths 2015 (placebo)") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
+
+plot_general_deaths_2015_robs <- add_optimal_point(plot_general_deaths_2015_robs, df_robs_general_deaths_2015, optimal_bw)
+
+plot_general_deaths_2015_robs_2 <- ggplot(df_robs_general_deaths_2015_2, aes(x = bw, y = coef_conv)) +
+  geom_point(na.rm = TRUE) +
+  xlim(0.00, 0.24) +
+  ylab("") +
+  xlab("bandwidth") +
+  theme(axis.title = element_text(size = 12),
+        title = element_text(size = 12)) +
+  ggtitle("(f) General deaths 2015 (placebo)") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
+  geom_ribbon(aes(ymin = ci_lower_conv, ymax = ci_higher_conv), alpha = 0.2) + 
+  theme_clean
+
+plot_general_deaths_2015_robs_2 <- add_optimal_point(plot_general_deaths_2015_robs_2, df_robs_general_deaths_2015_2, optimal_bw2)
 
 
 # Combinar gráficos de hospitalizações e mortes
@@ -631,6 +670,12 @@ graficos_juntos <- (plot_deaths_robs + plot_deaths_robs_2) / (plot_hosp_robs + p
 
 ggsave("outputs/figures/robust_outcomes.png", graficos_juntos,
        width = 11.00, height = 5.00, units = "in")
+
+# Combinar com placebo de mortes gerais 2015
+graficos_juntos_placebo <- (plot_deaths_robs + plot_deaths_robs_2 + plot_general_deaths_2015_robs) / (plot_hosp_robs + plot_hosp_robs_2 + plot_general_deaths_2015_robs_2)
+
+ggsave("outputs/figures/robust_outcomes_with_placebo_general_deaths_2015.png", graficos_juntos_placebo,
+       width = 16.00, height = 6.00, units = "in")
 
 # Gráficos de NPIs
 plot_nfi_robs <- ggplot(df_robs_nfi, aes(x = bw, y = coef_conv)) +
