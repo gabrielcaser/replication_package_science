@@ -1,0 +1,24 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={College Graduates Only (edu=7) — 2020 Cohort — RD estimates},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]},
+column{2,3,4}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{5}={1,2,3,4}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& h=8.2\% & h=9\% & h=10\% \\ \midrule %% TinyTableHeader
+STEM Background & \num{-22.88} & \num{-30.16} & \num{-39.75} \\
+& [\num{30.04}] & [\num{28.69}] & [\num{28.00}] \\
+& \num{0.45} & \num{0.29} & \num{0.16} \\
+Eff.N.obs. & 90 & 95 & 103 \\
+Bandwidth & 8.2\% & 9\% & 10\% \\
+State FE & Yes & Yes & Yes \\
+Mayor controls & Yes & Yes & Yes \\
+Sample & College only & College only & College only \\
+\bottomrule
+\end{talltblr}
+\end{table}

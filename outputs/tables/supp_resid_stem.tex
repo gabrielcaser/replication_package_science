@@ -1,0 +1,24 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Residualized STEM Treatment — RD estimates},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]},
+column{2,3,4}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{5}={1,2,3,4}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& h=7\% & h=8.2\% & h=9\% \\ \midrule %% TinyTableHeader
+STEM Background & \num{-42.02} & \num{-38.17} & \num{-36.22} \\
+& [\num{34.23}] & [\num{34.08}] & [\num{31.36}] \\
+& \num{0.22} & \num{0.26} & \num{0.25} \\
+Eff.N.obs. & 22 & 31 & 37 \\
+Bandwidth & 7\% & 8.2\% & 9\% \\
+State FE & Yes & Yes & Yes \\
+Mayor controls & Yes & Yes & Yes \\
+Treatment & Residualized & Residualized & Residualized \\
+\bottomrule
+\end{talltblr}
+\end{table}

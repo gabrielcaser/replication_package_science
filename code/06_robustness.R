@@ -246,6 +246,21 @@ models_sens <- lapply(seq_len(nrow(bw_specs)), function(i) {
 })
 names(models_sens) <- paste0("h=", bw_specs$bw*100, "% (", bw_specs$spec, ")")
 
+n_sens <- nrow(bw_specs)
+add_rows_7 <- data.frame(
+  term = c("Bandwidth", "Specification", "State FE"),
+  matrix(c(paste0("h=", bw_specs$bw * 100, "%"),
+            as.character(bw_specs$spec),
+            rep("Yes", n_sens)),
+         nrow = 3, byrow = TRUE,
+         dimnames = list(NULL, paste0("Model ", seq_len(n_sens)))),
+  check.names = FALSE
+)
+do.call(modelsummary, c(list(models_sens,
+  output   = "outputs/tables/supp_covariate_sensitivity.tex",
+  title    = "Covariate Sensitivity — RD estimates across specifications and bandwidths",
+  add_rows = add_rows_7),
+  ms_args))
 cat("\nTable saved to: outputs/tables/supp_covariate_sensitivity.tex\n")
 
 ################################################################################
@@ -289,6 +304,28 @@ cat(sprintf("\n  2016 edu=7: N=%d, STEM=%d | 2020 edu=7: N=%d, STEM=%d\n",
             sum(df$instrucao==7), sum(df$T[df$instrucao==7]),
             sum(df_2020$instrucao==7), sum(df_2020$T[df_2020$instrucao==7])))
 
+names(r16_edu7) <- paste0("h=", bws_edu7 * 100, "%")
+names(r20_edu7) <- paste0("h=", bws_edu7 * 100, "%")
+add_rows_8a <- data.frame(
+  term      = c("State FE", "Mayor controls", "Sample"),
+  `Model 1` = c("Yes", "Yes", "College only"),
+  `Model 2` = c("Yes", "Yes", "College only"),
+  `Model 3` = c("Yes", "Yes", "College only"),
+  check.names = FALSE
+)
+do.call(modelsummary, c(list(r16_edu7,
+  output   = "outputs/tables/supp_edu7_2016.tex",
+  title    = "College Graduates Only (edu=7) — 2016 Cohort — RD estimates",
+  add_rows = add_rows_8a),
+  ms_args))
+cat("    Saved: outputs/tables/supp_edu7_2016.tex\n")
+do.call(modelsummary, c(list(r20_edu7,
+  output   = "outputs/tables/supp_edu7_2020.tex",
+  title    = "College Graduates Only (edu=7) — 2020 Cohort — RD estimates",
+  add_rows = add_rows_8a),
+  ms_args))
+cat("    Saved: outputs/tables/supp_edu7_2020.tex\n")
+
 # ── 8b. RESIDUALIZED STEM TREATMENT ──────────────────────────────────────────
 cat("\n--- 8b: Residualized STEM treatment ---\n")
 
@@ -314,6 +351,23 @@ for (bw in c(0.07, 0.082, 0.09)) {
                 lbl, r$coef["Conventional",], r$se["Conventional",],
                 r$pv["Conventional",], r$N_h[1]+r$N_h[2]))
   })
+}
+
+if (length(resid_results) > 0) {
+  n_resid <- length(resid_results)
+  add_rows_8b <- data.frame(
+    term = c("State FE", "Mayor controls", "Treatment"),
+    matrix(c(rep("Yes", n_resid), rep("Yes", n_resid), rep("Residualized", n_resid)),
+           nrow = 3, byrow = TRUE,
+           dimnames = list(NULL, paste0("Model ", seq_len(n_resid)))),
+    check.names = FALSE
+  )
+  do.call(modelsummary, c(list(resid_results,
+    output   = "outputs/tables/supp_resid_stem.tex",
+    title    = "Residualized STEM Treatment — RD estimates",
+    add_rows = add_rows_8b),
+    ms_args))
+  cat("    Saved: outputs/tables/supp_resid_stem.tex\n")
 }
 
 # ── 8c. STEM × EDUCATION INTERACTION ─────────────────────────────────────────
@@ -355,6 +409,19 @@ for (i in 1:3) {
   cat(sprintf("  %-25s coef=%8.2f  boot_SE=%6.2f  boot_p=%5.3f %s\n",
               terms[i], coefs_int[i], boot_se[i], boot_p[i], sig))
 }
+
+tab_8c <- data.frame(
+  Term     = terms,
+  Estimate = round(coefs_int, 2),
+  Boot_SE  = round(boot_se, 2),
+  Boot_p   = round(boot_p, 3),
+  Sig      = ifelse(boot_p < 0.01, "***", ifelse(boot_p < 0.05, "**",
+             ifelse(boot_p < 0.10, "*", "")))
+)
+datasummary_df(tab_8c,
+  output = "outputs/tables/supp_stem_edu_interaction.tex",
+  title  = "STEM $\\times$ Education Interaction (OLS, h=8.2\\%, bootstrap SE)")
+cat("    Saved: outputs/tables/supp_stem_edu_interaction.tex\n")
 
 ################################################################################
 # SUPPLEMENTARY METHODS 9: ROBUSTNESS CHECKS

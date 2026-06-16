@@ -1,0 +1,24 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Covariate Sensitivity — RD estimates across specifications and bandwidths},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6,7,8,9,10,11,12,13}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{5}={1,2,3,4,5,6,7,8,9,10,11,12,13}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& h=7\% (A) & h=8.2\% (A) & h=9\% (A) & h=7\% (B) & h=8.2\% (B) & h=9\% (B) & h=7\% (C) & h=8.2\% (C) & h=9\% (C) & h=7\% (D) & h=8.2\% (D) & h=9\% (D) \\ \midrule %% TinyTableHeader
+STEM Background & \num{-38.75} & \num{-35.61} & \num{-32.80} & \num{-36.85} & \num{-36.01} & \num{-33.95} & \num{-32.65} & \num{-30.16} & \num{-27.49} & \num{-32.52} & \num{-29.73} & \num{-26.42} \\
+& [\num{16.94}] & [\num{16.84}] & [\num{15.94}] & [\num{16.85}] & [\num{16.86}] & [\num{15.97}] & [\num{17.05}] & [\num{17.09}] & [\num{16.22}] & [\num{17.05}] & [\num{17.08}] & [\num{16.20}] \\
+& \num{0.02}** & \num{0.03}** & \num{0.04}** & \num{0.03}** & \num{0.03}** & \num{0.03}** & \num{0.06}* & \num{0.08}* & \num{0.09}* & \num{0.06}* & \num{0.08}* & \num{0.10} \\
+Eff.N.obs. & 96 & 109 & 121 & 96 & 109 & 121 & 96 & 109 & 121 & 96 & 109 & 121 \\
+Bandwidth & 7\% & 8.2\% & 9\% & 7\% & 8.2\% & 9\% & 7\% & 8.2\% & 9\% & 7\% & 8.2\% & 9\% \\
+Bandwidth & h=7\% & h=8.2\% & h=9\% & h=7\% & h=8.2\% & h=9\% & h=7\% & h=8.2\% & h=9\% & h=7\% & h=8.2\% & h=9\% \\
+Specification & A & A & A & B & B & B & C & C & C & D & D & D \\
+State FE & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\
+\bottomrule
+\end{talltblr}
+\end{table}
