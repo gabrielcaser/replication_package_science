@@ -751,38 +751,38 @@ ggsave(paste0(output_dir, "/figures/bigsample_plots_outcomes.png"), plot = plots
 
 # ANCHOR Presentation Discontinuity Plots
 
-fit_full <- lm.fit(cbind(covs_full, 1), df$Y_deaths_sivep)
-df$Y_adj <- fit_full$residuals + mean(df$Y_deaths_sivep)
+fit_full <- lm.fit(cbind(covsZ, 1), df_plots$Y_deaths_sivep)
+df_plots$Y_adj <- fit_full$residuals + mean(df_plots$Y_deaths_sivep)
 
 # ── FILTER TO BANDWIDTH WINDOW ─────────────────────────────────────────────
-df_plot       <- df[abs(df$X) < h_plot, ]
-df_plot$side  <- ifelse(df_plot$X < 0, "Non-STEM wins", "STEM wins")
+#df_plot       <- df[abs(df$X) < h_plot, ]
+df_plots$side  <- ifelse(df_plots$X < 0, "Non-STEM wins", "STEM wins")
 
 # ── BIN MEANS (14 per side, evenly spaced) ─────────────────────────────────
 n_bins <- 14      # bins per side (matches paper's scale=2, esmv)
-make_bins <- function(x, y, n = n_bins) {
-  breaks <- seq(min(x), max(x), length.out = n + 1)
-  do.call(rbind, lapply(seq_len(n), function(i) {
-    idx <- x >= breaks[i] & x < breaks[i + 1]
-    if (sum(idx) < 2) return(NULL)
-    data.frame(x_mid  = (breaks[i] + breaks[i + 1]) / 2,
-               y_mean = mean(y[idx]),
-               n_obs  = sum(idx))
-  }))
-}
+  make_bins <- function(x, y, n = n_bins) {
+    breaks <- seq(min(x), max(x), length.out = n + 1)
+    do.call(rbind, lapply(seq_len(n), function(i) {
+      idx <- x >= breaks[i] & x < breaks[i + 1]
+      if (sum(idx) < 2) return(NULL)
+      data.frame(x_mid  = (breaks[i] + breaks[i + 1]) / 2,
+                y_mean = mean(y[idx]),
+                n_obs  = sum(idx))
+    }))
+  }
 
-bins_l <- make_bins(df_plot$X[df_plot$X <  0], df_plot$Y_adj[df_plot$X <  0])
-bins_r <- make_bins(df_plot$X[df_plot$X >= 0], df_plot$Y_adj[df_plot$X >= 0])
+bins_l <- make_bins(df_plots$X[df_plots$X <  0], df_plots$Y_adj[df_plots$X <  0])
+bins_r <- make_bins(df_plots$X[df_plots$X >= 0], df_plots$Y_adj[df_plots$X >= 0])
 bins_l$side <- "Non-STEM wins"
 bins_r$side <- "STEM wins"
 df_bins <- rbind(bins_l, bins_r)
 
 # ── FITTED LINES ───────────────────────────────────────────────────────────
-fit_l <- lm(Y_adj ~ X, data = df_plot[df_plot$X <  0, ])
-fit_r <- lm(Y_adj ~ X, data = df_plot[df_plot$X >= 0, ])
+fit_l <- lm(Y_adj ~ X, data = df_plots[df_plots$X <  0, ])
+fit_r <- lm(Y_adj ~ X, data = df_plots[df_plots$X >= 0, ])
 
-xl <- data.frame(X = seq(min(df_plot$X[df_plot$X <  0]), 0,                        length.out = 300))
-xr <- data.frame(X = seq(0,                               max(df_plot$X[df_plot$X >= 0]), length.out = 300))
+xl <- data.frame(X = seq(min(df_plots$X[df_plots$X <  0]), 0,                        length.out = 300))
+xr <- data.frame(X = seq(0,                               max(df_plots$X[df_plots$X >= 0]), length.out = 300))
 
 df_lines <- rbind(
   data.frame(X = xl$X, Y = predict(fit_l, xl), side = "Non-STEM wins"),
@@ -799,10 +799,10 @@ col_right_faint<- "#f4a582"
 fig2b <- ggplot() +
 
   # Layer 1: faint individual municipality dots (background)
-  geom_point(data = df_plot[df_plot$X <  0, ],
+  geom_point(data = df_plots[df_plots$X <  0, ],
              aes(x = X, y = Y_adj),
              colour = col_left_faint, size = 1.8, alpha = 0.45, shape = 16) +
-  geom_point(data = df_plot[df_plot$X >= 0, ],
+  geom_point(data = df_plots[df_plots$X >= 0, ],
              aes(x = X, y = Y_adj),
              colour = col_right_faint, size = 1.8, alpha = 0.45, shape = 16) +
 
@@ -825,6 +825,15 @@ fig2b <- ggplot() +
     values = c("Non-STEM wins" = col_left, "STEM wins" = col_right),
     name   = NULL
   ) +
+  scale_x_continuous(
+    breaks = seq(-0.08, 0.08, by = 0.02),
+    limits = c(-0.085, 0.085),
+    expand = expansion(mult = c(0, 0.02))
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 260, by = 50),
+    expand = expansion(mult = c(0, 0.02))
+  ) +
   labs(
     x     = "STEM candidate's margin of victory",
     y     = "Deaths per 100k inhabitants",
@@ -832,18 +841,21 @@ fig2b <- ggplot() +
   ) +
 
   # Paper theme
-  theme_minimal(base_size = 15) +
+  theme_minimal(base_size = 16) +
   theme(
-    plot.title      = element_text(hjust = 0.5),
-    axis.title      = element_text(size = 10, face = "plain"),
-    panel.grid      = element_blank(),
-    legend.position = "bottom",
-    legend.text     = element_text(size = 10),
+    plot.title      = element_text(hjust = 0.5, size = 14),
+    axis.title      = element_text(size = 14, face = "plain"),
+    axis.text       = element_text(size = 12, color = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = c(0.98, 0.98),
+    legend.justification = c("right", "top"),
+    legend.background = element_rect(fill = NA, colour = NA),
+    legend.key = element_rect(fill = NA, colour = NA),
+    legend.text     = element_text(size = 12),
+    legend.title    = element_blank(),
     axis.line       = element_line(colour = "black", linewidth = 0.4)
   )
-
-# ── SAVE ───────────────────────────────────────────────────────────────────
-dir.create("outputs/figures", showWarnings = FALSE, recursive = TRUE)
 
 ggsave(
   filename = "outputs/figures/fig2b_combined.png",
