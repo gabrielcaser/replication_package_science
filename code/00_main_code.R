@@ -61,22 +61,22 @@ data_all_cohorts_regs = paste0("rdd_data_", non_stem_college, "_", "", stem_defi
 #source("code/construct_covid_data.R")
 
 # Create final RDD dataset
-source("code/01_create_dataset.R")
+#source("code/01_create_dataset.R")
 
 # Generate summary statistics
-source("code/02_sum_stats.R")
+#source("code/02_sum_stats.R")
 
 # Run main regressions
-source("code/03_regressions_main.R")
+#source("code/03_regressions_main.R")
 
 # Run moderation analysis
-source("code/04_regressions_moderation.R")
+#source("code/04_regressions_moderation.R")
 
 # Generate LaTeX parameters
 #source("code/05_parameters_latexR.R")
 
 # Create robustness tables
-source("code/06_robustness.R")
+#source("code/06_robustness.R")
 
 print("All tables and figures have been reproduced and saved in the outputs folder.")
 # End of code -------------------------------------------------------------

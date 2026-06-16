@@ -88,14 +88,9 @@ df_mean <- df_mean %>%
   df_plot <- df_plot %>%
     mutate(month = ifelse(coorte == 2020, month + 12, month))
 
-  # Substituir coorte por 2016 quando month = 13 ou 14
+  # Replacing months
   df_plot <- df_plot %>%
     mutate(coorte = ifelse(month %in% c(13, 14), 1, coorte))
-
-  # Manter apenas municipios que estão em df_aux
-  #df_plot <- df_plot %>%
-    #filter(id_municipio %in% df_aux$id_municipio & abs(X) <= 0.082)
-   #filter(population >= 70000)
 
   # Aggregating to mean and then cumulative deaths
   df_plot <- df_plot %>%
@@ -284,7 +279,7 @@ datasummary_balance(
   output = paste0(output_dir, "/tables/table_sum_stats_groups.tex")
 )
 
-# Creating McCrary test figure
+# ANCHOR Creating McCrary test figure
 mctest  <- rddensity::rddensity(X = df$X, c = 0)
 mc_plot <- rddensity::rdplotdensity(mctest, df$X)
 png(file.path(output_dir, "figures", "mccrary_density_rddensity.png"),
@@ -294,7 +289,7 @@ dev.off()
 
 ## Figures for STEM candidates ---------------------------------------------------------
 
-### Main occupations (RAIS occupations)
+### ANCHOR Main occupations (RAIS occupations)
 
 profi <- df %>% 
   filter(stem_background == 1) %>%
@@ -340,7 +335,7 @@ ggsave(
 )
 
 
-### Main occupations (TSE occupations)
+### ANCHOR Main occupations (TSE occupations)
 
 # Ensure variable exists and non-missing values
 if(!"ocupacao" %in% names(df)) stop("A variável 'ocupacao' não existe em df")
@@ -531,13 +526,22 @@ ggsave(
   dpi = 600
 )
 
-# Creating map  ---------------------------------------------------------
+# ANCHOR Creating map  ---------------------------------------------------------
 
 ## states
 #utils::remove.packages('geobr')
 #devtools::install_github("ipeaGIT/geobr", subdir = "r-package")
 
-dados_mapa <- read_state(year=2015, showProgress = FALSE, simplified = FALSE)
+clear_geobr_cache <- function() {
+  cache_dir <- fs::path_temp("geobr")
+  if (dir.exists(cache_dir)) {
+    unlink(cache_dir, recursive = TRUE, force = TRUE)
+  }
+}
+
+clear_geobr_cache()
+
+dados_mapa <- read_state(year=2015, showProgress = FALSE, simplified = FALSE, cache = FALSE)
 
 sf2 <- states 
 
@@ -571,6 +575,8 @@ ggsave(
 )
 
 ## municipios
+
+clear_geobr_cache()
 
 mun <- read_municipality(year=2015, showProgress = FALSE, simplified = TRUE, cache = FALSE)
 
@@ -606,7 +612,7 @@ ggsave(
   dpi = 600
 )
 
-# Plots - Discontinuity  ----------------------------------------------
+# ANCHOR Plots - Discontinuity  ----------------------------------------------
 
 ## outcomes
 
@@ -742,3 +748,108 @@ ggsave(paste0(output_dir, "/figures/bigsample_plots_outcomes.png"), plot = plots
        width = 8.0,
        height = 5,
        units = "in")
+
+# ANCHOR Presentation Discontinuity Plots
+
+fit_full <- lm.fit(cbind(covs_full, 1), df$Y_deaths_sivep)
+df$Y_adj <- fit_full$residuals + mean(df$Y_deaths_sivep)
+
+# ── FILTER TO BANDWIDTH WINDOW ─────────────────────────────────────────────
+df_plot       <- df[abs(df$X) < h_plot, ]
+df_plot$side  <- ifelse(df_plot$X < 0, "Non-STEM wins", "STEM wins")
+
+# ── BIN MEANS (14 per side, evenly spaced) ─────────────────────────────────
+n_bins <- 14      # bins per side (matches paper's scale=2, esmv)
+make_bins <- function(x, y, n = n_bins) {
+  breaks <- seq(min(x), max(x), length.out = n + 1)
+  do.call(rbind, lapply(seq_len(n), function(i) {
+    idx <- x >= breaks[i] & x < breaks[i + 1]
+    if (sum(idx) < 2) return(NULL)
+    data.frame(x_mid  = (breaks[i] + breaks[i + 1]) / 2,
+               y_mean = mean(y[idx]),
+               n_obs  = sum(idx))
+  }))
+}
+
+bins_l <- make_bins(df_plot$X[df_plot$X <  0], df_plot$Y_adj[df_plot$X <  0])
+bins_r <- make_bins(df_plot$X[df_plot$X >= 0], df_plot$Y_adj[df_plot$X >= 0])
+bins_l$side <- "Non-STEM wins"
+bins_r$side <- "STEM wins"
+df_bins <- rbind(bins_l, bins_r)
+
+# ── FITTED LINES ───────────────────────────────────────────────────────────
+fit_l <- lm(Y_adj ~ X, data = df_plot[df_plot$X <  0, ])
+fit_r <- lm(Y_adj ~ X, data = df_plot[df_plot$X >= 0, ])
+
+xl <- data.frame(X = seq(min(df_plot$X[df_plot$X <  0]), 0,                        length.out = 300))
+xr <- data.frame(X = seq(0,                               max(df_plot$X[df_plot$X >= 0]), length.out = 300))
+
+df_lines <- rbind(
+  data.frame(X = xl$X, Y = predict(fit_l, xl), side = "Non-STEM wins"),
+  data.frame(X = xr$X, Y = predict(fit_r, xr), side = "STEM wins")
+)
+
+# ── COLOURS ────────────────────────────────────────────────────────────────
+col_left       <- "#2166ac"
+col_right      <- "#d6604d"
+col_left_faint <- "#92c5de"
+col_right_faint<- "#f4a582"
+
+# ── FIGURE ─────────────────────────────────────────────────────────────────
+fig2b <- ggplot() +
+
+  # Layer 1: faint individual municipality dots (background)
+  geom_point(data = df_plot[df_plot$X <  0, ],
+             aes(x = X, y = Y_adj),
+             colour = col_left_faint, size = 1.8, alpha = 0.45, shape = 16) +
+  geom_point(data = df_plot[df_plot$X >= 0, ],
+             aes(x = X, y = Y_adj),
+             colour = col_right_faint, size = 1.8, alpha = 0.45, shape = 16) +
+
+  # Layer 2: fitted lines
+  geom_line(data = df_lines,
+            aes(x = X, y = Y, colour = side),
+            linewidth = 2.0) +
+
+  # Layer 3: bin means as solid diamonds (foreground)
+  geom_point(data = df_bins,
+             aes(x = x_mid, y = y_mean, colour = side),
+             size = 3.5, shape = 18) +
+
+  # Cutoff line
+  geom_vline(xintercept = 0, linetype = "dashed",
+             colour = "black", linewidth = 0.8, alpha = 0.6) +
+
+  # Scales and labels
+  scale_colour_manual(
+    values = c("Non-STEM wins" = col_left, "STEM wins" = col_right),
+    name   = NULL
+  ) +
+  labs(
+    x     = "STEM candidate's margin of victory",
+    y     = "Deaths per 100k inhabitants",
+    title = ""
+  ) +
+
+  # Paper theme
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.title      = element_text(hjust = 0.5),
+    axis.title      = element_text(size = 10, face = "plain"),
+    panel.grid      = element_blank(),
+    legend.position = "bottom",
+    legend.text     = element_text(size = 10),
+    axis.line       = element_line(colour = "black", linewidth = 0.4)
+  )
+
+# ── SAVE ───────────────────────────────────────────────────────────────────
+dir.create("outputs/figures", showWarnings = FALSE, recursive = TRUE)
+
+ggsave(
+  filename = "outputs/figures/fig2b_combined.png",
+  plot     = fig2b,
+  width    = 8.0,
+  height   = 5.0,
+  units    = "in",
+  dpi      = 300
+)
